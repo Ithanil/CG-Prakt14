@@ -36,7 +36,7 @@
 	precision mediump float;
 
 	void main() {
-		gl_FragColor = vec4(0, 0, 0, 1);
+		gl_FragColor = vec4(1, 1.0/2.0, 1.0/5.0, 1);
 	}
 </script>
 
@@ -51,6 +51,8 @@
 		aspectratio,
 		PMat, MVMat, PMatLoc, MVMatLoc,
 		lastX, lastY, isMouseDown = false;
+	
+	var sphere_vertices = new Array(), sphere_normals = new Array(), sphere_indices = new Array();
 		
 	var lane_length = 18.29, lane_width = 1.05, lane_height = 0.1,
 		approach_width = 1.05, approach_length=4.57, approach_height = 0.1;
@@ -89,6 +91,8 @@
 
 		gl.clearColor(0.9, 0.9, 0.9, 1.0);
 
+		generate_sphere(20,40);
+		
 		/// Hier initialisieren wir unseren Vertex Buffer. 
 		/// NEU: Die Vertex-Daten laden wir beim Malen jedes mal neu!
 		vertexPosBufferObject = gl.createBuffer();
@@ -97,6 +101,10 @@
 		/// Das gleiche mit dem Index-Array!
 		indexBufferObject = gl.createBuffer();
 		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBufferObject);
+		
+		//gl.enableVertexAttribArray(normalAttribLoc); 
+		//var nb = new Float32Array(sphere_normals);
+		//gl.bindBuffer(gl.ARRAY_BUFFER, normalBufferObject);
 
 		vertexAttribLoc = gl.getAttribLocation(shaderProgram, "aPosCoord");
 		gl.vertexAttribPointer(vertexAttribLoc, 3, gl.FLOAT, false, 0, 0);
@@ -108,7 +116,43 @@
 		resizeCanvas();
 	}
 	
+	function generate_sphere(latitudes, longitudes) {
+		var theta = Math.PI / 2;
+		for (var j = 0; j <= latitudes; j++) {
+			var phi = 0;
+			for (var i = 0; i <= longitudes; i++) {
+				var v = [Math.cos(theta) * Math.sin(phi), Math.sin(theta), Math.cos(theta) * Math.cos(phi)];
+				for (var k = 0; k < 3; k++) {
+					sphere_vertices.push(v[k]);
+					sphere_normals.push(v[k]);
+				}
+
+				if (j > 0) {
+					sphere_indices.push((longitudes + 1) * (j - 1) + i);
+					sphere_indices.push((longitudes + 1) * j + i);
+				}
+				phi += 2 * Math.PI / longitudes;
+			}
+			theta -= Math.PI / latitudes;
+		}
+	}
 	
+	function draw_sphere() {
+		var vb = new Float32Array(sphere_vertices);
+		gl.bufferData(gl.ARRAY_BUFFER, vb, gl.DYNAMIC_DRAW);
+
+		//gl.enableVertexAttribArray(normalAttribLoc); 
+		//var nb = new Float32Array(sphere_normals);
+		//gl.bindBuffer(gl.ARRAY_BUFFER, normalBufferObject);
+		//gl.bufferData(gl.ARRAY_BUFFER, nb, gl.DYNAMIC_DRAW);
+		
+		var indexBuffer = new Uint16Array(sphere_indices);
+
+		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indexBuffer, gl.STATIC_DRAW);
+		
+		gl.drawElements(gl.TRIANGLE_STRIP, sphere_indices.length, gl.UNSIGNED_SHORT, 0);
+		
+	}
 
 	function drawScene() {
 		gl.clear(gl.COLOR_BUFFER_BIT);
@@ -144,11 +188,12 @@
 		draw_cube();
 		
 		MVPopMatrix();
-		mat4.scale(MVMat, [approach_width, 0, -approach_length]);
-		mat4.translate(MVMat, [1,-1,-1]);
+		MVPushMatrix();
+		
 		gl.uniformMatrix4fv(MVMatLoc, false, MVMat);
-		draw_cube();
-
+		draw_sphere();
+		
+		MVPopMatrix();
 	}
 
 	function draw_cube()
@@ -204,7 +249,7 @@
 
 	function MVPopMatrix() {
 		if (mvMatrixStack.length == 0) {
-		throw "Invalid popMatrix!";
+			throw "Invalid popMatrix!";
 		}
 		MVMat = mvMatrixStack.pop();
 	}
