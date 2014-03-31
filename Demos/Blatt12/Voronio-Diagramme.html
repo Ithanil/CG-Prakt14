@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+
+<head>
+	<meta charset="utf-8">
+	<title>STL Viewer</title>
+	<style>
+		html,
+		body {
+			width: 100%;
+			height: 100%;
+			margin: 0px;
+			overflow: hidden;
+			display: block;
+		}
+		#WebGLCanvas {
+			width: 100%;
+			height: 100%;
+		}
+	</style>
+</head>
+
+<script type="text/javascript" src="gl-matrix.js"></script>
+<script type="text/javascript" src="helperlib.js"></script>
+
+<script id="vshader" type="x-shader">
+	attribute vec3 aPosCoord;
+	attribute vec3 aNormal;
+	uniform mat4 uMVMat;
+	uniform mat4 uPMat;
+	uniform mat3 uNMat;
+
+	varying float vIntensity;
+
+	void main()
+	{
+		gl_Position = uPMat * uMVMat * vec4(aPosCoord, 1.0);
+		gl_PointSize = 10.;
+		vec3 n = -normalize(uNMat * aNormal);
+		vIntensity = max(n.z, 0.0);
+	}
+</script>
+
+<script id="fshader" type="x-shader">
+	precision mediump float;
+
+	varying float vIntensity;
+
+	void main()
+	{
+		gl_FragColor = vec4(vIntensity, 0.0, 0.0, 1.0);
+	}
+</script>
+
+<script type="text/javascript" src="Voronio-Diagramme.js"></script>
+
+<body>
+	<canvas id='WebGLCanvas'>
+	</canvas>
+
+</body>
+
+</html>

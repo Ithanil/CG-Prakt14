@@ -1,0 +1,731 @@
+﻿<!DOCTYPE html>
+
+<head>
+	<meta charset="utf-8">
+	<title>STL Viewer</title>
+	<style>
+		html,
+		body {
+			width: 100%;
+			height: 100%;
+			margin: 0px;
+			overflow: hidden;
+			display: block;
+		}
+		#WebGLCanvas {
+			width: 100%;
+			height: 100%;
+		}
+	</style>
+</head>
+
+<script type="text/javascript" src="gl-matrix.js"></script>
+
+<!-- SHADER PROGRAM 1 [ Aufgabe 1a ] -->
+<script id="vshader1" type="x-shader">
+	attribute vec3 aPosCoord;
+	attribute vec3 aNormal;
+	uniform mat4 uMVMat;
+	uniform mat4 uPMat;
+	uniform mat3 uNMat;
+
+	varying float vIntensity;
+	varying vec3 vNormal;
+
+	void main()
+	{
+		gl_Position = uPMat * uMVMat * vec4(aPosCoord, 1.0);
+		vec4 posi = gl_Position;
+		vec3 n = normalize(uNMat * aNormal);
+		vIntensity = (2.5-sqrt(posi.z*posi.z+posi.x*posi.x+posi.y*posi.y))/2.5;
+		if (vIntensity < 0.0) {
+			vIntensity = 0.0;
+		}
+		vNormal = n;
+	}
+</script>
+<script id="fshader1" type="x-shader">
+	precision mediump float;
+
+	varying float vIntensity;
+	varying vec3 vNormal;
+
+	void main()
+	{
+		gl_FragColor = vec4(vIntensity, vIntensity, vIntensity, 1.0);
+	}
+</script>
+
+<!-- SHADER PROGRAM 2 [ Aufgabe 1b ] -->
+<script id="vshader2" type="x-shader">
+	attribute vec3 aPosCoord;
+	attribute vec3 aNormal;
+	uniform mat4 uMVMat;
+	uniform mat4 uPMat;
+	uniform mat3 uNMat;
+
+	varying float vIntensity;
+	varying vec3 vNormal;
+
+	void main()
+	{
+	    gl_Position = uPMat * uMVMat * vec4(aPosCoord, 1.0);
+		vec3 n = normalize(uNMat * aNormal);
+		vNormal = n;
+	}
+</script>
+<script id="fshader2" type="x-shader">
+	precision mediump float;
+
+	varying float vIntensity;
+	varying vec3 vNormal;
+
+	void main()
+	{
+		gl_FragColor = vec4(vNormal.x, vNormal.y, vNormal.z, 1.0);
+	}
+</script>
+
+<!-- SHADER PROGRAM 3 [ Aufgabe 1c ] -->
+<script id="vshader3" type="x-shader">
+	attribute vec3 aPosCoord;
+	attribute vec3 aNormal;
+	uniform mat4 uMVMat;
+	uniform mat4 uPMat;
+	uniform mat3 uNMat;
+
+	varying float vIntensity;
+	varying vec3 vNormal;
+	varying float valpha;
+	varying vec4 vpos;
+
+	void main()
+	{
+		vpos = uPMat * uMVMat * vec4(aPosCoord,1);
+		gl_Position = vpos;
+	    //vec3 ez = vec3(0.0, 0.0, 1.0);
+		vec3 sicht = -normalize(vpos.xyz); 
+	    //vec3 sicht = -normalize(uNMat*vec3(vpos.x,vpos.y,vpos.z));
+		//vec3 sicht = normalize(uNMat * ez);
+		vec3 n = normalize(uNMat * aNormal);
+		vNormal = n;
+		valpha = abs(acos(dot(sicht,n)))/6.14;
+		gl_Position = uPMat * uMVMat * vec4(aPosCoord,1);
+		
+	}
+</script>
+<script id="fshader3" type="x-shader">
+	precision mediump float;
+
+	varying float vIntensity;
+	varying vec3 vNormal;
+	varying float valpha;
+	varying vec4 vpos;
+
+	void main()
+	{
+
+		gl_FragColor = vec4(1.0, 1.0, 1.0, valpha);
+	}
+</script>
+
+<!-- SHADER PROGRAM 4 [ Aufgabe 1d ] -->
+<script id="vshader4" type="x-shader">
+	attribute vec3 aPosCoord;
+	attribute vec3 aNormal;
+	uniform mat4 uMVMat;
+	uniform mat4 uPMat;
+	uniform mat3 uNMat;
+
+	varying vec3 vNormal;
+	varying float valpha;
+	varying vec4 vpos;
+
+	void main()
+	{
+	    vpos = uPMat * uMVMat * vec4(aPosCoord,1);
+		gl_Position = vpos;
+	    vec3 ez = vec3(-1.0, 0.5, 2.5); //choose position of light sorce here
+		vec3 sicht = normalize(ez); // namings are bad here sicht is not what it is named its the position of the light sorce
+		vec3 n = normalize(uNMat * aNormal);
+		vNormal = n;
+		valpha = abs(acos(dot(sicht,n)))/6.14;
+		
+	}
+</script>
+<script id="fshader4" type="x-shader">
+	precision mediump float;
+	varying float valpha;
+
+	void main()
+	{
+		//vec3 color3 = vec3(1.0, 0.0, 0.0) kan one not definde variables and vectors in the f-shader?
+		if (valpha > 0.1){
+			gl_FragColor = vec4(0.8, 0.,0. ,1. );
+		}
+		
+		if (valpha <= 0.1 && valpha>0.05 ){
+			gl_FragColor = vec4(0.8, 0.,0. ,0.6 );
+		}
+		
+		
+		if (valpha<=0.05 && valpha>0.02) {
+			gl_FragColor = vec4(0.8, 0., 0., 0.4);
+		}
+		
+		if (valpha<=0.02) {
+			gl_FragColor = vec4(0.8, 0., 0., 0.2);
+		}
+		//gl_FragColor = vec4(1.,0.,0.,1.);
+	}
+</script>
+
+<script type="text/javascript">
+	"use strict";
+
+	var gl, canvas, zoom, phi = 0,
+		theta = 0,
+		aspectratio,
+		PMat, MVMat, PMatLoc, MVMatLoc, NMatLoc,
+		vertexAttribLoc, normalAttribLoc, shaderProgram,shaderProgram1,shaderProgram2,shaderProgram3,shaderProgram4,
+		lastX, lastY, isMouseDown = false,
+		trackballOn = true;
+
+	var sCount = 0;
+	var sCountMax = 4; //Put number of shaders here
+
+	var projection_mode = 1; // 0: Parallelprojektion, 1:Perspektivische Projektion
+
+	var minX, minY, minZ, maxX, maxY, maxZ;
+	var qNow = quat4.create([0, 0, 0, 1]);
+
+	var vertices = new Array(),
+		vertexPosBufferObject, normalBufferObject;
+
+	function computeNormals(vertices)
+	{
+		var l = vertices.length / 9;
+		var normals = new Array();
+
+		for (var i = 0; i < l; i++)
+		{
+			var a = vec3.create([vertices[9 * i + 0], vertices[9 * i + 1], vertices[9 * i + 2]]);
+			var b = vec3.create([vertices[9 * i + 3], vertices[9 * i + 4], vertices[9 * i + 5]]);
+			var c = vec3.create([vertices[9 * i + 6], vertices[9 * i + 7], vertices[9 * i + 8]]);
+			var ba = vec3.subtract(b, a);
+			var ca = vec3.subtract(c, a);
+			var n = vec3.cross(ba, ca);
+			vec3.normalize(n);
+
+			for (var j = 0; j < 3; j++)
+			{
+				normals.push(n[0]);
+				normals.push(n[1]);
+				normals.push(n[2]);
+			}
+		}
+
+		return normals;
+	}
+	
+	function computeSmoothNormals(vertices) {
+	var nv = vertices.length/3;
+	var normals = new Array();
+
+	for(var i=0;i<nv/3;i++) {
+		var a = vec3.create([vertices[9*i+0],vertices[9*i+1],vertices[9*i+2]]);
+		var b = vec3.create([vertices[9*i+3],vertices[9*i+4],vertices[9*i+5]]);
+		var c = vec3.create([vertices[9*i+6],vertices[9*i+7],vertices[9*i+8]]);
+		var ba = vec3.subtract(b,a);
+		var ca = vec3.subtract(c,a);
+		var n = vec3.cross(ba,ca);
+		vec3.normalize(n);
+
+		for(var j=0;j<3;j++) {
+			normals.push(n[0]);
+			normals.push(n[1]);
+			normals.push(n[2]);
+		}
+	}
+
+	var vid = new Array();
+
+	for(var i=0;i<nv;i++)
+		vid.push(i);
+
+	function compare(a,b) {
+		if (vertices[3*a+0] < vertices[3*b+0]) return -1;
+		if (vertices[3*a+0] > vertices[3*b+0]) return  1;
+		if (vertices[3*a+1] < vertices[3*b+1]) return -1;
+		if (vertices[3*a+1] > vertices[3*b+1]) return  1;
+		if (vertices[3*a+2] < vertices[3*b+2]) return -1;
+		if (vertices[3*a+2] > vertices[3*b+2]) return  1;
+		return 0;
+	}
+
+	function dist(a,b) {
+		var dx = vertices[3*a+0]-vertices[3*b+0];
+		var dy = vertices[3*a+1]-vertices[3*b+1];
+		var dz = vertices[3*a+2]-vertices[3*b+2];
+		var len = dx*dx+dy*dy+dz*dz;
+		return Math.sqrt(len);
+	}
+
+	vid.sort(compare);
+
+	var l,r,eps = 1e-6;
+
+	l = r = 0;
+	while (r < nv) {
+		do {
+			r++;
+		} while ((r < nv) && (dist(vid[l],vid[r]) < eps));
+
+		var sx = 0, sy = 0,sz = 0;
+		for(var i=l;i<r;i++) {
+			sx += normals[3*vid[i]+0];
+			sy += normals[3*vid[i]+1];
+			sz += normals[3*vid[i]+2];
+		}
+
+		var len = Math.sqrt(sx*sx+sy*sy+sz*sz);
+		sx /= len;
+		sy /= len;
+		sz /= len;
+
+		for(var i=l;i<r;i++) {
+			normals[3*vid[i]+0] = sx;	
+			normals[3*vid[i]+1] = sy;	
+			normals[3*vid[i]+2] = sz;	
+		}
+		l = r;
+	}
+
+	return normals;
+    }
+
+	function boundingBox(vertices)
+	{
+		var n = vertices.length / 3;
+
+		minX = minY = minZ = Number.MAX_VALUE;
+		maxX = maxY = maxZ = -Number.MAX_VALUE;
+
+		for (var i = 0; i < n; i++)
+		{
+			var x = vertices[3 * i + 0];
+			if (x < minX) minX = x;
+			if (x > maxX) maxX = x;
+			var y = vertices[3 * i + 1];
+			if (y < minY) minY = y;
+			if (y > maxY) maxY = y;
+			var z = vertices[3 * i + 2];
+			if (z < minZ) minZ = z;
+			if (z > maxZ) maxZ = z;
+		}
+
+		zoom = maxX - minX;
+		if (maxY - minY > zoom) zoom = maxY - minY;
+		if (maxZ - minZ > zoom) zoom = maxZ - minZ;
+		zoom = 2 / zoom;
+	}
+
+	function loadstl(url)
+	{
+		var xhr = new XMLHttpRequest();
+
+		xhr.onload = function (event)
+		{
+			var dv = new DataView(event.target.response);
+			var nf = dv.getUint32(80, true);
+
+			if (dv.byteLength != 84 + 50 * nf)
+			{
+				alert("Invalid binary stl-file");
+				return;
+			}
+
+			for (var f = 0; f < nf; f++)
+			{
+				var pos = 84 + 50 * f;
+				dv.getFloat32(pos + 0, true);
+				dv.getFloat32(pos + 4, true);
+				dv.getFloat32(pos + 8, true);
+
+				for (var i = 1; i <= 3; i++)
+				{
+					vertices.push(dv.getFloat32(pos + 12 * i + 0, true));
+					vertices.push(dv.getFloat32(pos + 12 * i + 4, true));
+					vertices.push(dv.getFloat32(pos + 12 * i + 8, true));
+				}
+
+			}
+
+			var vertexBuffer = new Float32Array(vertices);
+
+			vertexPosBufferObject = gl.createBuffer();
+			gl.bindBuffer(gl.ARRAY_BUFFER, vertexPosBufferObject);
+			gl.bufferData(gl.ARRAY_BUFFER, vertexBuffer, gl.STATIC_DRAW);
+
+			vertexAttribLoc = gl.getAttribLocation(shaderProgram, "aPosCoord");
+			gl.vertexAttribPointer(vertexAttribLoc, 3, gl.FLOAT, false, 0, 0);
+			gl.enableVertexAttribArray(vertexAttribLoc);
+
+			var normalBuffer = new Float32Array(computeSmoothNormals(vertices));
+			// computeNormals ohne smoothing
+			
+			normalBufferObject = gl.createBuffer();
+			gl.bindBuffer(gl.ARRAY_BUFFER, normalBufferObject);
+			gl.bufferData(gl.ARRAY_BUFFER, normalBuffer, gl.STATIC_DRAW);
+
+			normalAttribLoc = gl.getAttribLocation(shaderProgram, "aNormal");
+			gl.vertexAttribPointer(normalAttribLoc, 3, gl.FLOAT, false, 0, 0);
+			gl.enableVertexAttribArray(normalAttribLoc);
+
+			boundingBox(vertices);
+
+			drawScene();
+		}
+
+		xhr.overrideMimeType('text/plain; charset=x-user-defined');
+		xhr.open('GET', url, true);
+		xhr.responseType = "arraybuffer";
+		xhr.send(null);
+	}
+
+	function webGLStart()
+	{
+		var vShader, fShader;
+
+		canvas = window.document.getElementById("WebGLCanvas");
+		canvas.onmousedown = mouseDown;
+		canvas.onmousemove = mouseMove;
+		canvas.onmouseup = mouseUp;
+		canvas.addEventListener('DOMMouseScroll', mouseWheelDOM, false);
+		canvas.addEventListener('mousewheel', mouseWheel, false);
+		document.addEventListener("keydown", keyDown, false);
+
+		try
+		{
+			gl = canvas.getContext("experimental-webgl");
+		}
+		catch (e)
+		{}
+		if (!gl)
+		{
+			window.alert("No webGL-Context");
+		}
+
+		shaderProgram1 = gl.createProgram();
+
+		vShader = gl.createShader(gl.VERTEX_SHADER);
+		gl.shaderSource(vShader, document.getElementById('vshader1').textContent);
+		gl.compileShader(vShader);
+		gl.attachShader(shaderProgram1, vShader);
+		fShader = gl.createShader(gl.FRAGMENT_SHADER);
+		gl.shaderSource(fShader, document.getElementById('fshader1').textContent);
+		gl.compileShader(fShader);
+		gl.attachShader(shaderProgram1, fShader);
+		gl.linkProgram(shaderProgram1);
+		gl.useProgram(shaderProgram1);
+
+		shaderProgram2 = gl.createProgram();
+
+		vShader = gl.createShader(gl.VERTEX_SHADER);
+		gl.shaderSource(vShader, document.getElementById('vshader2').textContent);
+		gl.compileShader(vShader);
+		gl.attachShader(shaderProgram2, vShader);
+		fShader = gl.createShader(gl.FRAGMENT_SHADER);
+		gl.shaderSource(fShader, document.getElementById('fshader2').textContent);
+		gl.compileShader(fShader);
+		gl.attachShader(shaderProgram2, fShader);
+		gl.linkProgram(shaderProgram2);
+		gl.useProgram(shaderProgram2);
+
+		shaderProgram3 = gl.createProgram();
+
+		vShader = gl.createShader(gl.VERTEX_SHADER);
+		gl.shaderSource(vShader, document.getElementById('vshader3').textContent);
+		gl.compileShader(vShader);
+		gl.attachShader(shaderProgram3, vShader);
+		fShader = gl.createShader(gl.FRAGMENT_SHADER);
+		gl.shaderSource(fShader, document.getElementById('fshader3').textContent);
+		gl.compileShader(fShader);
+		gl.attachShader(shaderProgram3, fShader);
+		gl.linkProgram(shaderProgram3);
+		gl.useProgram(shaderProgram3);
+
+		shaderProgram4 = gl.createProgram();
+
+		vShader = gl.createShader(gl.VERTEX_SHADER);
+		gl.shaderSource(vShader, document.getElementById('vshader4').textContent);
+		gl.compileShader(vShader);
+		gl.attachShader(shaderProgram4, vShader);
+		fShader = gl.createShader(gl.FRAGMENT_SHADER);
+		gl.shaderSource(fShader, document.getElementById('fshader4').textContent);
+		gl.compileShader(fShader);
+		gl.attachShader(shaderProgram4, fShader);
+		gl.linkProgram(shaderProgram4);
+		gl.useProgram(shaderProgram4);
+
+		shaderProgram = shaderProgram1;  // default shader ist 1
+		gl.useProgram(shaderProgram);
+
+		gl.clearColor(0.9, 0.9, 0.9, 1.0);
+		gl.clearDepth(1.0);
+
+		gl.enable(gl.DEPTH_TEST);
+		gl.depthFunc(gl.LEQUAL);
+
+		
+		//gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+		//gl.disable(gl.DEPTH_TEST);
+		//gl.enable(gl.BLEND);
+
+		
+		PMatLoc = gl.getUniformLocation(shaderProgram, "uPMat");
+		MVMatLoc = gl.getUniformLocation(shaderProgram, "uMVMat");
+		NMatLoc = gl.getUniformLocation(shaderProgram, "uNMat");
+
+		resizeCanvas();
+
+		//	loadstl("sphere.stl");
+		//	loadstl("buddha.stl");
+		//	loadstl("bunny.stl");
+		loadstl("skull.stl");
+		//	loadstl("dragon.stl");
+		//	loadstl("hand.stl");
+		//	loadstl("angel.stl");
+	}
+
+	function drawScene()
+	{
+		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+		if (vertices.length == 0) return;
+
+		PMat = new mat4.create();
+		mat4.identity(PMat);
+
+		if (projection_mode == 0)
+		{
+			if (aspectratio > 1.0) mat4.ortho(-aspectratio, aspectratio, -1, 1, 1, 5, PMat);
+			else mat4.ortho(-1, 1, -aspectratio, aspectratio, 1, 5, PMat);
+		}
+		else if (projection_mode == 1)
+			mat4.perspective(45, aspectratio, 1, 5, PMat);
+
+		gl.uniformMatrix4fv(PMatLoc, false, PMat);
+
+		MVMat = new mat4.create();
+		mat4.identity(MVMat);
+		mat4.translate(MVMat, [0, 0, -3]); /// Wir schieben die Szene in das Frustum f"ur die persp. Projektion
+
+		if (trackballOn)
+		{
+			var R = new mat4.create();
+			quat4.toMat4(qNow, R);
+			mat4.multiply(MVMat, R);
+		}
+		else
+		{
+			mat4.rotateX(MVMat, theta * Math.PI / 180);
+			mat4.rotateY(MVMat, phi * Math.PI / 180);
+		}
+
+		mat4.scale(MVMat, [zoom, zoom, zoom]);
+		mat4.translate(MVMat, [-(minX + maxX) / 2, -(minY + maxY) / 2, -(minZ + maxZ) / 2]);
+
+		var NMat = new mat3.create();
+		//	mat4.toMat3(MVMat,NMat);
+		mat4.toInverseMat3(MVMat, NMat);
+		mat3.transpose(NMat, NMat);
+
+        // Auch die Zeile ist oben schon
+		gl.uniformMatrix4fv(PMatLoc, false, PMat);
+		gl.uniformMatrix4fv(MVMatLoc, false, MVMat);
+		gl.uniformMatrix3fv(NMatLoc, false, NMat);
+
+		//Warum ist das hier nochmal drinne man braucht es doch garnicht. Es ist schon oben
+
+		gl.bindBuffer(gl.ARRAY_BUFFER, vertexPosBufferObject);
+		gl.vertexAttribPointer(vertexAttribLoc, 3, gl.FLOAT, false, 0, 0);
+		gl.enableVertexAttribArray(vertexAttribLoc);
+
+		gl.bindBuffer(gl.ARRAY_BUFFER, normalBufferObject);
+		gl.vertexAttribPointer(normalAttribLoc, 3, gl.FLOAT, false, 0, 0);
+		gl.enableVertexAttribArray(normalAttribLoc);
+
+		gl.drawArrays(gl.TRIANGLES, 0, vertices.length / 3)
+	}
+
+	function trackball(u, v)
+	{
+		var uxv = vec3.create();
+		vec3.cross(u, v, uxv);
+		var d = vec3.dot(u, v);
+		return quat4.create([uxv[0], uxv[1], uxv[2], 1.0 + d]);
+	}
+
+	function mouseToTrackball(x, y)
+	{
+		var v = new MatrixArray(3);
+
+		if (canvas.width > canvas.height)
+		{
+			v[0] = (2.0 * x - canvas.width) / canvas.height;
+			v[1] = 1.0 - y * 2.0 / canvas.height;
+		}
+		else
+		{
+			v[0] = (2.0 * x - canvas.width) / canvas.width;
+			v[1] = (canvas.height - 2.0 * y) / canvas.width;
+		}
+		var d = v[0] * v[0] + v[1] * v[1];
+		if (d > 1.0)
+		{
+			v[2] = 0.0;
+			v[0] /= Math.sqrt(d);
+			v[1] /= Math.sqrt(d);
+		}
+		else v[2] = Math.sqrt(1.0 - d * d);
+
+		return v;
+	}
+
+	function mouseWheelDOM(event)
+	{
+		if (event.detail > 0) zoom *= 1.05;
+		else zoom /= 1.05;
+		drawScene();
+	}
+
+	function mouseWheel(event)
+	{
+		if (event.wheelDelta < 0) zoom *= 1.05;
+		else zoom /= 1.05;
+		drawScene();
+	}
+
+	function mouseDown(event)
+	{
+		isMouseDown = true;
+		lastX = event.clientX;
+		lastY = event.clientY;
+	}
+
+	function mouseUp(event)
+	{
+		isMouseDown = false;
+	}
+
+	function mouseMove(event)
+	{
+		if (!isMouseDown) return;
+
+		var p1 = mouseToTrackball(lastX, lastY);
+		var p2 = mouseToTrackball(event.clientX, event.clientY);
+
+		if (trackballOn)
+		{
+			var q = trackball(p1, p2);
+			quat4.multiply(q, qNow, qNow);
+			quat4.normalize(qNow);
+		}
+		else
+		{
+			phi += (event.clientX - lastX) / 5;
+			theta += (event.clientY - lastY) / 5;
+		}
+
+		lastX = event.clientX;
+		lastY = event.clientY;
+
+		drawScene();
+	}
+
+
+	function keyDown(event)
+	{
+
+		switch (event.keyCode)
+		{
+		case 83: //s
+		  sCount = (sCount + 1)%sCountMax
+		  if (sCount==0) {
+		  gl.clearColor(0.9, 0.9, 0.9, 1.0);
+		  shaderProgram = shaderProgram1;
+		  }
+		  if (sCount==1) {
+		  gl.clearColor(0.9, 0.9, 0.9, 1.0);
+		  shaderProgram = shaderProgram2;
+		  }
+		  if (sCount==2) {
+		  gl.clearColor(0.0, 0.0, 0.0, 1.0);
+		  shaderProgram = shaderProgram3;
+		  gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+		gl.disable(gl.DEPTH_TEST);
+		gl.enable(gl.BLEND);
+		  }
+          if (sCount==3) {
+          gl.clearColor(0.9, 0.9, 0.9, 1.0);
+          shaderProgram = shaderProgram4;
+		  gl.enable(gl.DEPTH_TEST);
+		gl.disable(gl.BLEND);
+          }
+          gl.useProgram(shaderProgram);
+          PMatLoc = gl.getUniformLocation(shaderProgram, "uPMat");
+		  MVMatLoc = gl.getUniformLocation(shaderProgram, "uMVMat");
+		  NMatLoc = gl.getUniformLocation(shaderProgram, "uNMat");
+          break;
+
+		case 37: //Left
+			break;
+
+		case 38: //Up
+			break;
+
+		case 39: //right
+			break;
+
+		case 40: //Down
+			break;
+
+		case 32: //Key Space
+			break;
+
+		case 80: /// Key P
+			projection_mode = (projection_mode + 1) % 2;
+			break;
+
+		default:
+			return;
+		}
+		drawScene();
+	}
+
+
+	function resizeCanvas()
+	{
+		if (canvas.width != canvas.clientWidth || canvas.height != canvas.clientHeight)
+		{
+			canvas.width = canvas.clientWidth;
+			canvas.height = canvas.clientHeight;
+		}
+		aspectratio = canvas.width / canvas.height;
+		gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+		drawScene();
+	}
+
+	window.addEventListener('load', webGLStart);
+	window.addEventListener('resize', resizeCanvas);
+</script>
+
+<body>
+	<canvas id='WebGLCanvas'>
+	</canvas>
+
+</body>
+
+</html>
+
