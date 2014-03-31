@@ -52,7 +52,8 @@
 		PMat, MVMat, PMatLoc, MVMatLoc,
 		lastX, lastY, isMouseDown = false;
 		
-	var lane_length = 18.29, lane_width = 1.05, lane_height = 0.1;
+	var lane_length = 18.29, lane_width = 1.05, lane_height = 0.1,
+		approach_width = 1.05, approach_length=4.57, approach_height = 0.1;
 
 	function webGLStart() {
 		var shaderProgram, vShader, fShader, vertexAttribLoc,
@@ -135,14 +136,19 @@
 		mat4.rotateY(MVMat, phi * Math.PI / 180); ///drehung um die Welt-Y-Achse
 		mat4.scale(MVMat, [zoom, zoom, zoom]);
 
-
+		MVPushMatrix();
+		
 		mat4.scale(MVMat, [lane_width, 0, lane_length]);
 		mat4.translate(MVMat, [1,-1,-1]);
-
 		gl.uniformMatrix4fv(MVMatLoc, false, MVMat);
-
-		/// Hier wird der W"urfel gemalt!
 		draw_cube();
+		
+		MVPopMatrix();
+		mat4.scale(MVMat, [approach_width, 0, -approach_length]);
+		mat4.translate(MVMat, [1,-1,-1]);
+		gl.uniformMatrix4fv(MVMatLoc, false, MVMat);
+		draw_cube();
+
 	}
 
 	function draw_cube()
@@ -166,7 +172,8 @@
 
 		gl.lineWidth(2.0);
 		//gl.drawArrays(gl.POINTS, 0, 4); /// Malt die ersten 4 Punkte, um Hintergrund von Vordergrund zu unterscheiden
-		gl.drawElements(gl.LINES, indexBuffer.length, gl.UNSIGNED_SHORT, 0)
+		//gl.drawElements(gl.LINES, indexBuffer.length, gl.UNSIGNED_SHORT, 0);
+		gl.drawElements(gl.TRIANGLE_STRIP, vertexBuffer.length, gl.UNSIGNED_SHORT, 0);
 	}
 
 	function draw_disc()
@@ -185,16 +192,17 @@
 
 		gl.drawArrays(gl.LINE_LOOP, 0, vertexBuffer.length/3);
 	}
+	
 	var mvMatrixStack = [];
 	var pMatrix = mat4.create();
 
-	function mvPushMatrix() {
+	function MVPushMatrix() {
 		var copy = mat4.create();
 		mat4.set(MVMat, copy);
 		mvMatrixStack.push(copy);
 	}		
 
-	function mvPopMatrix() {
+	function MVPopMatrix() {
 		if (mvMatrixStack.length == 0) {
 		throw "Invalid popMatrix!";
 		}
