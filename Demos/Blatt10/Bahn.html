@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+
+<head>
+	<meta charset="utf-8">
+	<title>Hello 3D</title>
+	<style>
+		html,
+		body {
+			width: 100%;
+			height: 100%;
+			margin: 0px;
+			overflow: hidden;
+			display: block;
+		}
+		#WebGLCanvas {
+			width: 100%;
+			height: 100%;
+		}
+	</style>
+</head>
+
+<script type="text/javascript" src="gl-matrix.js"></script>
+
+<script id="vshader" type="x-shader">
+	attribute vec3 aPosCoord;
+	uniform mat4 uMVMat;
+	uniform mat4 uPMat;
+
+	void main() {
+		gl_PointSize = 8.0;
+		gl_Position = uPMat * uMVMat * vec4(aPosCoord, 1);
+	}
+</script>
+
+<script id="fshader" type="x-shader">
+	precision mediump float;
+
+	void main() {
+		gl_FragColor = vec4(0, 0, 0, 1);
+	}
+</script>
+
+<script type="text/javascript">
+	"use strict";
+
+	var gl, canvas, zoom = 0.1,
+		phi = 0,
+		theta = 0,
+		dreh = 0,
+		knick = 0,
+		aspectratio,
+		PMat, MVMat, PMatLoc, MVMatLoc,
+		lastX, lastY, isMouseDown = false;
+		
+	var lane_length = 18.29, lane_width = 1.05, lane_height = 0.1;
+
+	function webGLStart() {
+		var shaderProgram, vShader, fShader, vertexAttribLoc,
+			vertexBuffer, vertexPosBufferObject, indexBufferObject;
+
+		canvas = window.document.getElementById("WebGLCanvas");
+		canvas.onmousedown = mouseDown;
+		canvas.onmousemove = mouseMove;
+		canvas.onmouseup = mouseUp;
+		canvas.addEventListener('DOMMouseScroll', mouseWheelDOM, false);
+		canvas.addEventListener('mousewheel', mouseWheel, false);
+		document.addEventListener("keydown", keyDown, false);
+
+		try {
+			gl = canvas.getContext("experimental-webgl");
+		} catch (e) {}
+		if (!gl) {
+			window.alert("No webGL-Context");
+		}
+
+		shaderProgram = gl.createProgram();
+
+		vShader = gl.createShader(gl.VERTEX_SHADER);
+		gl.shaderSource(vShader, document.getElementById('vshader').textContent);
+		gl.compileShader(vShader);
+		gl.attachShader(shaderProgram, vShader);
+		fShader = gl.createShader(gl.FRAGMENT_SHADER);
+		gl.shaderSource(fShader, document.getElementById('fshader').textContent);
+		gl.compileShader(fShader);
+		gl.attachShader(shaderProgram, fShader);
+		gl.linkProgram(shaderProgram);
+		gl.useProgram(shaderProgram);
+
+		gl.clearColor(0.9, 0.9, 0.9, 1.0);
+
+		/// Hier initialisieren wir unseren Vertex Buffer. 
+		/// NEU: Die Vertex-Daten laden wir beim Malen jedes mal neu!
+		vertexPosBufferObject = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, vertexPosBufferObject);
+
+		/// Das gleiche mit dem Index-Array!
+		indexBufferObject = gl.createBuffer();
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBufferObject);
+
+		vertexAttribLoc = gl.getAttribLocation(shaderProgram, "aPosCoord");
+		gl.vertexAttribPointer(vertexAttribLoc, 3, gl.FLOAT, false, 0, 0);
+		gl.enableVertexAttribArray(vertexAttribLoc);
+
+		PMatLoc = gl.getUniformLocation(shaderProgram, "uPMat");
+		MVMatLoc = gl.getUniformLocation(shaderProgram, "uMVMat");
+
+		resizeCanvas();
+	}
+	
+	
+
+	function drawScene() {
+		gl.clear(gl.COLOR_BUFFER_BIT);
+		var projection_mode = 0;
+		///Hier erstellen wir die projection matrix
+		PMat = new mat4.create();
+		mat4.identity(PMat);
+		if (aspectratio > 1.0) mat4.scale(PMat, [1.0 / aspectratio, 1.0, 1.0]);
+			else mat4.scale(PMat, [1.0, aspectratio, 1.0]);
+		
+		if (projection_mode == 0)
+		{
+			if (aspectratio > 1.0) mat4.ortho(-aspectratio, aspectratio, -1, 1, -1, 5, PMat);
+			else mat4.ortho(-1, 1, -aspectratio, aspectratio, 1, 5, PMat);
+		}
+		else if (projection_mode == 1)
+			mat4.perspective(45, aspectratio, 0.1, 10, PMat);
+	
+		/// Die Projection matrix wird "ubergeben	
+		gl.uniformMatrix4fv(PMatLoc, false, PMat);
+
+		MVMat = new mat4.create();
+		mat4.identity(MVMat);
+		mat4.rotateX(MVMat, theta * Math.PI / 180); /// dreung um die Welt-X-Achse
+		mat4.rotateY(MVMat, phi * Math.PI / 180); ///drehung um die Welt-Y-Achse
+		mat4.scale(MVMat, [zoom, zoom, zoom]);
+
+
+		mat4.scale(MVMat, [lane_width, 0, lane_length]);
+		mat4.translate(MVMat, [1,-1,-1]);
+
+		gl.uniformMatrix4fv(MVMatLoc, false, MVMat);
+
+		/// Hier wird der W"urfel gemalt!
+		draw_cube();
+	}
+
+	function draw_cube()
+	{
+		var vertexBuffer = new Float32Array(
+		[-1, -1, -1,
+			1, -1, -1, 
+			-1, 1, -1,
+			1, 1, -1, 
+			-1, -1, 1,
+			1, -1, 1, 
+			-1, 1, 1,
+			1, 1, 1
+		]);
+
+		gl.bufferData(gl.ARRAY_BUFFER, vertexBuffer, gl.DYNAMIC_DRAW);
+
+		var indexBuffer = new Uint16Array([0, 1, 1, 3, 3, 2, 2, 0, 4, 5, 5, 7, 7, 6, 6, 4, 0, 4, 1, 5, 2, 6, 3, 7]);
+
+		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indexBuffer, gl.DYNAMIC_DRAW);
+
+		gl.lineWidth(2.0);
+		//gl.drawArrays(gl.POINTS, 0, 4); /// Malt die ersten 4 Punkte, um Hintergrund von Vordergrund zu unterscheiden
+		gl.drawElements(gl.LINES, indexBuffer.length, gl.UNSIGNED_SHORT, 0)
+	}
+
+	function draw_disc()
+	{
+
+		///Achtung! Hier wird derzeit nur ein gleichseitiges Dreieck auf dem Ursprungskreis
+		///mit Radius 1 in der x/y-Ebene gemalt!
+		var sqrt3 = Math.sqrt( 3.0);
+		var vertexBuffer = new Float32Array(
+			[ 0, 1, 0,
+				-sqrt3/2.0, -0.5, 0, 
+				sqrt3/2.0, -0.5, 0 
+		]);
+
+		gl.bufferData(gl.ARRAY_BUFFER, vertexBuffer, gl.DYNAMIC_DRAW);
+
+		gl.drawArrays(gl.LINE_LOOP, 0, vertexBuffer.length/3);
+	}
+	var mvMatrixStack = [];
+	var pMatrix = mat4.create();
+
+	function mvPushMatrix() {
+		var copy = mat4.create();
+		mat4.set(MVMat, copy);
+		mvMatrixStack.push(copy);
+	}		
+
+	function mvPopMatrix() {
+		if (mvMatrixStack.length == 0) {
+		throw "Invalid popMatrix!";
+		}
+		MVMat = mvMatrixStack.pop();
+	}
+	
+	function mouseWheelDOM(event) {
+		if (event.detail > 0) zoom *= 1.05;
+		else zoom /= 1.05;
+		drawScene();
+	}
+
+	function mouseWheel(event) {
+		if (event.wheelDelta < 0) zoom *= 1.05;
+		else zoom /= 1.05;
+		drawScene();
+	}
+
+	function mouseDown(event) {
+		isMouseDown = true;
+		lastX = event.clientX;
+		lastY = event.clientY;
+	}
+
+	function mouseUp(event) {
+		isMouseDown = false;
+	}
+
+	function mouseMove(event) {
+		if (!isMouseDown) return;
+
+		var dX = event.clientX - lastX;
+		var dY = event.clientY - lastY;
+
+		phi += dX / 5;
+		theta += dY / 5;
+
+		lastX = event.clientX;
+		lastY = event.clientY;
+
+		drawScene();
+	}
+
+	function keyDown(event) {
+
+		switch(event.keyCode) {
+
+      case 65: ///Key A
+         dreh = (dreh + 1) % 360;
+         break;
+      case 68: ///Key D
+         dreh = (dreh - 1) % 360;
+         break;
+      case 87: ///Key W
+         knick = (knick + 1) % 360;
+         break;
+      case 83: ///Key S
+         knick = (knick - 1) % 360;
+         break;
+      default:
+         break;
+		}
+		drawScene();
+	}
+
+	function resizeCanvas() {
+		if (canvas.width != canvas.clientWidth || canvas.height != canvas.clientHeight) {
+			canvas.width = canvas.clientWidth;
+			canvas.height = canvas.clientHeight;
+		}
+		aspectratio = canvas.width / canvas.height;
+		gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+		drawScene();
+	}
+
+	window.addEventListener('load', webGLStart);
+	window.addEventListener('resize', resizeCanvas);
+</script>
+
+<body>
+	<canvas id='WebGLCanvas'>
+	</canvas>
+
+</body>
+
+</html>
