@@ -23,20 +23,27 @@
 
 <script id="vshader" type="x-shader">
 	attribute vec3 aPosCoord;
+	attribute vec3 aNormal;
 	uniform mat4 uMVMat;
 	uniform mat4 uPMat;
-
+		uniform mat3 uNMat;
+	
+	varying float vIntensity;
 	void main() {
-		gl_PointSize = 8.0;
 		gl_Position = uPMat * uMVMat * vec4(aPosCoord, 1);
+		vec3 n = normalize(uNMat * aNormal);
+		vIntensity = max(n.z, 0.0);
 	}
 </script>
 
 <script id="fshader" type="x-shader">
 	precision mediump float;
-
+	uniform vec4 uColor;
+	varying float vIntensity;
+	
 	void main() {
-		gl_FragColor = vec4(1, 1.0/2.0, 1.0/5.0, 1);
+		//gl_FragColor = vec4(vIntensity*uColor[0],vIntensity*uColor[1],vIntensity*uColor[2],uColor[3]);
+		gl_FragColor = uColor;
 	}
 </script>
 
@@ -49,7 +56,8 @@
 		dreh = 0,
 		knick = 0,
 		aspectratio,
-		PMat, MVMat, PMatLoc, MVMatLoc,
+		PMat, MVMat, PMatLoc, MVMatLoc, colorLoc, 
+		NMatLoc, normalAttribLoc, normalBufferObject,
 		lastX, lastY, isMouseDown = false;
 	
 	var sphere_vertices = new Array(), sphere_normals = new Array(), sphere_indices = new Array();
@@ -90,6 +98,8 @@
 		gl.useProgram(shaderProgram);
 
 		gl.clearColor(0.9, 0.9, 0.9, 1.0);
+		colorLoc = gl.getUniformLocation(shaderProgram, "uColor");
+
 
 		generate_sphere(20,40);
 		
@@ -102,17 +112,22 @@
 		indexBufferObject = gl.createBuffer();
 		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBufferObject);
 		
-		//gl.enableVertexAttribArray(normalAttribLoc); 
-		//var nb = new Float32Array(sphere_normals);
-		//gl.bindBuffer(gl.ARRAY_BUFFER, normalBufferObject);
-
 		vertexAttribLoc = gl.getAttribLocation(shaderProgram, "aPosCoord");
 		gl.vertexAttribPointer(vertexAttribLoc, 3, gl.FLOAT, false, 0, 0);
 		gl.enableVertexAttribArray(vertexAttribLoc);
 
+		
+		normalBufferObject = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, normalBufferObject);
+		
+		normalAttribLoc = gl.getAttribLocation(shaderProgram, "aNormal");
+		gl.vertexAttribPointer(normalAttribLoc, 3, gl.FLOAT, false, 0, 0);
+		gl.enableVertexAttribArray(normalAttribLoc);
+		
 		PMatLoc = gl.getUniformLocation(shaderProgram, "uPMat");
 		MVMatLoc = gl.getUniformLocation(shaderProgram, "uMVMat");
-
+		NMatLoc = gl.getUniformLocation(shaderProgram, "uNMat");
+		
 		resizeCanvas();
 	}
 	
@@ -139,17 +154,19 @@
 	
 	function draw_sphere() {
 		var vb = new Float32Array(sphere_vertices);
+		gl.bindBuffer(gl.ARRAY_BUFFER, vertexPosBufferObject);
 		gl.bufferData(gl.ARRAY_BUFFER, vb, gl.DYNAMIC_DRAW);
 
 		//gl.enableVertexAttribArray(normalAttribLoc); 
-		//var nb = new Float32Array(sphere_normals);
-		//gl.bindBuffer(gl.ARRAY_BUFFER, normalBufferObject);
-		//gl.bufferData(gl.ARRAY_BUFFER, nb, gl.DYNAMIC_DRAW);
+		var nb = new Float32Array(sphere_normals);
+		gl.bindBuffer(gl.ARRAY_BUFFER, normalBufferObject);
+		gl.bufferData(gl.ARRAY_BUFFER, nb, gl.DYNAMIC_DRAW);
 		
 		var indexBuffer = new Uint16Array(sphere_indices);
-
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBufferObject);
 		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indexBuffer, gl.STATIC_DRAW);
-		
+		gl.uniform4f(colorLoc,0.1,0.1,0.1,1);
+
 		gl.drawElements(gl.TRIANGLE_STRIP, sphere_indices.length, gl.UNSIGNED_SHORT, 0);
 		
 	}
@@ -180,20 +197,24 @@
 		mat4.rotateY(MVMat, phi * Math.PI / 180); ///drehung um die Welt-Y-Achse
 		mat4.scale(MVMat, [zoom, zoom, zoom]);
 
-		MVPushMatrix();
+		var NMat = new mat3.create();
+		mat4.toInverseMat3(MVMat, NMat);
+		mat3.transpose(NMat, NMat);
+		gl.uniformMatrix3fv(NMatLoc, false, NMat);
+		//MVPushMatrix();
 		
-		mat4.scale(MVMat, [lane_width, 0, lane_length]);
-		mat4.translate(MVMat, [1,-1,-1]);
-		gl.uniformMatrix4fv(MVMatLoc, false, MVMat);
-		draw_cube();
+		//mat4.scale(MVMat, [lane_width, 0, lane_length]);
+		//mat4.translate(MVMat, [1,-1,-1]);
+		//gl.uniformMatrix4fv(MVMatLoc, false, MVMat);
+		//draw_cube();
 		
-		MVPopMatrix();
-		MVPushMatrix();
+		//MVPopMatrix();
+		//MVPushMatrix();
 		
 		gl.uniformMatrix4fv(MVMatLoc, false, MVMat);
 		draw_sphere();
 		
-		MVPopMatrix();
+		//MVPopMatrix();
 	}
 
 	function draw_cube()
@@ -208,7 +229,9 @@
 			-1, 1, 1,
 			1, 1, 1
 		]);
-
+		
+		gl.disableVertexAttribArray(normalAttribLoc); ///Wichtig, wenn wir auf Normalen verzichten!
+		gl.bindBuffer(gl.ARRAY_BUFFER, vertexPosBufferObject);
 		gl.bufferData(gl.ARRAY_BUFFER, vertexBuffer, gl.DYNAMIC_DRAW);
 
 		var indexBuffer = new Uint16Array([0, 1, 1, 3, 3, 2, 2, 0, 4, 5, 5, 7, 7, 6, 6, 4, 0, 4, 1, 5, 2, 6, 3, 7]);
@@ -216,6 +239,7 @@
 		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indexBuffer, gl.DYNAMIC_DRAW);
 
 		gl.lineWidth(2.0);
+		gl.uniform4f(colorLoc,139.0/255,69.0/255.0,19.0/255.0,1);
 		//gl.drawArrays(gl.POINTS, 0, 4); /// Malt die ersten 4 Punkte, um Hintergrund von Vordergrund zu unterscheiden
 		//gl.drawElements(gl.LINES, indexBuffer.length, gl.UNSIGNED_SHORT, 0);
 		gl.drawElements(gl.TRIANGLE_STRIP, vertexBuffer.length, gl.UNSIGNED_SHORT, 0);
