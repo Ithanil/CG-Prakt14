@@ -5,46 +5,100 @@
 	</head> 
 	<body> 
 		<script src="three.js"></script> 
+		<script src="OrbitControls.js"></script>
 		<script> 
-			var scene = new THREE.Scene(); 
-			// PerspectiveCamera(fovy, aspect, near, far)
-			var camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.1, 100 ); 
-			var renderer = new THREE.WebGLRenderer(); 
-			renderer.setSize( window.innerWidth, window.innerHeight ); 
-			renderer.setClearColorHex( 0xffffff, 1 );	// Canvas Background Color
-			document.body.appendChild( renderer.domElement );
+		
+		
+
+		
+		
+	var renderer, camera, controls;
+	//var keyboard = new THREEx.KeyboardState();
+	
+	// custom global variables
+	var back, lane, approach;
+
+	init();
+	animate();
+		
+	function init(){
+		document.addEventListener("keydown", keyDown, false);
+		scene = new THREE.Scene(); 
+		// PerspectiveCamera(fovy, aspect, near, far)
+		var SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;
+		var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 0.1, FAR = 20000;
+		camera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR);
+		scene.add(camera);
+		controls = new THREE.OrbitControls( camera );
+		controls.addEventListener( 'change', render );
+		
+		
+		renderer = new THREE.WebGLRenderer(); 
+		renderer.setSize( window.innerWidth, window.innerHeight ); 
+		renderer.setClearColorHex( 0xffffff, 1 );	// Canvas Background Color
+		document.body.appendChild( renderer.domElement );
+		
+		// Bahn
+		var lane_geometry = new THREE.CubeGeometry(1.05,0.1,18.29); 
+		var lane_material = new THREE.MeshBasicMaterial( { color: 0x996633 } ); 
+		lane = new THREE.Mesh( lane_geometry, lane_material ); 
+		scene.add( lane ); 
+		
+		// Approach
+		var appr_geometry = new THREE.CubeGeometry(1.05,0.1,5.0); 
+		var appr_material = new THREE.MeshBasicMaterial( { color: 0x5C3D1F } ); 
+		approach = new THREE.Mesh( appr_geometry, appr_material ); 
+		approach.translateZ(18.29/2.0+2.5);
+		scene.add( approach ); 
+		
+		// Das schwarze Ding hinten
+		var back_geometry = new THREE.CubeGeometry(1.05,1.0,0.1);
+		var back_material = new THREE.MeshBasicMaterial ( {color: 0x000000} );
+		back = new THREE.Mesh( back_geometry, back_material );
+		back.translateZ(-18.29/2.0);
+		back.translateY(0.5);
+		scene.add( back );
 			
-			// Bahn
-			var lane_geometry = new THREE.CubeGeometry(1.05,0.1,18.29); 
-			var lane_material = new THREE.MeshBasicMaterial( { color: 0x996633 } ); 
-			var lane = new THREE.Mesh( lane_geometry, lane_material ); 
-			scene.add( lane ); 
-			
-			// Approach
-			var appr_geometry = new THREE.CubeGeometry(1.05,0.1,5.0); 
-			var appr_material = new THREE.MeshBasicMaterial( { color: 0x5C3D1F } ); 
-			var approach = new THREE.Mesh( appr_geometry, appr_material ); 
-			approach.translateZ(18.29/2.0+2.5);
-			scene.add( approach ); 
-			
-			// Das schwarze Ding hinten
-			var back_geometry = new THREE.CubeGeometry(1.05,1.0,0.1);
-			var back_material = new THREE.MeshBasicMaterial ( {color: 0x000000} );
-			var back = new THREE.Mesh( back_geometry, back_material );
-			back.translateZ(-18.29/2.0);
-			back.translateY(0.5);
-			scene.add( back );
-			
-			// Position oder Kamera
-			camera.position.set( 4, 4, 21 );
-			camera.lookAt( scene.position );
-			
-			// Renderer
-			function render() { 
-				requestAnimationFrame(render); 
-				renderer.render(scene, camera); 
-			} 
-			render();
-		</script> 
+		// Position oder Kamera
+		camera.position.set( 4, 4, 21 );
+		camera.lookAt( scene.position );
+		
+	}
+	
+	function animate() {
+		requestAnimationFrame( animate );
+		render();
+		controls.update();
+	}
+	
+	// Renderer
+	function render() { 
+		renderer.render(scene, camera); 
+	} 
+
+		
+	function keyDown(event) {
+
+		switch(event.keyCode) {
+
+      case 65: ///Key A
+         back.translateX( -1 );
+         break;
+      case 68: ///Key D
+         back.translateX(  1 );
+         break;
+      case 87: ///Key W
+         back.material.color = new THREE.Color(0xff0000);
+         break;
+      case 83: ///Key S
+         back.material.color = new THREE.Color(0x0000ff);
+         break;
+      default:
+         break;
+		}
+		animate();
+	}		
+	
+	</script>		
 	</body>
 </html>
