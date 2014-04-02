@@ -61,7 +61,7 @@
 				{
 					var a = L[i];
 					var b = L[i+1];
-					pinVertices = pinVertices.concat(generatePinSegment(a, b, 6));
+					pinVertices = pinVertices.concat(generatePinSegment(a, b, slices));
 				}
 				return pinVertices;
 			}
@@ -83,6 +83,14 @@
 			lane.translateY(-0.05);
 			lane.receiveShadow = true;
 			scene.add( lane ); 
+			
+			// Kugel
+			var ball_geometry = new THREE.SphereGeometry(0.2159,8,8);
+			var ball_material = new THREE.MeshPhongMaterial( {color: 0x2F2F2F} );
+			var ball = new THREE.Mesh(ball_geometry, ball_material);
+			ball.translateY(0.2159);
+			ball.castShadow = true;
+			scene.add(ball);
 			
 			// Approach
 			var appr_geometry = new THREE.CubeGeometry(1.05,0.1,5.0); 
@@ -199,6 +207,9 @@
 			pin10.receiveShadow = true;
 			scene.add(pin10);
 			
+			var moreLight = new THREE.DirectionalLight(0xffffff, 0.5);
+			moreLight.position.set(0,2,0);
+			scene.add(moreLight);
 			
 			// Ambient Directional light Test
 			var directionalLight = new THREE.DirectionalLight(0xffffff);
@@ -216,7 +227,7 @@
 			
 			
 			var ambientLight = new THREE.AmbientLight(0xaaaaaa);
-			scene.add(ambientLight);
+			//scene.add(ambientLight);
 			
 			// Position oder Kamera
 			//KAMERA von ganz vorne
