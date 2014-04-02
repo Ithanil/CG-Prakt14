@@ -63,6 +63,7 @@
 		var lane_geometry = new THREE.CubeGeometry(1.05,0.1,18.29); 
 		var lane_material = new THREE.MeshBasicMaterial( { color: 0x996633 } ); 
 		lane = new THREE.Mesh( lane_geometry, lane_material ); 
+		lane.translateY(-0.05);
 		scene.add( lane ); 
 		
 		// Approach
@@ -70,6 +71,7 @@
 		var appr_material = new THREE.MeshBasicMaterial( { color: 0x5C3D1F } ); 
 		approach = new THREE.Mesh( appr_geometry, appr_material ); 
 		approach.translateZ(18.29/2.0+2.5);
+		approach.translateY(-0.05);
 		scene.add( approach ); 
 		
 	/*// Das schwarze Ding hinten
@@ -140,7 +142,7 @@
 		switch(event.keyCode) {
 
       case 65: ///Key A
-         putPins();
+		 putPins();
          break;
       case 68: ///Key D
          ;
@@ -196,7 +198,18 @@
 			}
 	
 		function putPins(){
-		
+			
+		 scene.remove(pin1);
+		 scene.remove(pin2);
+		 scene.remove(pin3);
+		 scene.remove(pin4);
+		 scene.remove(pin5);
+		 scene.remove(pin6);
+		 scene.remove(pin7);
+		 scene.remove(pin8);
+		 scene.remove(pin9);
+		 scene.remove(pin10);
+		 
 			// Die Pins, hier Geometrie
 			var pin_geometry = new THREE.Geometry();
 			var count = 0;
