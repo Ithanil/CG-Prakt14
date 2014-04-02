@@ -122,13 +122,13 @@
 		scene.add(directionalLight);
 		
 	}
-		var V=1.0/100.0;
+		var V=5;
+		var a=-9.81*0.2;
 	function animate() {
 		requestAnimationFrame( animate );
-		var fric=V*0.001;
+		V=V+time*a;
+		if(V<0)V=0;
 		ball.translateZ(-time*V);
-		V=V-fric;
-		//time+=0.05;
 		
 		render();
 		controls.update();
@@ -160,8 +160,8 @@
          drawBall([0,0.11,10]);
          break;
       case 87: ///Key W
-        //S V=1.0/100.0;
-		 time+=1;
+         time=0.01;
+		 V=5;
          break;
       case 83: ///Key S
          ;
