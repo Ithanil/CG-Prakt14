@@ -73,7 +73,7 @@
 		scene.add( lane );  
 		
 		ball = new THREE.Mesh(new THREE.SphereGeometry(0.11, 5, 5), new THREE.MeshNormalMaterial());
-	/*	
+	
 		// Approach
 		var appr_geometry = new THREE.CubeGeometry(1.05,0.1,2.0); 
 		var appr_material = new THREE.MeshBasicMaterial( { color: 0x5C3D1F } ); 
@@ -138,15 +138,19 @@
 		limitsL.translateY(-0.05);
 		limitsL.translateZ(-1);
 		scene.add(limitsL);
-			*/
+
 		// Position oder Kamera
-		camera.position.set( 4, 4, 21 );
-		camera.lookAt( scene.position );
+		//camera.position.set( 4, 4, 21 );
+		//camera.lookAt( scene.position );
+		//KAMERA auf die Pins
+		camera.position.set( 0,2, -9.0 );
+		camera.lookAt( new THREE.Vector3(-1,-1,-1) );
+			
 		
 		//PinVertices erzeugen
 		pinVertices = generatePin(10,L);
 		
-/*		//Schattenwurf
+		//Schattenwurf
 		moreLight = new THREE.DirectionalLight(0xffffff, 0.5);
 		moreLight.position.set(0,1,0);
 		scene.add(moreLight);
@@ -163,8 +167,8 @@
 		directionalLight.shadowCameraBottom = -0.5;
 		directionalLight.shadowCameraVisible = true;
 		directionalLight.castShadow = true;
-		scene.add(directionalLight);*/
-/*		
+		scene.add(directionalLight);
+	
 		// SKYBOX
 		var sky_geometry = new THREE.CubeGeometry( 10000, 10000, 10000 );    
 		var images = ["skybox/right.jpg", "skybox/left.jpg", 
