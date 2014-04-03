@@ -62,11 +62,15 @@
 		document.body.appendChild( renderer.domElement );
 		
 		// Bahn
-		var lane_geometry = new THREE.CubeGeometry(1.05,0.1,18.29); 
-		var lane_material = new THREE.MeshBasicMaterial( { color: 0x996633 } ); 
-		lane = new THREE.Mesh( lane_geometry, lane_material ); 
+		var laneTexture = new THREE.ImageUtils.loadTexture("textures/wood.jpg");
+		laneTexture.wrapS = laneTexture.wrapT = THREE.RepeatWrapping;
+		laneTexture.repeat.set( 3,20 );
+		var lane_material = new THREE.MeshPhongMaterial( {  map:laneTexture, side:THREE.DoubleSide } ); 
+		lane = new THREE.Mesh( new THREE.CubeGeometry(1.05,0.1,18.29+2), lane_material ); 
 		lane.translateY(-0.05);
-		scene.add( lane ); 
+		lane.translateZ(-1);
+		lane.receiveShadow = true;
+		scene.add( lane );  
 		
 		ball = new THREE.Mesh(new THREE.SphereGeometry(0.11, 5, 5), new THREE.MeshNormalMaterial());
 	/*	
@@ -121,15 +125,6 @@
 		black.translateY(-0.1+0.5);
 		black.translateZ(-18.29/2-1.3-0.20);
 		scene.add( black );
-		
-		// Das Teil, wo die Pins stehen
-		var pinline_geometry = new THREE.CubeGeometry(1.05,0.1,2.0);
-		var pinline_material = new THREE.MeshPhongMaterial ( {color: 0x5C3D1F} );
-		var pinline = new THREE.Mesh( pinline_geometry, pinline_material );
-		pinline.translateY(-0.05);
-		pinline.translateZ(-20.29/2.0);
-		pinline.receiveShadow = true;
-		scene.add( pinline );
 		
 		// rinne außen
 		var limits_material = new THREE.MeshPhongMaterial({color: 0x000000});
@@ -197,8 +192,6 @@
 		
 		render();
 		controls.update();
-		
-		
 	}
 	
 	// Renderer
