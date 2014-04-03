@@ -1,6 +1,66 @@
 "use strict";
 
-function generatePinSegment(a, b, slices){
+var pin_material = new THREE.MeshPhongMaterial({color: 'blue' });
+function BowlPin(pos0,vel0,id) {
+    THREE.Mesh.call(this)
+    
+    this.position = [pos0[0],pos0[1],pos0[2]]
+    this.velocity = [vel0[0],vel0[1],vel0[2]]
+    this.mass = 1.5875733
+    this.intens = [[0.0134109, 0, 0],[0, 0.0019401, 0],[0, 0, 0.0134109]]
+    
+    alert('BowlPin instantiated');
+}
+
+
+BowlPin.prototype = {
+id: null,
+mass: 0,
+init: function () {
+    this.id = "1";
+    this.position = [0,0,0]
+    this.velocity = [0,0,0]
+    this.intens = [[0, 0, 0],[0, 0, 0],[0, 0, 0]]
+},
+push: Array.prototype.push
+};
+
+//display the person1 gender
+alert('person1 is a ' + person1.gender); // person1 is a Male
+
+
+
+
+var pin_material = new THREE.MeshPhongMaterial({color: 'blue' });
+function BowlPin(pos0,vel0,id) {
+    THREE.Mesh.call(this)
+    
+    this.position = [pos0[0],pos0[1],pos0[2]]
+    this.velocity = [vel0[0],vel0[1],vel0[2]]
+    this.mass = 1.5875733
+    this.intens = [[0.0134109, 0, 0],[0, 0.0019401, 0],[0, 0, 0.0134109]]
+        
+    alert('BowlPin instantiated');
+}
+
+
+BowlPin.prototype = {
+id: null,
+mass: 0,
+init: function () {
+    this.id = "1";
+    this.position = [0,0,0]
+    this.velocity = [0,0,0]
+    this.intens = [[0, 0, 0],[0, 0, 0],[0, 0, 0]]
+},
+push: Array.prototype.push
+};
+
+//display the person1 gender
+alert('person1 is a ' + person1.gender); // person1 is a Male
+
+
+	function generatePinSegment(a, b, slices){
 			
 		var pinVertices = new Array();
 
