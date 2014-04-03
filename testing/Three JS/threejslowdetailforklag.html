@@ -17,7 +17,12 @@
 	var time=0.0; 
 	
 	var pin1, pin2, pin3, pin4, pin5, pin6, pin7, pin8, pin9, pin10;
-		
+
+	var pos0 = [0,1.1,10.0];
+	var pos = [0.0,0.0,0.0];	
+	var V = [0.0,0.0,-2.0];		
+	var a=-9.81*0.2;
+	
 	var L = ([
 				[0.0257937, 0., 0],
 				[0.0359156, 0.01905, 0],
@@ -186,14 +191,41 @@
 		scene.add(skybox);
 		// SKYBOX ENDE*/
 	}
-
-		var V=5;
-		var a=-9.81*0.2;
-	function animate() {
+	
+/*	function animate() {
 		requestAnimationFrame( animate );
 		V=V+time*a;
 		if(V<0)V=0;
 		ball.translateZ(-time*V);
+		
+		render();
+		controls.update();
+		
+		
+	}*/
+
+// Sind oben definiert nicht entkommentieren:
+
+//	var pos0 = [0.0,0.0,0.0];
+//	var pos = [0.0,0.0,0.0];
+//	var V = [0.0,-1.0,0.0];		
+//	var a=-9.81*0.2;	
+	
+	function animate() {
+		requestAnimationFrame( animate );
+		
+		V = [ V[0] + time*0.0 , V[1]+time*a , V[2] + time*0.0];
+		if(pos[1]<0.1) V = [V[0],-V[1],V[2]];
+//		if(V<0)V=0;
+
+		ball.translateX(time*V[0]);		
+		ball.translateY(time*V[1]);
+		ball.translateZ(time*V[2]);
+		
+		pos = [ball.position.x,ball.position.y,ball.position.z];
+
+//		console.log("V: " +V[0]+V[1]+V[2]);	
+		console.log("V: " +pos[0]+pos[1]+pos[2]);	
 		
 		render();
 		controls.update();
@@ -222,11 +254,11 @@
          break;
       case 68: ///Key D
 		 scene.remove(ball);
-         drawBall([0,0.11,10]);
+         drawBall(pos0);
          break;
       case 87: ///Key W
          time=0.01;
-		 V=5;
+		 //V=5;
          break;
       case 83: ///Key S
          ;
