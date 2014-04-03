@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+
+<head>
+	<meta charset="utf-8">
+	<title>Hello 3D</title>
+	<style>
+		html,
+		body {
+			width: 100%;
+			height: 100%;
+			margin: 0px;
+			overflow: hidden;
+			display: block;
+		}
+		#WebGLCanvas {
+			width: 100%;
+			height: 100%;
+		}
+	</style>
+</head>
+
+<!--<body>
+    <audio src="Neuer.m4a" autoplay loop>
+    </audio>
+</body>-->
+
+<script type="text/javascript" src="gl-matrix.js"></script>
+
+<script id="vshader" type="x-shader">
+	attribute vec3 aPosCoord;
+	attribute vec3 aNormal;
+	uniform mat4 uMVMat;
+	uniform mat4 uPMat;
+	uniform mat3 uNMat;
+
+	varying float vIntensity;	
+	
+	void main()
+	{
+		gl_Position = uPMat * uMVMat * vec4(aPosCoord, 1.0);
+		vec3 n = normalize(uNMat * aNormal);
+		vec3 lichtquelle = vec3(0.0,0.0,1.0);
+		vIntensity = max(n.x*lichtquelle.x+n.y*lichtquelle.y+n.z*lichtquelle.z, 0.0);
+	}
+</script>
+
+<script id="fshader" type="x-shader">
+	precision mediump float;
+
+	varying float vIntensity;
+
+	void main()
+	{
+		gl_FragColor = vec4(vIntensity*230.0/256.0, vIntensity*182.0/256.0, vIntensity*38.0/256.0, 1.0);
+	}	
+</script>
+
+<script type="text/javascript">
+	"use strict";
+
+
+	var gl, canvas, zoom = 0.3,
+		phi = 0,
+		theta = 0,
+		dreh = 0,
+		knick = 90,
+		camdreh = 0,
+		camknick = 90,
+		targetRot = 0,
+		targethight = 1,
+		targetdist = 2.5,
+		hit = 0,
+		level = 1,
+		Punkte = 0,
+		lambda = 0,
+		hitposlength = 0,
+		omega0 = 10,
+		omega1 = 10,
+		randommult = 0,
+		tick = 0,
+		ticklast = 0,
+		m = 0,
+		f = 0,
+		notend = 1,
+		pers = 0,
+		aspectratio,
+		projection_mode=0,
+		MVMat, NMat, entityMat, invMVMat, PointerMat, TurretelMat, PMatLoc, MVMatLoc, NMatLoc, colorLoc, normalAttribLoc,
+		lastX, lastY, trackballOn = true, isMouseDown = false;
+
+	var qNow = quat4.create([0, 0, 0, 1]);
+	var slices = 20;
+	
+	// Berechnung von qRot
+	var qRot = qRot_create();
+	var qRotInv = quat4.inverse(qRot);
+
+	///Der Linienzug. Die Punkte liege in der x/y-Ebene
+
+	var L = ([
+		[-0.01,-0.01, 0],
+		[-1.0 ,0.01, 0],
+		[-1.0 ,0.05 , 0],
+		[-0.01,0.07, 0],
+		]);
+
+	var vertexBuffer = createVertexBuffer();
+
+	var vertexBufferPoints = new Float32Array(vertexBuffer.length);
+
+	for (var i = 0; i<vertexBuffer.length ; i++) {
+		vertexBufferPoints[i]=vertexBuffer[i]*0.1;
+	}
+
+	var matSlot1 = []; //Zum Speichern eines Trafozustandes
+	var NmatSlot1 = []; //Zum Speichern eines Trafozustandes für Normalen
+
+	var uMat;  
+
+	// Origin KS
+	var view = [1.0,0.0,0.0], right = [0.0,1.0,0.0];
+
+
+	// look at KS
+	var eye = [0.0,0.0,3.0], center = [0.0,0.0,0.0], up = [0.0,0.0,1.0];
+
+	// projectile drop
+
+	var vball = [0.0,0.0,0.0], gravity = [0.0,0.0,0.0], pos = [0.0,0.0,0.0];
+
+	// in targettranslation
+
+	var b = [0.0,0.0,0.0];
+
+	var	vertexPosBufferObject, normalBufferObject;
+	
+	uMat = [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1];
+	PointerMat = new Float32Array([1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]);
+
+	// Animationsbefehl
+	var animate = window.setInterval("timing()",50);
+
+		function timing(){
+         tick = tick + 0.05;
+
+ 		drawScene();
+
+		if(0)window.clearInterval(animate);
+		}	
+
+
+	function webGLStart() {
+		var shaderProgram, vShader, fShader, vertexAttribLoc,
+			vertexBuffer, indexBufferObject;
+
+		canvas = window.document.getElementById("WebGLCanvas");
+		canvas.onmousedown = mouseDown;
+		canvas.onmousemove = mouseMove;
+		canvas.onmouseup = mouseUp;
+		canvas.addEventListener('mousewheel', mouseWheel, false);
+		document.addEventListener("keydown", keyDown, false);
+
+		try {	        
+			gl = canvas.getContext("experimental-webgl");
+		} catch (e) {}
+		if (!gl) {
+			window.alert("No webGL-Context");
+		}
+
+
+		shaderProgram = gl.createProgram();
+
+		vShader = gl.createShader(gl.VERTEX_SHADER);
+		gl.shaderSource(vShader, document.getElementById('vshader').textContent);
+		gl.compileShader(vShader);
+		gl.attachShader(shaderProgram, vShader);
+		fShader = gl.createShader(gl.FRAGMENT_SHADER);
+		gl.shaderSource(fShader, document.getElementById('fshader').textContent);
+		gl.compileShader(fShader);
+		gl.attachShader(shaderProgram, fShader);
+		gl.linkProgram(shaderProgram);
+		gl.useProgram(shaderProgram);
+
+		gl.clearColor(0.9, 0.9, 0.9, 1.0);
+		gl.clearDepth(1.0);
+
+		gl.enable(gl.DEPTH_TEST);
+		gl.depthFunc(gl.LEQUAL);
+
+		/// Hier initialisieren wir unseren Vertex Buffer. 
+		/// NEU: Die Vertex-Daten laden wir beim Malen jedes mal neu!
+		vertexPosBufferObject = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, vertexPosBufferObject);
+
+		/// Verbinde mit dem Shader
+		vertexAttribLoc = gl.getAttribLocation(shaderProgram, "aPosCoord");
+		gl.vertexAttribPointer(vertexAttribLoc, 3, gl.FLOAT, false, 0, 0);
+		gl.enableVertexAttribArray(vertexAttribLoc);
+
+		/// Das gleiche mit dem Index-Array!
+		indexBufferObject = gl.createBuffer();
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBufferObject);
+
+		/// Und mit den Normalen
+		normalBufferObject = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, normalBufferObject);		
+
+		/// Verbinde mit dem Shader
+		normalAttribLoc = gl.getAttribLocation(shaderProgram, "aNormal");
+		gl.vertexAttribPointer(normalAttribLoc, 3, gl.FLOAT, false, 0, 0);
+		gl.enableVertexAttribArray(normalAttribLoc);
+
+		PMatLoc = gl.getUniformLocation(shaderProgram, "uPMat");
+		MVMatLoc = gl.getUniformLocation(shaderProgram, "uMVMat");
+		NMatLoc = gl.getUniformLocation(shaderProgram, "uNMat");
+		colorLoc = gl.getUniformLocation(shaderProgram, "uColor");	
+
+		resizeCanvas();
+
+	}
+
+	function qRot_create() {
+		
+		/// Rotationsachse ist y-Achse
+		var rotationAxis =  new Float32Array([0,1,0]);
+		
+		var q = quat4.create();
+		var angle = 180 / slices;
+		q[0] = rotationAxis[0] * Math.sin(angle * Math.PI / 180/2);
+		q[1] = rotationAxis[1] * Math.sin(angle * Math.PI / 180/2);
+		q[2] = rotationAxis[2] * Math.sin(angle * Math.PI / 180/2);
+		q[3] = Math.cos(angle * Math.PI / 180/2);
+
+		return q; 
+	}	
+	
+	function createVertexBuffer() {
+		var n = 20; 
+		var r = 1;
+		var vertexBuffer = new Float32Array(3*n);
+		
+		for (var i = 0; i < 3*n; i++) {
+			if (i%3 == 0) {
+				vertexBuffer[i] = r*Math.sin(2*Math.PI*Math.floor(i/3)/n);;
+			} else if (i%3 == 1) {
+				vertexBuffer[i] = r*Math.cos(2*Math.PI*Math.floor(i/3)/n);
+			} else if (i%3 == 2) {
+				vertexBuffer[i] = 0;
+			}
+		}
+		return vertexBuffer;
+	}
+
+	function createIndexBuffer() {
+		var indexBuffer = new Uint16Array(vertexBuffer.length);
+
+	}
+
+		//Dies ist die bereits bekannte Speicherung der MVMat
+
+	function verticalArmpush() {
+		var matstore1 = mat4.create(MVMat),
+			matstore2 = mat4.create(MVMat),
+			matstore3 = mat4.create(MVMat),
+			matstore4 = mat4.create(MVMat);
+
+		var Nmatstore1 = mat3.create(NMat),
+			Nmatstore2 = mat3.create(NMat),
+			Nmatstore3 = mat3.create(NMat),
+			Nmatstore4 = mat3.create(NMat);	
+
+		matSlot1.push(matstore1);
+		matSlot1.push(matstore2);
+		matSlot1.push(matstore3);
+		matSlot1.push(matstore4);
+
+		NmatSlot1.push(Nmatstore1);
+		NmatSlot1.push(Nmatstore2);
+		NmatSlot1.push(Nmatstore3);
+		NmatSlot1.push(Nmatstore4);
+	}
+
+	function verticalArmpop() {
+
+		MVMat = matSlot1.pop();
+		NMat = NmatSlot1.pop();
+
+	}
+
+
+		//Speicherslots für Ableitungsstufen
+
+	function detivativepush() {
+		var matstore1 = mat4.create(TurretelMat),
+			matstore2 = mat4.create(TurretelMat),
+			matstore3 = mat4.create(TurretelMat);
+
+		matSlot1.push(matstore1);
+		matSlot1.push(matstore2);
+		matSlot1.push(matstore3);
+	}
+
+
+	function detivativepop() {
+
+		TurretelMat = matSlot1.pop();
+
+	}
+
+	function drawScene() {
+
+		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+		// Ausgansposition des Werfers "transl0", Position des oberen Armes "transl1"
+		var transl0 = [0.0,0.0,-2.0],
+			transl1 = [0.0,1.0,0.0];
+
+		var Peye;
+
+		NMat = new mat3.create();		
+		
+		Peye = new mat4.create();
+		mat4.identity(Peye);
+		
+		if (projection_mode == 1)
+		{
+			if (aspectratio > 1.0) mat4.ortho(-aspectratio, aspectratio, -1, 1, 1, 5, Peye);
+			else mat4.ortho(-1, 1, -aspectratio, aspectratio, 1, 5, Peye);
+		}
+
+		else if (projection_mode == 0)
+			mat4.perspective(45, aspectratio, 0.1, 100, Peye);
+
+		MVMat = new mat4.create();
+		mat4.identity(MVMat);
+		mat4.translate(MVMat, [0, -0.4, -3]);
+
+		mat4.toInverseMat3(MVMat, NMat);
+		mat3.transpose(NMat, NMat);		
+
+		gl.uniformMatrix4fv(PMatLoc, false, Peye);		
+
+		//Für die Mausdrehung
+		
+		PointerMat = new mat4.create();
+		mat4.identity(PointerMat);
+	
+		if (trackballOn)
+		{
+			var R = new mat4.create();
+			quat4.toMat4(qNow, R);
+			mat4.multiply(MVMat, R);
+		}
+		else
+		{
+			mat4.rotateX(PointerMat, camknick * Math.PI / 180, PointerMat);
+			mat4.rotateY(PointerMat, camdreh * Math.PI / 180, PointerMat);
+		}
+
+		
+		//Transformationsmatrix innerhalb der Ableitungen
+
+		TurretelMat = new mat4.create();
+		mat4.identity(TurretelMat);		
+
+		//Variablen zum rechnen im sphaerischen KS
+
+		var s1 = Math.sin(knick*Math.PI/180),
+			c1 = Math.cos(knick*Math.PI/180),
+			t1 = s1/c1;
+
+		var s2 = Math.sin((dreh)*Math.PI/180),
+			c2 = Math.cos((dreh)*Math.PI/180),
+			t2 = s2/c2;		
+
+		var st1 = Math.sin(omega1*tick*Math.PI/180),
+			ct1 = Math.cos(omega1*tick*Math.PI/180);
+
+		var sp1 = Math.sin(omega1*tick*Math.PI/180),
+			cp1 = Math.cos(omega1*tick*Math.PI/180);	
+
+		// Im Normalen view drehen wir uns nicht mit dem Karusell
+
+	if(pers==0) zoom = 0.6;
+
+		// mit V sezten wir uns ins Karusell
+	if(pers==1){
+	
+		center = [0,0,0];
+
+		eye = [-2.4*st1,1.8,-2.4*ct1];
+
+		up = [0,1,0];
+
+		mat4.lookAt (eye, center, up, MVMat);
+
+		zoom = 0.6;
+		
+		}
+		
+	if(pers==2){
+
+		center = [0,0,0];
+
+		eye = [-0.01*st1,5.4,-0.01*ct1];
+
+		up = [0,1,0];
+
+		mat4.lookAt (eye, center, up, MVMat);		
+
+		zoom = 0.5;
+		
+		}
+
+		mat4.scale(MVMat, [zoom, zoom, zoom]);
+		
+		// Auch wenn der Befehl fähig ist beliebige Stationen der Transformation zu speichern
+		// nennen wir ihn verticalArmpush und poop, dann weiß man dass er Arm in Zust. vertikal speichert.
+		
+		verticalArmpush(MVMat);
+
+
+		// Der Cube ist immer noch kein Cube sondern ein Quader, durch skalieren erhalten wir eine quadratische Bodenfläche ;)
+
+		mat4.scale(MVMat, [1, 2, 2]);
+
+		mat4.toInverseMat3(MVMat, NMat);
+		mat3.transpose(NMat, NMat);		
+		
+		// Hier wird der störende Quader in der Mitte gemalt, hierdurch tritt der Bogenflug des Balles im drehenden System am deutlichten hervor		
+		gl.uniformMatrix3fv(NMatLoc, false, NMat);
+		gl.uniformMatrix4fv(MVMatLoc, false, MVMat);
+
+		draw_obstacle();		
+
+		verticalArmpop();	
+		
+
+		// Der Werfer wird nicht nur gedreht sondern fährt mit
+		mat4.rotate(MVMat, omega1*tick * Math.PI / 180, [0.0,1.0,0.0]);
+		
+		mat4.translate(MVMat,transl0);			
+		
+		mat4.rotate(MVMat, dreh * Math.PI / 180, [0.0,1.0,0.0]);
+
+		mat4.toInverseMat3(MVMat, NMat);
+		mat3.transpose(NMat, NMat);		
+		
+		gl.uniformMatrix3fv(NMatLoc, false, NMat);		
+		gl.uniformMatrix4fv(MVMatLoc, false, MVMat);
+
+		// Hier wird der untere Quader gemalt!
+		draw_cube();	
+
+		mat4.translate(MVMat,transl1);			
+
+		//dreh mit a und d
+		//knick mit w und s
+
+		mat4.rotate(MVMat, knick * Math.PI / 180, [1.0,0.0,0.0]);
+
+		// Um die Wurfrichtung etwas besser auszuzeichnen spielen wir noch etwas mit dem Skalierbefehl
+		
+		mat4.scale(MVMat, [0.5, 0.8, 1]);
+
+		mat4.toInverseMat3(MVMat, NMat);
+		mat3.transpose(NMat, NMat);		
+
+		gl.uniformMatrix3fv(NMatLoc, false, NMat);				
+		gl.uniformMatrix4fv(MVMatLoc, false, MVMat);		
+
+		// Hier wird der obere Quader gemalt!
+		draw_cube();
+
+		// Laser kann bleiben
+		if(m){
+
+		mat4.toInverseMat3(MVMat, NMat);
+		mat3.transpose(NMat, NMat);
+
+		gl.uniformMatrix3fv(NMatLoc, false, NMat);		
+		gl.uniformMatrix4fv(MVMatLoc, false, MVMat);
+
+		draw_highpowerCWlaserbeam();
+		
+		}
+
+		if(f && notend){	
+		
+		// Ein sehr zentrales Problem in der Rechnung mit den Matrizenketten ist, dass falls eine Kombination erneut benötigt wird, die zwar in der 
+		// Reihenfolge bereits vorliegt aber eine überzählige Transformation enthält.
+		// Bei Geschwindigkeiten in rotierenden Systemen tritt genau das auf, falls zwischen zwei Rotationen eine Translation fällt.
+		// In einer echten Ableitung fiele diese heraus, weil zeitlich konstant.
+		// Als Konsequenz haben wir folgendes Ableitungspush entworfen, wobei für jede physikalisch erfasste Entität eine Matrix die Stufen der
+		// zeitlichen Ableitung eigens nachdreht und speichert und die Vektoren dann für den nicht rotierenden expliziten Euler vorbereitet.
+		// Die Idee hinter "detivativepush" ist, dass jede Entität drei abgeleitete Zustände zugewiesen bekommt
+			// die nullte für Position
+			// die erste  für Geschwindigkeiten
+			// die zweite für Beschleunigungen
+		// in umgekehrter Reihenfolge also zuerst werden die Beschleunigungen aufgestellt
+
+		detivativepush(TurretelMat);
+
+		// Im Falle der Gravitation passiert natürlich nichts. Da Gegenmomente zu Zentri/Coriolis fehlen, treten diese nicht explizit als Kräfte auf.
+
+		gravity = [0.0,-1.0,0.0];
+
+
+		// Bei der Geschwindikeit läuft es wie folgt:
+		// Der Werfer wirft im nicht rotierenden System mit: [0,3,0], mit knick wirft er nach Vorne.
+		// Jetzt kann er sich drehen und steht auf einem Karusell welches mit omega1 rotiert
+		// Ganz wichtig ist; Hiermit wäre in der Realität bereits die Trägheit des Schneeballs berücksichtigt
+		// ABER der Ball wurde erschaffen und nicht erst innerhalb der Rotation beschleunigt,
+		// also muss diese Tangentiale Geschwindikeit noch addiert werden.
+
+		mat4.rotate(TurretelMat, (dreh+omega1*tick) * Math.PI / 180, [0.0,1.0,0.0]);
+
+		mat4.rotate(TurretelMat, knick * Math.PI / 180, [1.0,0.0,0.0]);
+
+		mat4.multiplyVec3(TurretelMat, [0,3,0], vball);
+
+		// hier addieren wir die tangentiale Geschwindigkeit, da wir mit -z tranlation beginnen, müssen wir den addierten vektor negieren.
+
+		vball = [vball[0] - 2 * cp1 * omega1 * Math.PI / 180, vball[1] + 0, vball[2] + 2 * sp1 * omega1 * Math.PI / 180];
+
+		// Hiermit schließen wir die erste Ableitung ab und widmen uns der Position:
+
+		detivativepop();
+
+		// Die Position ist weniger überraschend, Ball wird von [0,0,0] auf das Karusell gesetzt und dann auf den ersten Quader gehieft
+
+		mat4.translate(TurretelMat,transl1);	
+
+		mat4.rotate(TurretelMat, omega1*tick * Math.PI / 180, [0.0,1.0,0.0]);
+		
+		mat4.translate(TurretelMat,transl0);			
+
+		mat4.multiplyVec3(TurretelMat, [0,0,0], pos);
+
+		f=0;
+
+		}
+
+		// Hier laden wir den Ausgangszustand, um die Zielscheibe unabh. von den Transf. des Armes zu platzieren
+		verticalArmpop();
+
+		mat4.rotate(MVMat, omega1*tick * Math.PI / 180, [0.0,1.0,0.0]);
+
+		mat4.translate(MVMat,[0,targethight,targetdist]);
+
+		mat4.rotate(MVMat, 90 * Math.PI / 180, [1.0,0.0,0.0]);
+
+		mat4.toInverseMat3(MVMat, NMat);
+		mat3.transpose(NMat, NMat);		
+
+		gl.uniformMatrix3fv(NMatLoc, false, NMat);
+		gl.uniformMatrix4fv(MVMatLoc, false, MVMat);
+
+	var L = ([
+		[-0.01,-0.01, 0],
+		[-(level/3.6) ,0.01, 0],
+		[-(level/3.6) ,0.05 , 0],
+		[-0.01,0.07, 0],
+		]);		
+
+	/// Hier wird der Scheibe gemalt!
+		for (var i = 0; i < L.length-1; i++)
+		{
+			draw_cone(vec3.create(L[i]), vec3.create(L[i+1]), slices);
+		}
+
+		// GL Lambda
+
+		lambda = targetdist - pos[0]*st1 - pos[1]*0 - pos[2]*ct1;
+
+		// GL |b|
+		
+		if(pos[0]*pos[0]+pos[1]*pos[1]+pos[2]*pos[2]+targethight+lambda*lambda+targetdist*targetdist-2*targetdist*lambda+
+		2*lambda*(ct1*pos[2]+st1*pos[0])-2*targetdist*(pos[0]*st1+pos[2]*ct1)-2*targethight*pos[1]<(level/3.6) && lambda<0.15 && lambda>0){
+		
+		hit=1;
+
+		randommult = Math.random() - 0.5;
+
+		randommult = randommult/(Math.sqrt(randommult * randommult)) * 2 * level;
+		
+		omega1 = omega0 * randommult;
+		
+		level = level + 0.5;
+		
+		Punkte = Punkte + 0.5;
+
+		}
+
+		if(level > 3.6){omega1 = 0, notend = 0;}
+
+		verticalArmpop();
+		
+		// Auf die Flugbahn des Schneeballs wirken für nicht Karusellfahrer keine Scheinkräfte, somit fliegt er im untransformierten System
+		// also ein weiteres "pop". Gravitation tritt als zu Y-antiparallele Kraft auf, für sie ist die Transformation auch irrelevant.
+
+
+		// Berechnung der Flugbahn per explizitem Eulerverfahren:
+		
+		// vball ist die resultierende Summe aller auftretenden Kräfte mal Zeitintervall (Zwischenspeichern für Eulerverfahren)
+		
+		vball = [vball[0] + (tick-ticklast) * gravity[0],vball[1] + (tick-ticklast) * gravity[1],vball[2] + (tick-ticklast) * gravity[2]];
+
+
+		// pos ist die momentane Position die innerhalb des Eulerverfahrens zwischengespeichert werden muss
+
+		pos = [pos[0] + vball[0] * (tick-ticklast), pos[1] + vball[1] * (tick-ticklast), pos[2] + vball[2] * (tick-ticklast)];
+
+
+		console.log("Punktestand: " +Punkte);		
+		
+		mat4.translate(MVMat,pos,MVMat);	
+
+		
+		mat4.scale(MVMat,[0.1,0.1,0.1],MVMat); //Noch ein scale Befehl (damits keine Lawine wird) ;)
+		
+		mat4.toInverseMat3(MVMat, NMat);
+		mat3.transpose(NMat, NMat);		
+		
+		gl.uniformMatrix3fv(NMatLoc, false, NMat);		
+		gl.uniformMatrix4fv(MVMatLoc, false, MVMat);	
+				
+		if(hit == 0)draw_sphere(); //Schneeball
+		
+		// Speichern des Zeitschritts
+		
+		ticklast = tick;
+		
+	}
+
+	/**********************************
+	Neuer Mechanismus: Wir erzeugen die Geometrie immer neu
+	und laden Sie in das ARRAY_BUFFER / ELEMENT_ARRAY_BUFFER, wenn wir sie zeichnen wollen.
+	Um dies der Grafikkarte zu erleichtern, verwenden wir den Modul 'gl.DYNAMIC_DRAW'
+	**********************************/
+	function draw_sphere()
+	{
+	
+		var VB = new Float32Array(
+		[
+		 0.0,-1.0, 0.0,
+		 0.0, 0.0, 1.0,
+		-1.0, 0.0, 0.0,
+
+		 0.0, 0.0, 1.0,
+ 		 0.0, 1.0, 0.0,
+		-1.0, 0.0, 0.0,
+
+		 0.0, 0.0, 1.0,
+ 		 0.0, 1.0, 0.0,
+		 1.0, 0.0, 0.0,
+
+		 0.0, 0.0, 1.0,
+		 1.0, 0.0, 0.0,
+ 		 0.0,-1.0, 0.0,
+
+ 		 1.0, 0.0, 0.0,
+		 0.0, 0.0,-1.0,
+ 		 0.0,-1.0, 0.0,
+
+  		 0.0, 1.0, 0.0,
+		 0.0, 0.0,-1.0,
+ 		 1.0, 0.0, 0.0,
+
+		 0.0, 0.0,-1.0,
+ 		-1.0, 0.0, 0.0,
+ 		 0.0, 1.0, 0.0,
+
+ 		-1.0, 0.0, 0.0,
+ 		 0.0,-1.0, 0.0,
+		 0.0, 0.0,-1.0,
+		 
+		]);
+
+		gl.uniform4f(colorLoc,230/256,182/256,38/256,1.0);
+
+		var vb = new Float32Array(VB); ///Oder wie auch immer ihr konvertiert!
+		gl.bindBuffer(gl.ARRAY_BUFFER, vertexPosBufferObject);
+		gl.bufferData(gl.ARRAY_BUFFER, vb, gl.DYNAMIC_DRAW);
+		
+		gl.uniform4f(colorLoc,0.8,0.8,0.8,1.0);
+
+		var NB = new Float32Array(
+		[		 0.0,-1.0, 0.0,
+		 0.0, 0.0, 1.0,
+		-1.0, 0.0, 0.0,
+
+		 0.0, 0.0, 1.0,
+ 		 0.0, 1.0, 0.0,
+		-1.0, 0.0, 0.0,
+
+		 0.0, 0.0, 1.0,
+ 		 0.0, 1.0, 0.0,
+		 1.0, 0.0, 0.0,
+
+		 0.0, 0.0, 1.0,
+		 1.0, 0.0, 0.0,
+ 		 0.0,-1.0, 0.0,
+
+ 		 1.0, 0.0, 0.0,
+		 0.0, 0.0,-1.0,
+ 		 0.0,-1.0, 0.0,
+
+  		 0.0, 1.0, 0.0,
+		 0.0, 0.0,-1.0,
+ 		 1.0, 0.0, 0.0,
+
+		 0.0, 0.0,-1.0,
+ 		-1.0, 0.0, 0.0,
+ 		 0.0, 1.0, 0.0,
+
+ 		-1.0, 0.0, 0.0,
+ 		 0.0,-1.0, 0.0,
+		 0.0, 0.0,-1.0,
+		 ]);
+
+		gl.enableVertexAttribArray(normalAttribLoc); ///Wichtig, wenn wir Normalen verwenden!
+		var nb = new Float32Array(NB); ///Oder wie auch immer ihr konvertiert!
+		gl.bindBuffer(gl.ARRAY_BUFFER, normalBufferObject);
+		gl.bufferData(gl.ARRAY_BUFFER, nb, gl.DYNAMIC_DRAW);
+
+		gl.drawArrays(gl.TRIANGLE_STRIP, 0, nb.length / 3); 		
+
+	}
+
+
+	function draw_highpowerCWlaserbeamdirected(v1,v2)
+	{
+
+		var vertexBuffer = new Float32Array(
+		[v1[0], v1[1], v1[2],
+		 v2[0], v2[1], v2[2]
+		]);
+
+		gl.bufferData(gl.ARRAY_BUFFER, vertexBuffer, gl.DYNAMIC_DRAW);
+
+		var indexBuffer = new Uint16Array([0, 1]);
+
+		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indexBuffer, gl.DYNAMIC_DRAW);
+
+		gl.lineWidth(2.0);
+
+		//gl.uniform4f(colorLoc,1.0,0.0,0.0,1.0);
+
+		gl.drawElements(gl.LINES, indexBuffer.length, gl.UNSIGNED_SHORT, 0)
+	}
+
+	function draw_highpowerCWlaserbeam()
+	{
+
+		var vertexBuffer = new Float32Array(
+		[0.0, 3.0, 0.0,
+		 0.0, 0.0, 0.0
+		]);
+
+		gl.bufferData(gl.ARRAY_BUFFER, vertexBuffer, gl.DYNAMIC_DRAW);
+
+		var indexBuffer = new Uint16Array([0, 1]);
+
+		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indexBuffer, gl.DYNAMIC_DRAW);
+
+		gl.lineWidth(2.0);
+
+		gl.uniform4f(colorLoc,1.0,0.0,0.0,1.0);
+
+		gl.drawElements(gl.LINES, indexBuffer.length, gl.UNSIGNED_SHORT, 0)
+	}
+
+	function draw_cube()
+	{
+
+		var VB = new Float32Array(
+		[-0.2, 0, 0.1,
+		  0.2, 0, 0.1,
+		 -0.2, 0,-0.1,
+		  0.2, 0,-0.1,
+
+		  0.2, 1,-0.1,
+
+		  0.2, 0, 0.1,
+		  0.2, 1, 0.1,
+		 -0.2, 0, 0.1,
+		 -0.2, 1, 0.1,
+ 		 -0.2, 0,-0.1,
+		 -0.2, 1,-0.1,
+
+		  0.2, 1,-0.1,
+
+		 -0.2, 1, 0.1,
+ 		  0.2, 1, 0.1,
+
+		 ]);
+
+		gl.uniform4f(colorLoc,230/256,182/256,38/256,1.0);
+
+		var vb = new Float32Array(VB); ///Oder wie auch immer ihr konvertiert!
+		gl.bindBuffer(gl.ARRAY_BUFFER, vertexPosBufferObject);
+		gl.bufferData(gl.ARRAY_BUFFER, vb, gl.DYNAMIC_DRAW);
+
+		var NB = new Float32Array(
+		[-0.2, 0, 0.1,
+		  0.2, 0, 0.1,
+		 -0.2, 0,-0.1,
+		  0.2, 0,-0.1,
+
+		  0.2, 1,-0.1,
+
+		  0.2, 0, 0.1,
+		  0.2, 1, 0.1,
+		 -0.2, 0, 0.1,
+		 -0.2, 1, 0.1,
+ 		 -0.2, 0,-0.1,
+		 -0.2, 1,-0.1,
+
+		  0.2, 1,-0.1,
+
+		 -0.2, 1, 0.1,
+ 		  0.2, 1, 0.1,
+
+		 ]);
+
+		gl.enableVertexAttribArray(normalAttribLoc); ///Wichtig, wenn wir Normalen verwenden!
+		var nb = new Float32Array(NB); ///Oder wie auch immer ihr konvertiert!
+		gl.bindBuffer(gl.ARRAY_BUFFER, normalBufferObject);
+		gl.bufferData(gl.ARRAY_BUFFER, nb, gl.DYNAMIC_DRAW);
+
+		gl.drawArrays(gl.TRIANGLE_STRIP, 0, nb.length / 3); 		
+		
+	}
+
+	function draw_obstacle()
+	{
+
+		var VB = new Float32Array(
+		[-0.2, 0, 0.1,
+		  0.2, 0, 0.1,
+		 -0.2, 0,-0.1,
+		  0.2, 0,-0.1,
+
+		  0.2, 1,-0.1,
+
+		  0.2, 0, 0.1,
+		  0.2, 1, 0.1,
+		 -0.2, 0, 0.1,
+		 -0.2, 1, 0.1,
+ 		 -0.2, 0,-0.1,
+		 -0.2, 1,-0.1,
+
+		  0.2, 1,-0.1,
+
+		 -0.2, 1, 0.1,
+ 		  0.2, 1, 0.1,
+
+		 ]);
+
+//		gl.uniform4f(colorLoc,230/256,182/256,38/256,1.0);
+
+		var vb = new Float32Array(VB); ///Oder wie auch immer ihr konvertiert!
+		gl.bindBuffer(gl.ARRAY_BUFFER, vertexPosBufferObject);
+		gl.bufferData(gl.ARRAY_BUFFER, vb, gl.DYNAMIC_DRAW);
+
+		var NB = new Float32Array(
+		[-0.2, 0, 0.1,
+		  0.2, 0, 0.1,
+		 -0.2, 0,-0.1,
+		  0.2, 0,-0.1,
+
+		  0.2, 1,-0.1,
+
+		  0.2, 0, 0.1,
+		  0.2, 1, 0.1,
+		 -0.2, 0, 0.1,
+		 -0.2, 1, 0.1,
+ 		 -0.2, 0,-0.1,
+		 -0.2, 1,-0.1,
+
+		  0.2, 1,-0.1,
+
+		 -0.2, 1, 0.1,
+ 		  0.2, 1, 0.1,
+
+		 ]);
+
+		gl.enableVertexAttribArray(normalAttribLoc); ///Wichtig, wenn wir Normalen verwenden!
+		var nb = new Float32Array(NB); ///Oder wie auch immer ihr konvertiert!
+		gl.bindBuffer(gl.ARRAY_BUFFER, normalBufferObject);
+		gl.bufferData(gl.ARRAY_BUFFER, nb, gl.DYNAMIC_DRAW);
+
+		gl.drawArrays(gl.TRIANGLE_STRIP, 0, nb.length / 3); 		
+
+	}	
+
+	function draw_cone(a, b, slices)
+	{
+
+		var VB = new Array(); /// Hier k"onnen die Vertices stehen
+		var NB = new Array(); /// Und hier die Normalen	
+
+		function create_vector(vec) {
+			var v1 = quat4.multiplyVec3(qRotInv, vec);
+			var v2 = quat4.multiplyVec3(qRot, v1);
+			return v2;
+		}
+
+		var newPointA = a;
+		var newPointB = b;
+
+		var n = vec3.create();
+
+		var s = vec3.create();
+
+		var t = vec3.create([0,0,1]);
+
+		for (var i = 0; i < slices + 1; i++) {
+
+			/// Berechnung der Vertices
+
+			newPointA = create_vector(newPointA);
+			newPointB = create_vector(newPointB);
+
+			VB.push(newPointA[0]);
+			VB.push(newPointA[1]);
+			VB.push(newPointA[2]);
+			VB.push(newPointB[0]);
+			VB.push(newPointB[1]);
+			VB.push(newPointB[2]);
+
+			vec3.direction(newPointA, newPointB,s);			
+
+			vec3.cross(s,t,n);
+
+			n=[-1,-1,0];
+			
+			vec3.normalize (n, n);
+
+			NB.push(n[0]);
+			NB.push(n[1]);
+			NB.push(n[2]);
+
+			n=[-1,0,0];
+
+			NB.push(n[0]);
+			NB.push(n[1]);
+			NB.push(n[2]);
+		
+		}			
+
+		var vb = new Float32Array(VB); ///Oder wie auch immer ihr konvertiert!
+		gl.bindBuffer(gl.ARRAY_BUFFER, vertexPosBufferObject);
+		gl.bufferData(gl.ARRAY_BUFFER, vb, gl.DYNAMIC_DRAW);
+		
+		gl.enableVertexAttribArray(normalAttribLoc); ///Wichtig, wenn wir Normalen verwenden!
+		var nb = new Float32Array(NB); ///Oder wie auch immer ihr konvertiert!
+
+		gl.bindBuffer(gl.ARRAY_BUFFER, normalBufferObject);
+		gl.bufferData(gl.ARRAY_BUFFER, nb, gl.DYNAMIC_DRAW);
+
+		gl.drawArrays(gl.TRIANGLE_STRIP, 0, nb.length / 3); 
+
+	}
+
+	function draw_point()
+	{
+		
+		gl.bufferData(gl.ARRAY_BUFFER, vertexBufferPoints, gl.DYNAMIC_DRAW);
+		gl.drawArrays(gl.TRIANGLE_FAN,0,vertexBufferPoints.length/3);
+		
+	}
+
+	function trackball(u, v)
+	{
+		var uxv = vec3.create();
+		vec3.cross(u, v, uxv);
+		var d = vec3.dot(u, v);
+		return quat4.create([uxv[0], uxv[1], uxv[2], 1.0 + d]);
+	}	
+
+	function mouseToTrackball(x, y)
+	{
+		var v = new MatrixArray(3);
+
+		if (canvas.width > canvas.height)
+		{
+			v[0] = (2.0 * x - canvas.width) / canvas.height;
+			v[1] = 1.0 - y * 2.0 / canvas.height;
+		}
+		else
+		{
+			v[0] = (2.0 * x - canvas.width) / canvas.width;
+			v[1] = (canvas.height - 2.0 * y) / canvas.width;
+		}
+		var d = v[0] * v[0] + v[1] * v[1];
+		if (d > 1.0)
+		{
+			v[2] = 0.0;
+			v[0] /= Math.sqrt(d);
+			v[1] /= Math.sqrt(d);
+		}
+		else v[2] = Math.sqrt(1.0 - d * d);
+
+		return v;
+	}	
+
+	function mouseWheel(event) {
+		if (event.wheelDelta < 0) zoom /= 1.05;
+		else zoom *= 1.05;
+		drawScene();
+	}
+
+	function mouseDown(event) {
+		isMouseDown = true;
+		lastX = event.clientX;
+		lastY = event.clientY;
+	}
+
+	function mouseUp(event) {
+		isMouseDown = false;
+	}
+
+	function mouseMove(event)
+	{
+		if (!isMouseDown) return;
+
+		var p1 = mouseToTrackball(lastX, lastY);
+		var p2 = mouseToTrackball(event.clientX, event.clientY);
+
+		if (trackballOn)
+		{
+			var q = trackball(p1, p2);
+			quat4.multiply(q, qNow, qNow);
+			quat4.normalize(qNow);
+		}
+		else
+		{
+			phi += (event.clientX - lastX) / 5;
+			theta += (event.clientY - lastY) / 5;
+		}
+
+		lastX = event.clientX;
+		lastY = event.clientY;
+
+		drawScene();
+	}	
+
+
+	function keyDown(event) {
+
+		switch(event.keyCode) {
+
+      case 37: //Left
+         camdreh = (camdreh + 1) % 360;
+         break;
+      case 39: //right
+         camdreh = (camdreh - 1) % 360;
+         break;
+      case 38: //Up
+         camknick = (camknick - 1) % 360;
+         break;
+      case 40: //Down
+         camknick = (camknick + 1) % 360;
+         break;
+
+
+     case 65: ///Key A
+         dreh = (dreh + 1) % 360;
+         break;
+      case 68: ///Key D
+         dreh = (dreh - 1) % 360;
+         break;
+      case 87: ///Key W
+         knick = (knick + 1) % 360;
+         break;
+      case 83: ///Key S
+         knick = (knick - 1) % 360;
+         break;		 
+
+	case 72: ///Key H
+		omega1 = 0;
+		break;
+
+      case 77: ///Key M //Laser on/off
+         m = !m;
+         break;
+		 
+	case 80: /// Key P
+			projection_mode = (projection_mode + 1) % 2;
+			break;
+
+      case 86: ///Key V Umschalten auf Zielscheibenview
+		 pers++;
+		 if(pers==3)pers=0;
+         break;		 
+		 
+      case 32: ///Key Spaaaaaaaaaaaaaaaaaaaaaaaaace
+         tick = tick + 0.05;
+         break;
+
+      case 70: ///Key F für Schneeballwur"f"
+	           f = !f;
+			   hit = 0;
+         break;		 
+
+      default:
+        break;
+		}
+		drawScene();
+	}
+
+	function resizeCanvas() {
+		if (canvas.width != canvas.clientWidth || canvas.height != canvas.clientHeight) {
+			canvas.width = canvas.clientWidth;
+			canvas.height = canvas.clientHeight;
+		}
+		aspectratio = canvas.width / canvas.height;
+		gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+		drawScene();
+	}
+
+	window.addEventListener('load', webGLStart);
+	window.addEventListener('resize', resizeCanvas);
+</script>
+
+<body>
+	<canvas id='WebGLCanvas'>
+	</canvas>
+
+</body>
+
+</html>
