@@ -55,7 +55,10 @@
 		scene.add(camera);
 		controls = new THREE.OrbitControls( camera );
 		controls.addEventListener( 'change', render );
-				
+		controls.target.z=-6;
+		camera.position.z=15;
+		camera.position.y=1;
+						
 		renderer = new THREE.WebGLRenderer(); 
 		renderer.setSize( window.innerWidth, window.innerHeight ); 
 		renderer.setClearColor( 0xffffff, 1 );	// Canvas Background Color
@@ -143,8 +146,7 @@
 		//camera.position.set( 4, 4, 21 );
 		//camera.lookAt( scene.position );
 		//KAMERA auf die Pins
-		camera.position.set( 0,2, -9.0 );
-		camera.lookAt( new THREE.Vector3(-1,-1,-1) );
+		
 			
 		
 		//PinVertices erzeugen
@@ -165,7 +167,7 @@
 		directionalLight.shadowCameraRight = 0.5;
 		directionalLight.shadowCameraTop = 0.5;
 		directionalLight.shadowCameraBottom = -0.5;
-		directionalLight.shadowCameraVisible = true;
+		directionalLight.shadowCameraVisible = false;
 		directionalLight.castShadow = true;
 		scene.add(directionalLight);
 	
@@ -182,6 +184,7 @@
 			}));
 		var sky_material = new THREE.MeshFaceMaterial( sky_material_array );
 		var skybox = new THREE.Mesh(sky_geometry, sky_material);
+		skybox.rotation.y -=2.35;
 		scene.add(skybox);
 		// SKYBOX ENDE*/
 	}
