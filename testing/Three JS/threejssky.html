@@ -9,7 +9,7 @@
 		<script type="text/javascript" src="sugar.js"></script>
 		<script type="text/javascript" src="gl-matrix.js"></script>
 		<script type="text/javascript" src="dat.gui.js"></script>
-		<script type="text/javascript" src="pins.js"></script>
+		<script type="text/javascript" src="pintest.js"></script>
 		<script type="text/javascript" src="ball.js"></script>
 		<script type="text/javascript" src="userInterface.js"></script>
 		<script> 
@@ -24,33 +24,16 @@
 	
 	var slices = 10; 		// Pin slices
 	
-	//var pins;
-	var pin1,pin2,pin3,pin4,pin5,pin6,pin7,pin8,pin9,pin10;
-		
+	var pins;
+			
 	var posarr = [[0.0,0.0,-18.29/2],
 				[0.3048/2,0.0,-18.29/2-0.264],[-0.3048/2,0.0,-18.29/2-0.264],
 				[0.3048,0.0,-18.29/2-0.264*2],[0.0,0.0,-18.29/2-0.264*2],[-0.3048,0.0,-18.29/2-0.264*2],
 				[0.3048*3/2,0.0,-18.29/2-0.264*3],[0.3048/2,0.0,-18.29/2-0.264*3],[-0.3048/2,0.0,-18.29/2-0.264*3],[-0.3048*3/2,0.0,-18.29/2-0.264*3]];
 	
-	var L= [[0.0257937, 0., 0],
-	                  [0.0359156, 0.01905, 0],
-	                  [0.0496062, 0.05715, 0],
-	                  [0.057277, 0.085725, 0],
-	                  [0.0605282, 0.1143, 0],
-	                  [0.0579501, 0.149225, 0],
-	                  [0.0470281, 0.18415, 0],
-	                  [0.0313944, 0.219075, 0],
-	                  [0.0249555, 0.238125, 0],
-	                  [0.0228219, 0.254, 0],
-	                  [0.023749, 0.276225, 0],
-	                  [0.0265938, 0.29845, 0],
-	                  [0.0305562, 0.320675, 0],
-	                  [0.0323469, 0.3429, 0],
-	                  [0.0323342, 0.348666, 0],
-	                  [0.0298704, 0.361036, 0],
-	                  [0.02286, 0.371526, 0],
-	                  [0.0123698, 0.378536, 0],
-	                  [0.00127, 0.380975, 0]];
+	var V0=5; //Velocity at the beginning
+	var a=[9.81*0.12,9.81*0.12,9.81*0.12]; //gleitreibung
+	var angle=0; //throwing angle -45,45
 	
 	
 	init();
@@ -88,10 +71,8 @@
 		scene.add( lane );  
 		
 		//generate ball and pins
-		//ball = new THREE.Mesh(new THREE.SphereGeometry(0.11, 5, 5), new THREE.MeshNormalMaterial());
 		ball= new BowlBall([0,0,0],[0,0,0]);
-		//pins = createPins();
-		pinVertices= generatePin(slices,L);
+		pins = createPins();
 		
 		// Approach
 		var appr_geometry = new THREE.CubeGeometry(1.05,0.1,2.0); 
@@ -200,19 +181,34 @@
 		scene.add(skybox);
 		// SKYBOX ENDE*/
 	}
-		var V=0.0;
-		var V0=5.0;
-		var a=-9.81*0.2;
+		
+	
 	function animate() {
 		requestAnimationFrame( animate );
-		V=V+time*a;
-		if(V<0)V=0;
-		ball.translateZ(-time*V);
+		moveBall();
 		
 		render();
 		controls.update();
 	}
 	
+	function moveBall(){
+		if (ball.velocity.x>0.0001) ball.velocity.x = ball.velocity.x-time*a[0]*Math.sin(Math.PI/180.0*angle);
+			else if (ball.velocity.x<-0.0001)ball.velocity.x = ball.velocity.x+time*a[0]*Math.sin(Math.PI/180.0*angle);
+			else ball.velocity.x=0;
+		if (ball.velocity.y>0.0001) ball.velocity.y = ball.velocity.y-time*a[1];
+			else if (ball.velocity.y<-0.0001)ball.velocity.y = ball.velocity.y+time*a[1];
+			ball.velocity.y = 0;
+		if(ball.velocity.z>0.0001)ball.velocity.z = ball.velocity.z-time*a[2]*Math.cos(Math.PI/180.0*angle);
+			else ball.velocity.z=0;
+		if(ball.velocity.z<0){
+			ball.velocity.x = 0;
+			ball.velocity.y =0 ;
+			ball.velocity.z = 0;
+			}
+		ball.translateZ(-time*ball.velocity.z);
+		ball.translateY(time*ball.velocity.y);
+		ball.translateX(time*ball.velocity.x);
+	}
 	// Renderer
 	function render() { 
 		renderer.shadowMapEnabled = true;
@@ -223,15 +219,16 @@
 		renderer.shadowMapHeight = 1024; 
 		renderer.render(scene, camera); 
 	} 
-
+	V0=5;
 		
 	function keyDown(event) {
 
 		switch(event.keyCode) {
 
       case 65: ///Key A
-		 //putPins(pins,posarr);
-		 putPins(slices);
+		 putPins(pins,posarr);
+		 
+		 //putPins(slices);
          break;
       case 68: ///Key D
 		 scene.remove(ball);
@@ -239,7 +236,9 @@
          break;
       case 87: ///Key W
          time=0.01;
-		 V=V0;
+		 ball.velocity.x=V0*Math.sin(Math.PI/180.0*angle);
+		 ball.velocity.y=0;
+		 ball.velocity.z=V0*Math.cos(Math.PI/180.0*angle);
          break;
       case 83: ///Key S
          ;

@@ -26,20 +26,33 @@ function generatePinSegment(a, b, slices){
 	return pinVertices;
 }
 /* 												*/
-
+function generatePinColor(pin_geometry, slices, ring)
+			{
+				for ( var i = 0; i < pin_geometry.faces.length; i++) {
+					var face = pin_geometry.faces[i];
+					var lowerbot = 2*slices + (ring-1) * (2*slices + 2);
+					var upperbot = 2*slices + ring * (2*slices + 2)-1;
+					var lowertop = 2*slices + (ring+1) * (2*slices + 2);
+					var uppertop = 2*slices + (ring+2) * (2*slices + 2)-1;
+					if ((i >=lowerbot && i <=upperbot)||(i >=lowertop && i <=uppertop))
+						face.color.setRGB(1,0,0); 
+					else
+						face.color.setRGB(0.8,0.8,0.8);
+				}
+			}
 /*  	Allows .x/.y/.z access to velocity coordinates, such that 
 	usage is equivalent to that of the position coordinates of THREE.Mesh */
+
 function velobj(vel0) {
+	this[0] = vel0[0];
+	this[1] = vel0[1];
+	this[2] = vel0[2];
 	this.x = vel0[0];
 	this.y = vel0[1];
 	this.z = vel0[2];
-
+	
 }
-velobj.prototype = {
-		x: 0,
-		y: 0,
-		z: 0
-}
+velobj.inherits(Array);
 
 
 /* Constructor for the BowlPin type, which is inherited from THREE.Mesh */
@@ -93,7 +106,9 @@ function BowlPin(pos0,vel0,slices,color) {
 	this.geometry.computeFaceNormals();
 
 
-	this.material = new THREE.MeshPhongMaterial({color: color });
+	this.material = new THREE.MeshPhongMaterial({color: 0xffffff, vertexColors: THREE.FaceColors});
+	generatePinColor(this.geometry, 10, 7);
+	
 	THREE.Mesh.call(this,this.geometry,this.material);
 
 	/* Initialize extensions to THREE.Mesh */
@@ -115,10 +130,6 @@ function BowlPin(pos0,vel0,slices,color) {
 }
 
 BowlPin.inherits(THREE.Mesh);
-
-BowlPin.method('velarr', function () {
-	return [this.velocity.x,this.velocity.y,this.velocity.z];
-});
 
 BowlPin.method('genVertices', function () {
 	for (var i = 0; i < this.shapeline.length-1; i++)
@@ -142,17 +153,31 @@ function createPins()
 
 function putPins(pins,posarr)
 {
-	for (var i = 0; i < 1; i++) 
+	for (var i = 0; i < 10; i++) 
 	{
-		//scene.remove(pins[i]);
-		pins[i].position.set(posarr[i]);
+		scene.remove(pins[i])
+		pins[i].position.set(posarr[i][0],posarr[i][1],posarr[i][2]);
 		pins[i].receiveShadow = true;
 		pins[i].castShadow = true;
 		scene.add(pins[i]);
-		//console.log(pins[i].position.z);
 	}
 
 	return pins;
+}
+/*var posarr = [[0.0,0.0,-18.29/2],
+				[0.3048/2,0.0,-18.29/2-0.264],[-0.3048/2,0.0,-18.29/2-0.264],
+				[0.3048,0.0,-18.29/2-0.264*2],[0.0,0.0,-18.29/2-0.264*2],[-0.3048,0.0,-18.29/2-0.264*2],
+				[0.3048*3/2,0.0,-18.29/2-0.264*3],[0.3048/2,0.0,-18.29/2-0.264*3],[-0.3048/2,0.0,-18.29/2-0.264*3],[-0.3048*3/2,0.0,-18.29/2-0.264*3]];
+	
+/*var pins1 = createPins();
+
+for (var i = 0; i < 10; i++) 
+{	
+	pins1[0].position.set(posarr[0][0],)
+	console.log(pins1[i].id);
+	console.log(pins1[i].mass);
+	console.log(pins1[i].position.x);
+	console.log(pins1[i].velocity.x);
 }
 
 /*pins[0].translateX(0);
