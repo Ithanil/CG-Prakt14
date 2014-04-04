@@ -6,15 +6,18 @@
 	<body> 
 		<script src="three.js"></script> 
 		<script src="OrbitControls.js"></script>
+		<script type="text/javascript" src="dat.gui.js"></script>
 		<script type="text/javascript" src="pins.js"></script>
+		<script type="text/javascript" src="userInterface.js"></script>
 		<script> 
 		
 			
 	var renderer, camera, controls, moreLight, directionalLight;
 	
 	// custom global variables
-	var back, lane, approach, pinVertices;
-	var time=0.0; 
+	var back, lane, approach, pinVertices, ballOffset;
+	var time=0.0;
+	
 	
 	var slices = 10; 		// Pin slices
 	
@@ -46,6 +49,7 @@
 	
 	init();
 	animate();
+	createUi();
 		
 	function init(){
 		document.addEventListener("keydown", keyDown, false);
@@ -190,8 +194,8 @@
 		scene.add(skybox);
 		// SKYBOX ENDE*/
 	}
-
-		var V=5;
+		var V=0.0;
+		var V0=5.0;
 		var a=-9.81*0.2;
 	function animate() {
 		requestAnimationFrame( animate );
@@ -228,7 +232,7 @@
          break;
       case 87: ///Key W
          time=0.01;
-		 V=5;
+		 V=V0;
          break;
       case 83: ///Key S
          ;
