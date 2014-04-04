@@ -75,47 +75,80 @@
 		pins = createPins();
 		
 		// Approach
-		var appr_geometry = new THREE.CubeGeometry(1.05,0.1,2.0); 
-		var appr_material = new THREE.MeshBasicMaterial( { color: 0x5C3D1F } ); 
+		var appr_geometry = new THREE.CubeGeometry(1.05+2*0.2359,0.1,2.0); 
+		var apprTexture = new THREE.ImageUtils.loadTexture("textures/wood.jpg");
+		apprTexture.wrapS = apprTexture.wrapT = THREE.RepeatWrapping;
+		apprTexture.repeat.set( 5,3 );
+		var appr_material = new THREE.MeshPhongMaterial( {  map:apprTexture, side:THREE.DoubleSide } ); 
 		approach = new THREE.Mesh( appr_geometry, appr_material ); 
-		approach.translateZ(18.29/2.0+2.0/2);
+		approach.translateZ(18.29/2.0+2.0/2+0.02);
 		approach.translateY(-0.05);
 		scene.add( approach ); 
 		
+		var appr_line = new THREE.Mesh(new THREE.CubeGeometry(1.05+2*0.2359,0.1,0.02),new THREE.MeshPhongMaterial( { color: 0x999999 } ));
+		appr_line.translateY(-0.05);
+		appr_line.translateZ(18.29/2.0+0.02/2);
+		scene.add(appr_line);
+		
 		// Plattform
-		var plattform_material = new THREE.MeshPhongMaterial( { color: 0x339933 } ); 
-		var plattform = new THREE.Mesh( new THREE.CylinderGeometry( 15,15,1, 5), plattform_material ); 
+		var grass = new THREE.ImageUtils.loadTexture("textures/grass.jpg");
+		grass.wrapS = grass.wrapT = THREE.RepeatWrapping;
+		grass.repeat.set( 15,10 );
+		var plattform_material = new THREE.MeshPhongMaterial( { 
+			map: grass,
+			color: 0x339933 } ); 
+		var plattform = new THREE.Mesh( new THREE.CubeGeometry( 30,1,30), plattform_material ); 
 		plattform.translateY(-0.5-0.1);
+		plattform.receiveShadow=true;
 		scene.add( plattform ); 
 		
-		// Box hinten
+		var boxTexture = new THREE.ImageUtils.loadTexture("textures/box.jpg");
+		var box_material = new THREE.MeshPhongMaterial( {  map:boxTexture, side:THREE.DoubleSide } ); 
+		var boxUp_material = [
+			
+			new THREE.MeshPhongMaterial({color: 0x339933}),
+			new THREE.MeshPhongMaterial({color: 0x339933}),
+			new THREE.MeshPhongMaterial({  map:boxTexture }),
+			new THREE.MeshPhongMaterial({  map:boxTexture }),
+			new THREE.MeshPhongMaterial({  map:boxTexture }),
+			new THREE.MeshPhongMaterial({color: 0x339933})
+		]
+		
+		var boxBack_material = [
+			new THREE.MeshPhongMaterial({  map:boxTexture }),
+			new THREE.MeshPhongMaterial({  map:boxTexture }),
+			new THREE.MeshPhongMaterial({  map:boxTexture }),
+			new THREE.MeshPhongMaterial({  map:boxTexture }),
+			new THREE.MeshPhongMaterial({  map:boxTexture }),
+			new THREE.MeshPhongMaterial({  map:boxTexture })
+		]
+		
 		var boxBack = new THREE.Mesh(
-			new THREE.CubeGeometry(1.05+2*0.2359+0.5*2,1.25,0.75),
-			new THREE.MeshPhongMaterial({ color: 0x996633 })
+			new THREE.CubeGeometry(1.05+2*0.2359+0.5*2,1.25,0.25),
+			new THREE.MeshFaceMaterial(boxBack_material)
 		);
 		boxBack.translateY(1.25/2-0.1);
-		boxBack.translateZ(-18.29/2-1.3-0.75);
+		boxBack.translateZ(-18.29/2-1.3-0.25-0.5);
+		boxBack.castShadow = true;
+		boxBack.receiveShadow = true;
 		scene.add(boxBack);
-		
-		var boxLR = new THREE.CubeGeometry(0.5,1.25,0.25);
-		var boxLR_material = new THREE.MeshPhongMaterial({ color: 0x996633 });
-		var boxL = new THREE.Mesh(boxLR, boxLR_material);
+		var boxLR = new THREE.CubeGeometry(0.5,1.25,0.75);
+		var boxL = new THREE.Mesh(boxLR, box_material);
 		boxL.translateX(1.05/2+0.2359+0.5/2);
 		boxL.translateY(1.25/2-0.1);
-		boxL.translateZ(-18.29/2-1.3+0.5-0.75);
+		boxL.translateZ(-18.29/2-1.3+0.5-0.25-0.5);
 		scene.add(boxL);
-		var boxR = new THREE.Mesh(boxLR, boxLR_material);
+		var boxR = new THREE.Mesh(boxLR, box_material);
 		boxR.translateX(-1.05/2-0.2359-0.5/2);
 		boxR.translateY(1.25/2-0.1);
-		boxR.translateZ(-18.29/2-1.3+0.5-0.75);
+		boxR.translateZ(-18.29/2-1.3+0.5-0.25-0.5);
 		scene.add(boxR);
-		
 		var boxUp = new THREE.Mesh(
-			new THREE.CubeGeometry(1.05+2*0.2359,0.5,0.25),
-			new THREE.MeshPhongMaterial({ color: 0x996633 })
+			new THREE.CubeGeometry(1.05+2*0.2359,0.5,0.75,1,1,1),
+			new THREE.MeshFaceMaterial(boxUp_material)
 		);
 		boxUp.translateY(-0.1+1);
-		boxUp.translateZ(-18.29/2-1.3+0.5-0.75);
+		boxUp.translateZ(-18.29/2-1.3+0.5-0.25-0.5);
 		scene.add(boxUp);
 		
 		//Das schwarze Ding hinten
@@ -124,20 +157,65 @@
 		);
 		black.translateY(-0.1+0.5);
 		black.translateZ(-18.29/2-1.3-0.20);
-		scene.add( black );
+		//scene.add( black );
 		
-		// rinne außen
-		var limits_material = new THREE.MeshPhongMaterial({color: 0x000000});
-		var limitsR = new THREE.Mesh(new THREE.CubeGeometry(0.2359,0.1,18.29+2), limits_material);
-		var limitsL = new THREE.Mesh(new THREE.CubeGeometry(0.2359,0.1,18.29+2), limits_material);
-		limitsR.translateX(1.05/2+0.2359/2);
-		limitsR.translateY(-0.05);
-		limitsR.translateZ(-1);
-		scene.add(limitsR);
-		limitsL.translateX(-1.05/2-0.2359/2);
-		limitsL.translateY(-0.05);
-		limitsL.translateZ(-1);
-		scene.add(limitsL);
+		// Außen
+		
+		var rinneGeometry = new THREE.Geometry();
+		var rinneVertices = new Array();
+		var radius = 0.25;
+		var offsetY = 0.1-Math.sin(360*50/80*Math.PI/180)*radius;
+		
+		rinneVertices = rinneVertices.concat(
+			[-0.2359/2,0,0],[-0.2359/2,0,18.29+2],
+			[-0.2359/2,0.1,0],[-0.2359/2,0.1,18.29+2]
+		);
+		
+		for (var i = 50; i < 71; i++)
+		{
+			var newVertex = [];
+			newVertex[0] = -Math.cos(360*i/80*Math.PI/180)/Math.cos(360*50/80*Math.PI/180)*0.11; 	 
+			newVertex[1] = Math.sin(360*i/80*Math.PI/180)*radius+offsetY;
+			newVertex[2] = 0;
+			rinneVertices = rinneVertices.concat(newVertex);
+			newVertex[2] = 18.29+2;
+			rinneVertices = rinneVertices.concat(newVertex);
+		}
+		rinneVertices = rinneVertices.concat(
+			[0.2359/2,0.1,0],[0.2359/2,0.1,18.29+2],
+			[0.2359/2,0,0],[0.2359/2,0,18.29+2]
+			[-0.2359/2,0,0],[-0.2359/2,0,18.29+2]
+		);
+		
+		var countr = 0;
+		for (var i = 0; i < rinneVertices.length; i = i + 3) {
+				rinneGeometry.vertices.push(new THREE.Vector3(rinneVertices[i],rinneVertices[i+1],rinneVertices[i+2]));
+				countr++;
+		}
+		
+		for (var i = 0; i < countr-3; i = i +2) 
+		{
+			var a = i;
+			var b = i+1;
+			var c = i+2;
+			var d = i+3;
+			rinneGeometry.faces.push(new THREE.Face3(a,b,c));
+			rinneGeometry.faces.push(new THREE.Face3(b,d,c));
+		}
+		
+		rinneGeometry.computeFaceNormals();
+		
+		var rinneL = new THREE.Mesh(rinneGeometry, new THREE.MeshPhongMaterial({color: 0x999999})); 
+		rinneL.translateX(-1.05/2-0.2359/2);
+		rinneL.translateY(-0.1);
+		rinneL.translateZ(-18.29/2-2);
+		scene.add(rinneL);
+		
+		var rinneR = new THREE.Mesh(rinneGeometry, new THREE.MeshPhongMaterial({color: 0x999999})); 
+		rinneR.translateX(1.05/2+0.2359/2);
+		rinneR.translateY(-0.1);
+		rinneR.translateZ(-18.29/2-2);
+		scene.add(rinneR);
 
 		// Position oder Kamera
 		//camera.position.set( 4, 4, 21 );
@@ -156,10 +234,10 @@
 		directionalLight.target.position.set(0,0,-18.29/2);
 		directionalLight.shadowCameraNear = 2;
 		directionalLight.shadowCameraFar = 15;
-		directionalLight.shadowCameraLeft = -0.5;
-		directionalLight.shadowCameraRight = 0.5;
-		directionalLight.shadowCameraTop = 0.5;
-		directionalLight.shadowCameraBottom = -0.5;
+		directionalLight.shadowCameraLeft = -1.5;
+		directionalLight.shadowCameraRight = 1.5;
+		directionalLight.shadowCameraTop = 1.5;
+		directionalLight.shadowCameraBottom = -1.5;
 		directionalLight.shadowCameraVisible = false;
 		directionalLight.castShadow = true;
 		scene.add(directionalLight);
