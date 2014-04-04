@@ -10,6 +10,7 @@
 		<script type="text/javascript" src="gl-matrix.js"></script>
 		<script type="text/javascript" src="dat.gui.js"></script>
 		<script type="text/javascript" src="pins.js"></script>
+		<script type="text/javascript" src="ball.js"></script>
 		<script type="text/javascript" src="userInterface.js"></script>
 		<script> 
 		
@@ -17,7 +18,7 @@
 	var renderer, camera, controls, moreLight, directionalLight;
 	
 	// custom global variables
-	var back, lane, approach, pinVertices, ballOffset;
+	var back, lane, approach, pinVertices, ballOffset, ball;
 	var time=0.0;
 	
 	
@@ -87,7 +88,8 @@
 		scene.add( lane );  
 		
 		//generate ball and pins
-		ball = new THREE.Mesh(new THREE.SphereGeometry(0.11, 5, 5), new THREE.MeshNormalMaterial());
+		//ball = new THREE.Mesh(new THREE.SphereGeometry(0.11, 5, 5), new THREE.MeshNormalMaterial());
+		ball= new BowlBall([0,0,0],[0,0,0]);
 		//pins = createPins();
 		pinVertices= generatePin(slices,L);
 		
