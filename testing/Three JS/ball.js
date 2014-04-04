@@ -23,7 +23,7 @@ function BowlBall(pos0,vel0) {
 
 	/* Initialize THREE.MESH */
 
-	this.geometry = new THREE.SphereGeometry(this.radius, 5, 5)	
+	this.geometry = new THREE.SphereGeometry(this.radius, 9, 9)	
 	/* Was ist mit Faces und Normalen bei der Kugel?
 	for (var i = 0; i < count-3; i = i +2) 
 	{

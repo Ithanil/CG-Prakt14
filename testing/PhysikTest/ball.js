@@ -9,13 +9,12 @@ function velobj(vel0) {
 	this.x = vel0[0];
 	this.y = vel0[1];
 	this.z = vel0[2];
-
 }
 velobj.inherits(Array);
 
 /* Constructor for the BowlPin type, which is inherited from THREE.Mesh */
 
-function BowlBall(pos0,vel0) {
+function BowlBall(pos0, vel0, angl0, anglvel0) {
 
 	/* Preparation for THREE.Mesh */
 	
@@ -42,24 +41,40 @@ function BowlBall(pos0,vel0) {
 
 	/* Initialize extensions to THREE.Mesh */
 
-	this.compos = [0., 0.1085, 0.001];	// This center of mass position is measured from the central bottom of figure
+	this.objtype = "ball";
+	
+	this.compos = [0., 0., 0.001];
+	this.refpos = [0., 0., 0.];
+	this.posoff = [this.compos[0] - this. refpos[0], 
+	               this.compos[1] - this. refpos[1], 
+	               this.compos[2] - this. refpos[2]]; 
 	this.position.x = pos0[0];
 	this.position.y = pos0[1];
 	this.position.z = pos0[2];
 	this.velocity = new velobj(vel0);
+	
+	this.angl = new velobj(angl0);
+	this.anglvel = new velobj(anglvel0);
+	
 	this.mass = 7.0;
 	this.intens = [[0.031, 0, 0],
 	               [0, 0.033, 0],
 	               [0, 0, 0.035]];
+	
 	this.ormat = [[1., 0., 0.],
 	              [0., 1., 0.],
 	              [0., 0., 1.]];
-	this.oquat = [1.0, 0., 0., 0.];
+	this.orquat = [1.0, 0., 0., 0.];
 
 }
 
 BowlBall.inherits(THREE.Mesh);
 
+BowlBall.method('velarr', function () {
+	return [this.velocity.x,this.velocity.y,this.velocity.z];
+});
+
+/*
 var ball = new BowlBall([0,1,2],[3,4,5])
 ball.receiveShadow = true;
 ball.castShadow = true;
@@ -68,10 +83,7 @@ console.log(ball.id);
 console.log(ball.mass);
 console.log(ball.position.x);
 console.log(ball.velocity.x);
-console.log(ball.velocity[0]);
-console.log(ball.velocity[1]);
-console.log(ball.velocity[2]);
-
+*/
 
 /*pins[0].translateX(0);
 pins[0].translateZ(-18.29/2);

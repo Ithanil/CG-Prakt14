@@ -26,7 +26,20 @@ function generatePinSegment(a, b, slices){
 	return pinVertices;
 }
 /* 												*/
-
+function generatePinColor(pin_geometry, slices, ring)
+			{
+				for ( var i = 0; i < pin_geometry.faces.length; i++) {
+					var face = pin_geometry.faces[i];
+					var lowerbot = 2*slices + (ring-1) * (2*slices + 2);
+					var upperbot = 2*slices + ring * (2*slices + 2)-1;
+					var lowertop = 2*slices + (ring+1) * (2*slices + 2);
+					var uppertop = 2*slices + (ring+2) * (2*slices + 2)-1;
+					if ((i >=lowerbot && i <=upperbot)||(i >=lowertop && i <=uppertop))
+						face.color.setRGB(1,0,0); 
+					else
+						face.color.setRGB(0.8,0.8,0.8);
+				}
+			}
 /*  	Allows .x/.y/.z access to velocity coordinates, such that 
 	usage is equivalent to that of the position coordinates of THREE.Mesh */
 
@@ -93,7 +106,9 @@ function BowlPin(pos0,vel0,slices,color) {
 	this.geometry.computeFaceNormals();
 
 
-	this.material = new THREE.MeshPhongMaterial({color: color });
+	this.material = new THREE.MeshPhongMaterial({color: 0xffffff, vertexColors: THREE.FaceColors});
+	generatePinColor(this.geometry, 10, 7);
+	
 	THREE.Mesh.call(this,this.geometry,this.material);
 
 	/* Initialize extensions to THREE.Mesh */
@@ -141,7 +156,7 @@ function putPins(pins,posarr)
 	for (var i = 0; i < 10; i++) 
 	{
 		scene.remove(pins[i])
-		pins[i].position.set(posarr[i]);
+		pins[i].position.set(posarr[i][0],posarr[i][1],posarr[i][2]);
 		pins[i].receiveShadow = true;
 		pins[i].castShadow = true;
 		scene.add(pins[i]);
@@ -149,15 +164,20 @@ function putPins(pins,posarr)
 
 	return pins;
 }
-
-var pins = createPins();
+/*var posarr = [[0.0,0.0,-18.29/2],
+				[0.3048/2,0.0,-18.29/2-0.264],[-0.3048/2,0.0,-18.29/2-0.264],
+				[0.3048,0.0,-18.29/2-0.264*2],[0.0,0.0,-18.29/2-0.264*2],[-0.3048,0.0,-18.29/2-0.264*2],
+				[0.3048*3/2,0.0,-18.29/2-0.264*3],[0.3048/2,0.0,-18.29/2-0.264*3],[-0.3048/2,0.0,-18.29/2-0.264*3],[-0.3048*3/2,0.0,-18.29/2-0.264*3]];
+	
+/*var pins1 = createPins();
 
 for (var i = 0; i < 10; i++) 
-{
-	console.log(pins[i].id);
-	console.log(pins[i].mass);
-	console.log(pins[i].position.x);
-	console.log(pins[i].velocity.x);
+{	
+	pins1[0].position.set(posarr[0][0],)
+	console.log(pins1[i].id);
+	console.log(pins1[i].mass);
+	console.log(pins1[i].position.x);
+	console.log(pins1[i].velocity.x);
 }
 
 /*pins[0].translateX(0);

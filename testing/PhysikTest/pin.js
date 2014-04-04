@@ -29,22 +29,20 @@ function generatePinSegment(a, b, slices){
 
 /*  	Allows .x/.y/.z access to velocity coordinates, such that 
 	usage is equivalent to that of the position coordinates of THREE.Mesh */
-
 function velobj(vel0) {
 	this[0] = vel0[0];
 	this[1] = vel0[1];
 	this[2] = vel0[2];
 	this.x = vel0[0];
 	this.y = vel0[1];
-	this.z = vel0[2];
-	
+	this.z = vel0[2];	
 }
 velobj.inherits(Array);
 
 
 /* Constructor for the BowlPin type, which is inherited from THREE.Mesh */
 
-function BowlPin(pos0,vel0,slices,color) {
+function BowlPin(pos0, vel0, angl0, anglvel0, slices,color) {
 
 	/* Preparation for THREE.Mesh */
 
@@ -98,23 +96,38 @@ function BowlPin(pos0,vel0,slices,color) {
 
 	/* Initialize extensions to THREE.Mesh */
 
-	this.compos = [0., 0.147558, 0.] // This center of mass position is measured from the central bottom of figure
+	this.objtype = "pin";
+	
+	this.compos = [0., 0.147558, 0.];
+	this.refpos = [0., 0.147558, 0.];
+	this.posoff = [this.compos[0] - this. refpos[0], 
+	               this.compos[1] - this. refpos[1], 
+	               this.compos[2] - this. refpos[2]]; 
 	this.position.x = pos0[0];
 	this.position.y = pos0[1];
 	this.position.z = pos0[2];
 	this.velocity = new velobj(vel0);
+	
+	this.angl = new velobj(angl0);
+	this.anglvel = new velobj(anglvel0);
+	
 	this.mass = 1.5875733;
 	this.intens = [[0.0134109, 0, 0],
 	               [0, 0.0019401, 0],
 	               [0, 0, 0.0134109]];
+	
 	this.ormat = [[1., 0., 0.],
 	              [0., 1., 0.],
 	              [0., 0., 1.]];
-	this.oquat = [1.0, 0., 0., 0.];
+	this.orquat = [1.0, 0., 0., 0.];
 
 }
 
 BowlPin.inherits(THREE.Mesh);
+
+BowlPin.method('velarr', function () {
+	return [this.velocity.x,this.velocity.y,this.velocity.z];
+});
 
 BowlPin.method('genVertices', function () {
 	for (var i = 0; i < this.shapeline.length-1; i++)
@@ -131,7 +144,7 @@ function createPins()
 	var pins = [];
 	for (var i = 0; i < 10; i++) 
 	{
-		pins.push(new BowlPin([0,0,0],[0,0,0],10,"blue"));
+		pins.push(new BowlPin([0,0,0], [0,0,0], [0,0,0], [0,0,0], 10,"blue"));
 	}
 	return pins;
 }
@@ -150,6 +163,8 @@ function putPins(pins,posarr)
 	return pins;
 }
 
+
+/*
 var pins = createPins();
 
 for (var i = 0; i < 10; i++) 
