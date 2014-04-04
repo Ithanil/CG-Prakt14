@@ -16,6 +16,8 @@
 	var back, lane, approach, pinVertices;
 	var time=0.0; 
 	
+	var slices = 10; 		// Pin slices
+	
 	var pin1, pin2, pin3, pin4, pin5, pin6, pin7, pin8, pin9, pin10;
 		
 	var L = ([
@@ -67,7 +69,7 @@
 		// Bahn
 		var laneTexture = new THREE.ImageUtils.loadTexture("textures/wood.jpg");
 		laneTexture.wrapS = laneTexture.wrapT = THREE.RepeatWrapping;
-		laneTexture.repeat.set( 3,20 );
+		laneTexture.repeat.set( 3,25 );
 		var lane_material = new THREE.MeshPhongMaterial( {  map:laneTexture, side:THREE.DoubleSide } ); 
 		lane = new THREE.Mesh( new THREE.CubeGeometry(1.05,0.1,18.29+2), lane_material ); 
 		lane.translateY(-0.05);
@@ -150,7 +152,7 @@
 			
 		
 		//PinVertices erzeugen
-		pinVertices = generatePin(10,L);
+		pinVertices = generatePin(slices,L);
 		
 		//Schattenwurf
 		moreLight = new THREE.DirectionalLight(0xffffff, 0.5);
@@ -218,7 +220,7 @@
 		switch(event.keyCode) {
 
       case 65: ///Key A
-		 putPins();
+		 putPins(slices);
          break;
       case 68: ///Key D
 		 scene.remove(ball);
