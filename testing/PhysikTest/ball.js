@@ -43,7 +43,7 @@ function BowlBall(pos0,vel0) {
 
 	/* Initialize extensions to THREE.Mesh */
 
-	this.compos = [0., 0.1085, 0.001];	// This center of mass position is measured from the central bottom of figure
+	this.compos = [0., 0.1085, 0.001];
 	this.position.x = pos0[0];
 	this.position.y = pos0[1];
 	this.position.z = pos0[2];

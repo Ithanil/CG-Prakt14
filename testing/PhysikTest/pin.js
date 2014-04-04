@@ -98,7 +98,7 @@ function BowlPin(pos0,vel0,slices,color) {
 
 	/* Initialize extensions to THREE.Mesh */
 
-	this.compos = [0., 0.147558, 0.] // This center of mass position is measured from the central bottom of figure
+	this.compos = [0., 0.147558, 0.]
 	this.position.x = pos0[0];
 	this.position.y = pos0[1];
 	this.position.z = pos0[2];
