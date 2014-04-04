@@ -108,9 +108,6 @@ function BowlPin(pos0,vel0,slices,color) {
 	               [0, 0.0019401, 0],
 	               [0, 0, 0.0134109]];
 
-
-	//alert('BowlPin instantiated');
-	console.log(this.id);
 }
 
 BowlPin.inherits(THREE.Mesh);
