@@ -37,8 +37,23 @@ function generatePinSegment(a, b, slices){
 				}
 				return pinVertices;
 			}
+			
+			function generatePinColor(pin_geometry, slices, ring)
+			{
+				for ( var i = 0; i < pin_geometry.faces.length; i++) {
+					var face = pin_geometry.faces[i];
+					var lowerbot = 2*slices + (ring-1) * (2*slices + 2);
+					var upperbot = 2*slices + ring * (2*slices + 2)-1;
+					var lowertop = 2*slices + (ring+1) * (2*slices + 2);
+					var uppertop = 2*slices + (ring+2) * (2*slices + 2)-1;
+					if ((i >=lowerbot && i <=upperbot)||(i >=lowertop && i <=uppertop))
+						face.color.setRGB(1,0,0); 
+					else
+						face.color.setRGB(0.8,0.8,0.8);
+				}
+			}
 	
-		function putPins(){
+		function putPins(slices){
 			
 		 scene.remove(pin1);
 		 scene.remove(pin2);
@@ -68,8 +83,15 @@ function generatePinSegment(a, b, slices){
 			pin_geometry.faces.push(new THREE.Face3(a,b,c));
 			pin_geometry.faces.push(new THREE.Face3(b,d,c));
 		}
+		
 		pin_geometry.computeFaceNormals();
-		var pin_material = new THREE.MeshPhongMaterial({color: 'blue' });
+		
+		var pin_material = new THREE.MeshBasicMaterial({color: 0xffffff, vertexColors: THREE.FaceColors});
+		
+		generatePinColor(pin_geometry, slices, 7); 	// (Geometrie, Slices, Höhe der Farben)
+		
+		
+		
 				// Die 10 Pins
 		pin1 = new THREE.Mesh(pin_geometry, pin_material); 
 		pin1.translateX(0);
@@ -142,7 +164,7 @@ function generatePinSegment(a, b, slices){
 		
 		animate();
 }	
-	var posarr[[0.0,0.0,-18.29/2],
+	var posarr = [[0.0,0.0,-18.29/2],
 				[0.3048/2,0.0,-18.29/2-0.264],[-0.3048/2,0.0,-18.29/2-0.264],
 				[0.3048,0.0,-18.29/2-0.264*2],[0.0,0.0,-18.29/2-0.264*2],[-0.3048,0.0,-18.29/2-0.264*2],
 				[0.3048*3/2,0.0,-18.29/2-0.264*3],[0.3048/2,0.0,-18.29/2-0.264*3],[-0.3048/2,0.0,-18.29/2-0.264*3],[-0.3048*3/2,0.0,-18.29/2-0.264*3]];
