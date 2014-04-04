@@ -3,16 +3,15 @@
 /*  	Allows .x/.y/.z access to velocity coordinates, such that 
 	usage is equivalent to that of the position coordinates of THREE.Mesh */
 function velobj(vel0) {
+	this[0] = vel0[0];
+	this[1] = vel0[1];
+	this[2] = vel0[2];
 	this.x = vel0[0];
 	this.y = vel0[1];
 	this.z = vel0[2];
 
 }
-velobj.prototype = {
-		x: 0,
-		y: 0,
-		z: 0
-}
+velobj.inherits(Array);
 
 /* Constructor for the BowlPin type, which is inherited from THREE.Mesh */
 
@@ -61,10 +60,6 @@ function BowlBall(pos0,vel0) {
 
 BowlBall.inherits(THREE.Mesh);
 
-BowlBall.method('velarr', function () {
-	return [this.velocity.x,this.velocity.y,this.velocity.z];
-});
-
 var ball = new BowlBall([0,1,2],[3,4,5])
 ball.receiveShadow = true;
 ball.castShadow = true;
@@ -73,6 +68,9 @@ console.log(ball.id);
 console.log(ball.mass);
 console.log(ball.position.x);
 console.log(ball.velocity.x);
+console.log(ball.velocity[0]);
+console.log(ball.velocity[1]);
+console.log(ball.velocity[2]);
 
 
 /*pins[0].translateX(0);

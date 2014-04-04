@@ -29,17 +29,17 @@ function generatePinSegment(a, b, slices){
 
 /*  	Allows .x/.y/.z access to velocity coordinates, such that 
 	usage is equivalent to that of the position coordinates of THREE.Mesh */
+
 function velobj(vel0) {
+	this[0] = vel0[0];
+	this[1] = vel0[1];
+	this[2] = vel0[2];
 	this.x = vel0[0];
 	this.y = vel0[1];
 	this.z = vel0[2];
-
+	
 }
-velobj.prototype = {
-		x: 0,
-		y: 0,
-		z: 0
-}
+velobj.inherits(Array);
 
 
 /* Constructor for the BowlPin type, which is inherited from THREE.Mesh */
@@ -115,10 +115,6 @@ function BowlPin(pos0,vel0,slices,color) {
 }
 
 BowlPin.inherits(THREE.Mesh);
-
-BowlPin.method('velarr', function () {
-	return [this.velocity.x,this.velocity.y,this.velocity.z];
-});
 
 BowlPin.method('genVertices', function () {
 	for (var i = 0; i < this.shapeline.length-1; i++)
