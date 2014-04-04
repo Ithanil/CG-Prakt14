@@ -119,14 +119,14 @@ function BowlPin(pos0, vel0, angl0, anglvel0, slices,color) {
 	this.ormat = [[1., 0., 0.],
 	              [0., 1., 0.],
 	              [0., 0., 1.]];
-	this.orquat = [1.0, 0., 0., 0.];
+	this.orquat = [0., 0., 0., 1.0];
 
 }
 
 BowlPin.inherits(THREE.Mesh);
 
-BowlPin.method('velarr', function () {
-	return [this.velocity.x,this.velocity.y,this.velocity.z];
+BowlPin.method('anglvquat', function() {
+	return [this.anglvel.x, this.anglvel.y, this.anglvel.z, 0.];
 });
 
 BowlPin.method('genVertices', function () {

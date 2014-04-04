@@ -1,9 +1,13 @@
 
 	var renderer, camera, controls, moreLight, directionalLight;
-	
-	
 	var time=0.0; 
 		
+	var physobjs = [new BowlBall([1., 1., -6.], [0., 0., 0.], [0., 0., 0.], [0., 1., 0.])];
+	
+	init();
+	animate();
+
+	
 	function init(){
 		document.addEventListener("keydown", keyDown, false);
 		scene = new THREE.Scene(); 
@@ -24,12 +28,13 @@
 		renderer.setClearColor( 0xffffff, 1 );	// Canvas Background Color
 		document.body.appendChild( renderer.domElement );
 		
+		scene.add(physobjs[0]);
 		
-		
-		ball = new THREE.Mesh(new THREE.SphereGeometry(0.11, 5, 5), new THREE.MeshNormalMaterial());
-	
-		
-	
+		// Plattform
+		var plattform_material = new THREE.MeshPhongMaterial( { color: 0x339933 } ); 
+		var plattform = new THREE.Mesh( new THREE.CylinderGeometry( 15,15,1, 5), plattform_material ); 
+		plattform.translateY(-0.5-0.1);
+		scene.add( plattform ); 
 
 		// Position oder Kamera
 		//camera.position.set( 4, 4, 21 );
@@ -73,15 +78,10 @@
 		// SKYBOX ENDE*/
 	}
 
-		var V=5;
-		var a=-9.81*0.2;
-		
 	function animate() {
 		requestAnimationFrame( animate );
-		V=V+time*a;
-		if(V<0)V=0;
-		ball.translateZ(-time*V);
 		
+		integrate(physobjs, 1, 0.001);
 		render();
 		controls.update();
 	}
@@ -103,36 +103,15 @@
 		switch(event.keyCode) {
 
       case 65: ///Key A
-		 putPins(slices);
          break;
       case 68: ///Key D
-		 scene.remove(ball);
-         drawBall([0,0.11,10]);
          break;
       case 87: ///Key W
-         time=0.01;
-		 V=5;
          break;
       case 83: ///Key S
-         ;
          break;
       default:
          break;
 		}
 		animate();
 	}			
-	
-	function drawBall(r){
-	//scene.remove(ball);
-	  time=0;
-	  ball.position.set(r[0],r[1],r[2]); 
-	  scene.add(ball);
-	  }
-	
-	
-	
-	
-	init();
-	animate();
-	
-	

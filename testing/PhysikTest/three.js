@@ -15182,6 +15182,8 @@ THREE.Mesh.prototype.updateMorphTargets = function () {
 
 };
 
+
+
 THREE.Mesh.prototype.getMorphTargetIndexByName = function ( name ) {
 
 	if ( this.morphTargetDictionary[ name ] !== undefined ) {
