@@ -2,7 +2,7 @@
 	var renderer, camera, controls, moreLight, directionalLight;
 	var time=0.0; 
 		
-	var physobjs = [new BowlBall([1., 1., -6.], [0., 0., 0.], [0., 0., 0.], [0., 1., 0.])];
+	var physobjs = [new BowlBall([1., 1., -6.], [0., 0., 0.], [0., 0., 0.], [0., 0., 0.]), new BowlPin([0., 0., -6.], [0., 0., 0.], [0., 0., 0.], [0., 0., 0.],10,"blue")];
 	
 	init();
 	animate();
@@ -28,7 +28,7 @@
 		renderer.setClearColor( 0xffffff, 1 );	// Canvas Background Color
 		document.body.appendChild( renderer.domElement );
 		
-		scene.add(physobjs[0]);
+		for (var it=0; it<physobjs.length; it++) {scene.add(physobjs[it]);}
 		
 		// Plattform
 		var plattform_material = new THREE.MeshPhongMaterial( { color: 0x339933 } ); 
@@ -81,7 +81,7 @@
 	function animate() {
 		requestAnimationFrame( animate );
 		
-		integrate(physobjs, 1, 0.001);
+		integrate(physobjs, 0.001);
 		render();
 		controls.update();
 	}

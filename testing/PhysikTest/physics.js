@@ -15,11 +15,13 @@ quat4.add = function (quat, quat2, dest) {
 	return dest;
 };*/
 
-function integrate(physobjs, nobj, dt)
+function integrate(physobjs, dt)
 {
+	var nobj = physobjs.length;
 	var hdt = 0.5 * dt;
 	var accs = getAccs(physobjs, nobj);
-	var veldt = new THREE.Vector3(0., 0., 0.), accsdt1 = new THREE.Vector3(0., 0., 0.), accsdt2 = new THREE.Vector3(0., 0., 0.), avorquat = new THREE.Quaternion(0., 0., 0., 0.), avorquatdt = new THREE.Quaternion(0., 0., 0., 0.);
+	var veldt = new THREE.Vector3(0., 0., 0.), accsdt1 = new THREE.Vector3(0., 0., 0.), accsdt2 = new THREE.Vector3(0., 0., 0.);
+	var avorquat = new THREE.Quaternion(0., 0., 0., 0.);
 
 	//accs = [[ [0., 0., 0. ], [0., 0., 0.]], ...]
 
@@ -49,8 +51,9 @@ function integrate(physobjs, nobj, dt)
 		accsdt2.z = accs[i][1].z;
 		accsdt2.multiplyScalar(dt);
 		
-		avorquat.multiplyQuaternions(physobjs[i].anglvquat(), physobjs[i].orquat);
-		avorquatdt.multiplyQuaternions(new THREE.Quaternion(0.,0.,0.,hdt), avorquat);
+		//console.log(physobjs[i].orquat.x,physobjs[i].orquat.y,physobjs[i].orquat.z,physobjs[i].orquat.w);
+		avorquat.multiplyQuaternions(physobjs[i].orquat,physobjs[i].anglvquat());
+		//console.log(physobjs[i].anglvquat().x,physobjs[i].anglvquat().y,physobjs[i].anglvquat().z,physobjs[i].anglvquat().w);
 		
 		/*
 		console.log("middle")
@@ -66,17 +69,23 @@ function integrate(physobjs, nobj, dt)
 		
 		physobjs[i].position.add(veldt);
 		
-		physobjs[i].orquat.x = avorquatdt.x;
-		physobjs[i].orquat.y = avorquatdt.y;
-		physobjs[i].orquat.z = avorquatdt.z;
-		physobjs[i].orquat.w = avorquatdt.w;
+		//console.log(physobjs[i].orquat.x,physobjs[i].orquat.y,physobjs[i].orquat.z,physobjs[i].orquat.w);
+		//physobjs[i].orquat.multiply(new THREE.Quaternion(0.,0.,0.,hdt));
+		physobjs[i].orquat.x += hdt * avorquat.x;
+		physobjs[i].orquat.y += hdt * avorquat.y;
+		physobjs[i].orquat.z += hdt * avorquat.z;
+		physobjs[i].orquat.w += hdt * avorquat.w;
+		physobjs[i].orquat.normalize();
+		physobjs[i].setRotationFromQuaternion(physobjs[i].orquat);
 		
 		physobjs[i].velocity.add(accsdt1);
 		
 		physobjs[i].anglvel.add(accsdt2);
 		
 		/* 							*/
-		
+				
+		//console.log(physobjs[i].orquat.x,physobjs[i].orquat.y,physobjs[i].orquat.z,physobjs[i].orquat.w);
+	
 		/*
 		console.log("after");
 		console.log(physobjs[i].position.x, physobjs[i].position.y, physobjs[i].position.z);
@@ -89,12 +98,15 @@ function integrate(physobjs, nobj, dt)
 	return physobjs;
 }
 
-function getAccs(physobjs, nobj)
+function getAccs(physobjs)
 {
+	var nobj = physobjs.length;
 	var accs = [];
+	
 	for (var i = 0; i < nobj; i++) 
 	{
-		accs.push([new THREE.Vector3(0.0, -9.81, 0.), new THREE.Vector3(0., 0., 0.)]);
+		//accs.push([new THREE.Vector3(0.0, -9.81, 0.), new THREE.Vector3(0., 0., 0.)]);
+		accs.push([new THREE.Vector3(1.0, 1.0, 1.0), new THREE.Vector3(45.0, 60.0, 75.0)]);
 	}
 	/*
 	console.log("accs")
