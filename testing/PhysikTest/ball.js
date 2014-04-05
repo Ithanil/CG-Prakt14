@@ -55,7 +55,7 @@ function BowlBall(pos0, vel0, angl0, anglvel0) {
 
 	this.ormat = new THREE.Matrix3(1., 0., 0., 0., 1., 0., 0., 0., 1.);
 	this.orquat = new THREE.Quaternion(0., 0., 0., 1.0);
-
+	
 }
 
 BowlBall.inherits(THREE.Mesh);
