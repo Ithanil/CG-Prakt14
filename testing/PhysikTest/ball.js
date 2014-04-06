@@ -35,11 +35,7 @@ function BowlBall(pos0, vel0, angl0, anglvel0) {
 
 	this.objtype = "ball";
 
-	this.compos = new THREE.Vector3(0., 0., 0.001);
-	this.refpos = new THREE.Vector3(0., 0., 0.);
-	this.posoff = [this.compos.x - this. refpos.x, 
-	               this.compos.y - this. refpos.y, 
-	               this.compos.z - this. refpos.z]; 
+	this.composoff = new THREE.Vector3(0., 0., 0.001);
 
 	this.position.x = pos0[0];
 	this.position.y = pos0[1];
@@ -51,17 +47,29 @@ function BowlBall(pos0, vel0, angl0, anglvel0) {
 	this.anglvel = new THREE.Vector3(anglvel0[0],anglvel0[1],anglvel0[2]);
 
 	this.mass = 7.0;
-	this.intens = new THREE.Matrix3(0.031, 0, 0, 0, 0.033, 0, 0, 0, 0.035);
+	this.intens0 = new THREE.Matrix3(0.031, 0, 0, 0, 0.033, 0, 0, 0, 0.035);
 
-	this.ormat = new THREE.Matrix3(1., 0., 0., 0., 1., 0., 0., 0., 1.);
-	this.orquat = new THREE.Quaternion(0., 0., 0., 1.0);
-	
+	//this.ormat = new THREE.Matrix3(1., 0., 0., 0., 1., 0., 0., 0., 1.);
+	//this.orquat = new THREE.Quaternion(0., 0., 0., 1.);
+	this.quaternion.set(0., 0., 0., 1.);
+	//this.setRotationFromQuaternion(this.orquat);
 }
 
 BowlBall.inherits(THREE.Mesh);
 
 BowlBall.method('anglvquat', function() {
 	return new THREE.Quaternion(this.anglvel.x, this.anglvel.y, this.anglvel.z, 0.);
+});
+
+BowlBall.method('compos', function() {
+	return new THREE.Vector3(this.position.x + this.composoff.x, this.position.y + this.composoff.y, this.position.z + this.composoff.z);
+});
+
+BowlBall.method('comvel', function() {
+	var velhelp = new THREE.Vector3(0.,0.,0.);
+	velhelp.crossVectors(this.anglvel, this.composoff);
+	
+	return new THREE.Vector3(this.velocity.x + velhelp.x, this.velocity.y + velhelp.y, this.velocity.z + velhelp.z);
 });
 
 /*

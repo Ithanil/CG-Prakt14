@@ -30,7 +30,7 @@ function integrate(physobjs, dt)
 		/*
 		console.log("before");
 		console.log(physobjs[i].position.x, physobjs[i].position.y, physobjs[i].position.z);
-		console.log(physobjs[i].orquat.x,physobjs[i].orquat.y,physobjs[i].orquat.z,physobjs[i].orquat.w);
+		console.log(physobjs[i].quaternion.x,physobjs[i].quaternion.y,physobjs[i].quaternion.z,physobjs[i].quaternion.w);
 		console.log(physobjs[i].velocity.x, physobjs[i].velocity.y, physobjs[i].velocity.z);
 		console.log(physobjs[i].anglvel.x, physobjs[i].anglvel.y, physobjs[i].anglvel.z);
 		console.log("---");
@@ -51,8 +51,13 @@ function integrate(physobjs, dt)
 		accsdt2.z = accs[i][1].z;
 		accsdt2.multiplyScalar(dt);
 		
-		//console.log(physobjs[i].orquat.x,physobjs[i].orquat.y,physobjs[i].orquat.z,physobjs[i].orquat.w);
-		avorquat.multiplyQuaternions(physobjs[i].orquat,physobjs[i].anglvquat());
+		//console.log(physobjs[i].quaternion.x,physobjs[i].quaternion.y,physobjs[i].quaternion.z,physobjs[i].quaternion.w);
+		avorquat.multiplyQuaternions(physobjs[i].quaternion,physobjs[i].anglvquat());
+		avorquat.x = physobjs[i].quaternion.x + hdt * avorquat.x;
+		avorquat.y = physobjs[i].quaternion.y + hdt * avorquat.y;
+		avorquat.z = physobjs[i].quaternion.z + hdt * avorquat.z;
+		avorquat.w = physobjs[i].quaternion.w + hdt * avorquat.w;
+		avorquat.normalize();
 		//console.log(physobjs[i].anglvquat().x,physobjs[i].anglvquat().y,physobjs[i].anglvquat().z,physobjs[i].anglvquat().w);
 		
 		/*
@@ -69,27 +74,21 @@ function integrate(physobjs, dt)
 		
 		physobjs[i].position.add(veldt);
 		
-		//console.log(physobjs[i].orquat.x,physobjs[i].orquat.y,physobjs[i].orquat.z,physobjs[i].orquat.w);
-		//physobjs[i].orquat.multiply(new THREE.Quaternion(0.,0.,0.,hdt));
-		physobjs[i].orquat.x += hdt * avorquat.x;
-		physobjs[i].orquat.y += hdt * avorquat.y;
-		physobjs[i].orquat.z += hdt * avorquat.z;
-		physobjs[i].orquat.w += hdt * avorquat.w;
-		physobjs[i].orquat.normalize();
-		physobjs[i].setRotationFromQuaternion(physobjs[i].orquat);
-		
+		physobjs[i].quaternion.copy(avorquat);
+		//physobjs[i].setRotationFromQuaternion(physobjs[i].orquat);	//updates this.quaternion
+	
 		physobjs[i].velocity.add(accsdt1);
 		
 		physobjs[i].anglvel.add(accsdt2);
 		
 		/* 							*/
 				
-		//console.log(physobjs[i].orquat.x,physobjs[i].orquat.y,physobjs[i].orquat.z,physobjs[i].orquat.w);
+		//console.log(physobjs[i].quaternion.x,physobjs[i].quaternion.y,physobjs[i].quaternion.z,physobjs[i].quaternion.w);
 	
 		/*
 		console.log("after");
 		console.log(physobjs[i].position.x, physobjs[i].position.y, physobjs[i].position.z);
-		console.log(physobjs[i].orquat.x,physobjs[i].orquat.y,physobjs[i].orquat.z,physobjs[i].orquat.w);
+		console.log(physobjs[i].quaternion.x,physobjs[i].quaternion.y,physobjs[i].quaternion.z,physobjs[i].quaternion.w);
 		console.log(physobjs[i].velocity.x, physobjs[i].velocity.y, physobjs[i].velocity.z);
 		console.log(physobjs[i].anglvel.x, physobjs[i].anglvel.y, physobjs[i].anglvel.z);
 		console.log("---");
@@ -106,7 +105,8 @@ function getAccs(physobjs)
 	for (var i = 0; i < nobj; i++) 
 	{
 		//accs.push([new THREE.Vector3(0.0, -9.81, 0.), new THREE.Vector3(0., 0., 0.)]);
-		accs.push([new THREE.Vector3(1.0, 1.0, 1.0), new THREE.Vector3(45.0, 60.0, 75.0)]);
+		//accs.push([new THREE.Vector3(1.0, 1.0, 1.0), new THREE.Vector3(45.0, 60.0, 75.0)]);
+		accs.push([new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Vector3(0.0, 0.0, 0.0)]);
 	}
 	/*
 	console.log("accs")
@@ -117,3 +117,16 @@ function getAccs(physobjs)
 
 	return accs;
 }
+
+/*
+for (var vertexIndex = 0; vertexIndex < MovingCube.geometry.vertices.length; vertexIndex++)
+{		
+	var localVertex = MovingCube.geometry.vertices[vertexIndex].clone();
+	var globalVertex = localVertex.applyMatrix4( MovingCube.matrix );
+	var directionVector = globalVertex.sub( MovingCube.position );
+	
+	var ray = new THREE.Raycaster( originPoint, directionVector.clone().normalize() );
+	var collisionResults = ray.intersectObjects( collidableMeshList );
+	if ( collisionResults.length > 0 && collisionResults[0].distance < directionVector.length() ) 
+		appendText(" Hit ");
+}	*/

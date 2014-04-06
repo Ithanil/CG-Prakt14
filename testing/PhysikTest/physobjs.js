@@ -1,5 +1,42 @@
 "use strict";
 
+function PhysObj(pos0, vel0, angl0, anglvel0, geometry, material) {
+
+THREE.Mesh.call(this, geometry, material);
+
+this.position.x = pos0[0];
+this.position.y = pos0[1];
+this.position.z = pos0[2];
+//console.log(this.position.x,this.position.y,this.position.z)
+this.velocity = new THREE.Vector3(vel0[0],vel0[1],vel0[2]);
+
+this.anglvel = new THREE.Vector3(anglvel0[0],anglvel0[1],anglvel0[2]);
+
+//this.ormat = new THREE.Matrix3(1., 0., 0., 0., 1., 0., 0., 0., 1.);
+//this.orquat = new THREE.Quaternion(0., 0., 0., 1.);
+this.quaternion.setFromEuler(new THREE.Euler(angl0[0], angl0[1], angl0[2]);
+//this.setRotationFromQuaternion(this.orquat);
+}
+
+PhysObj.inherits(THREE.Mesh);
+
+PhysObj.method('anglvquat', function() {
+	return new THREE.Quaternion(this.anglvel.x, this.anglvel.y, this.anglvel.z, 0.);
+});
+
+PhysObj.method('compos', function() {
+	return new THREE.Vector3(this.position.x + this.composoff.x, this.position.y + this.composoff.y, this.position.z + this.composoff.z);
+});
+
+PhysObj.method('comvel', function() {
+	var velhelp = new THREE.Vector3(0.,0.,0.);
+	velhelp.crossVectors(this.anglvel, this.composoff);
+	
+	return new THREE.Vector3(this.velocity.x + velhelp.x, this.velocity.y + velhelp.y, this.velocity.z + velhelp.z);
+});
+
+
+
 /* Helper for calculating vertex coordinates */
 function generatePinSegment(a, b, slices){
 
@@ -42,7 +79,7 @@ velobj.inherits(Array);
 
 /* Constructor for the BowlPin type, which is inherited from THREE.Mesh */
 
-function BowlPin(pos0, vel0, angl0, anglvel0, slices,color) {
+function BowlPin(pos0, vel0, angl0, anglvel0, refpos0, slices,color) {
 
 	/* Preparation for THREE.Mesh */
 
@@ -92,48 +129,26 @@ function BowlPin(pos0, vel0, angl0, anglvel0, slices,color) {
 
 
 	this.material = new THREE.MeshPhongMaterial({color: color });
-	THREE.Mesh.call(this,this.geometry,this.material);
-
+	
 	/* Initialize extensions to THREE.Mesh */
 
-	this.objtype = "pin";
-
-	this.composoff = new THREE.Vector3(0., 0.147558, 0.0);
+	//this.objtype = "pin";
+	THREE.Mesh.call(this, this.geometry, this.material);
 	
-	this.position.x = pos0[0];
-	this.position.y = pos0[1];
-	this.position.z = pos0[2];
-	//console.log(this.position.x,this.position.y,this.position.z)
-	this.velocity = new THREE.Vector3(vel0[0],vel0[1],vel0[2]);
-
-	this.angl = new THREE.Vector3(angl0[0],angl0[1],angl0[2]);
-	this.anglvel = new THREE.Vector3(anglvel0[0],anglvel0[1],anglvel0[2]);
+	this.compos = new THREE.Vector3(0., 0.147558, 0.);
+	
+	this.refpos  = new THREE.Vector3(refpos0[0], refpos0[1], refpos0[2]);
+	this.composoff = new THREE.Vector3(this.compos.x - this.refpos.x, this.compos.y - this.refpos.y, this.compos.z - this.refpos.z) 
+	
+	
 
 	this.mass = 1.5875733;
 	this.intens0 = new THREE.Matrix3(0.0134109, 0, 0, 0, 0.0019401, 0, 0, 0, 0.0134109);
 
-	//this.ormat = new THREE.Matrix3(1., 0., 0., 0., 1., 0., 0., 0., 1.);
-	//this.orquat = new THREE.Quaternion(0., 0., 0., 1.);
-	this.quaternion.set(0., 0., 0., 1.);
-	//this.setRotationFromQuaternion(this.orquat);
 }
 
-BowlPin.inherits(THREE.Mesh);
+BowlPin.inherits(PhysObj);
 
-BowlPin.method('anglvquat', function() {
-	return new THREE.Quaternion(this.anglvel.x, this.anglvel.y, this.anglvel.z, 0.);
-});
-
-BowlPin.method('compos', function() {
-	return new THREE.Vector3(this.position.x + this.composoff.x, this.position.y + this.composoff.y, this.position.z + this.composoff.z);
-});
-
-BowlPin.method('comvel', function() {
-	var velhelp = new THREE.Vector3(0.,0.,0.);
-	velhelp.crossVectors(this.anglvel, this.composoff);
-	
-	return new THREE.Vector3(this.velocity.x + velhelp.x, this.velocity.y + velhelp.y, this.velocity.z + velhelp.z);
-});
 
 BowlPin.method('genVertices', function () {
 	for (var i = 0; i < this.shapeline.length-1; i++)
