@@ -2,9 +2,18 @@
 var renderer, camera, controls, moreLight, directionalLight;
 var time=0.0; 
 
-var physobjs = [new BowlBall([1., 1., -6.], [0., 0., 0.], [0., 0., 0.], [0., 0., 0.]), new BowlPin([0., 0., -6.], [0., 0., 0.], [0., 0., 0.], [0., 0., 0.],10,"blue")];
+//var physobjs = [new BowlBall([1., 1., -6.], [0., 0., 0.], [0., 0., 0.], [0., 0., 0.], [0.,0.,0.001]), new BowlPin([0., 0., -6.], [0., 0., 0.], [0., 0., 0.], [0., 0., 0.],[0., 0.147558, 0.],10,"blue")];
+//var physobjs = [new BowlPin([0., 0., -6.], [0., 0., 0.], [0., 0., 0.], [0., 0., 0.],[0., 0.147558, 0.],10,"blue")];
+var physobjs = [new BowlBall(new THREE.Vector3(1., 1., -6.), new THREE.Vector3(1., 2., 3), new THREE.Euler(0., 1., 0.), new THREE.Vector3(0., 1., 0.), new THREE.Vector3(0.,0.,0.001)),
+                new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(1., 2., 3), new THREE.Euler(0., 1., 0.), new THREE.Vector3(0., 1., 0.), new THREE.Vector3(0., 0.147558, 0.),10,"blue")];
 var ifocus = 0; //Index of object which is manipulated by keys (changed by +/-)
 var keyPosAdd = 0.05, keyVelAdd = 0.05, keyQuAddS = 0.99875, keyQuAddV = 0.0499792;
+
+/*
+console.log(physobjs[0].position.x);
+console.log(physobjs[0].position.y);
+console.log(physobjs[0].position.z);
+*/
 
 init();
 animate();
@@ -83,7 +92,8 @@ function init(){
 function animate() {
 	//requestAnimationFrame( animate );
 
-	integrate(physobjs, 0.001);
+	//integrate(physobjs, 0.001);
+	for (var it=0; it<physobjs.length; it++) {physobjs[it].updateObject3D()}
 	render();
 	controls.update();
 }
@@ -131,7 +141,7 @@ function keyDown(event) {
 		}
 
 	} else {
-		console.log(physobjs.length);
+
 		switch(event.keyCode) {
 
 		case 65: ///Key a
@@ -153,26 +163,25 @@ function keyDown(event) {
 			physobjs[ifocus].position.z += keyPosAdd;
 			break;
 		case 81: ///Key q
-			physobjs[ifocus].quaternion.multiply(new THREE.Quaternion(keyQuAddV,0.,0.,keyQuAddS));
+			physobjs[ifocus].orquat.multiply(new THREE.Quaternion(keyQuAddV,0.,0.,keyQuAddS));
 			break;
 		case 69: ///Key e
-			physobjs[ifocus].quaternion.multiply(new THREE.Quaternion(0.,keyQuAddV,0.,keyQuAddS));
+			physobjs[ifocus].orquat.multiply(new THREE.Quaternion(0.,keyQuAddV,0.,keyQuAddS));
 			break;
 		case 82: ///Key r
-			physobjs[ifocus].quaternion.multiply(new THREE.Quaternion(0.,0.,keyQuAddV,keyQuAddS));
+			physobjs[ifocus].orquat.multiply(new THREE.Quaternion(0.,0.,keyQuAddV,keyQuAddS));
 			break;
 		case 89: ///Key y
-			physobjs[ifocus].quaternion.multiply(new THREE.Quaternion(-keyQuAddV,0.,0.,keyQuAddS));
+			physobjs[ifocus].orquat.multiply(new THREE.Quaternion(-keyQuAddV,0.,0.,keyQuAddS));
 			break;
 		case 88: ///Key x
-			physobjs[ifocus].quaternion.multiply(new THREE.Quaternion(0.,-keyQuAddV,0.,keyQuAddS));
+			physobjs[ifocus].orquat.multiply(new THREE.Quaternion(0.,-keyQuAddV,0.,keyQuAddS));
 			break;
 		case 67: ///Key c
-			physobjs[ifocus].quaternion.multiply(new THREE.Quaternion(0.,0.,-keyQuAddV,keyQuAddS));
+			physobjs[ifocus].orquat.multiply(new THREE.Quaternion(0.,0.,-keyQuAddV,keyQuAddS));
 			break;
 		case 50:///Key 2
 			if (physobjs.length > 1) {
-				console.log(ifocus);
 				ifocus = (ifocus + 1) % (physobjs.length);
 				console.log(ifocus);
 			}
