@@ -39,7 +39,7 @@
 		xDistPin = 0.3048,			// x-distance of the pins
 		zDistPin = 0.264;			// z-distance of the pins
 		
-	var slices = 10; 		// Pin slices
+	var slices = 20; 		// Pin slices
 	
 	var posarr = [new THREE.Vector3(0.0,cmPin,-laneLength/2),
 				new THREE.Vector3(xDistPin/2,cmPin,-laneLength/2-zDistPin),
@@ -61,16 +61,16 @@
 	var time=0.01; //timestep
 	
 	var physobjs = [new BowlBall(new THREE.Vector3(1., 1., -6.), new THREE.Vector3(1., 2., 3), new THREE.Euler(0., 1., 0.), new THREE.Vector3(0., 1., 0.), new THREE.Vector3(0.,0.,0.001)),
-                new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(1., 2., 3), new THREE.Euler(0., 1., 0.), new THREE.Vector3(0., 1., 0.), new THREE.Vector3(0., 0.147558, 0.),10,"blue"),
-				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(1., 2., 3), new THREE.Euler(0., 1., 0.), new THREE.Vector3(0., 1., 0.), new THREE.Vector3(0., 0.147558, 0.),10,"blue"),
-				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(1., 2., 3), new THREE.Euler(0., 1., 0.), new THREE.Vector3(0., 1., 0.), new THREE.Vector3(0., 0.147558, 0.),10,"blue"),
-				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(1., 2., 3), new THREE.Euler(0., 1., 0.), new THREE.Vector3(0., 1., 0.), new THREE.Vector3(0., 0.147558, 0.),10,"blue"),
-				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(1., 2., 3), new THREE.Euler(0., 1., 0.), new THREE.Vector3(0., 1., 0.), new THREE.Vector3(0., 0.147558, 0.),10,"blue"),
-				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(1., 2., 3), new THREE.Euler(0., 1., 0.), new THREE.Vector3(0., 1., 0.), new THREE.Vector3(0., 0.147558, 0.),10,"blue"),
-				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(1., 2., 3), new THREE.Euler(0., 1., 0.), new THREE.Vector3(0., 1., 0.), new THREE.Vector3(0., 0.147558, 0.),10,"blue"),
-				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(1., 2., 3), new THREE.Euler(0., 1., 0.), new THREE.Vector3(0., 1., 0.), new THREE.Vector3(0., 0.147558, 0.),10,"blue"),
-				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(1., 2., 3), new THREE.Euler(0., 1., 0.), new THREE.Vector3(0., 1., 0.), new THREE.Vector3(0., 0.147558, 0.),10,"blue"),
-				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(1., 2., 3), new THREE.Euler(0., 1., 0.), new THREE.Vector3(0., 1., 0.), new THREE.Vector3(0., 0.147558, 0.),10,"blue")];
+                new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(1., 2., 3), new THREE.Euler(0., 1., 0.), new THREE.Vector3(0., 1., 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
+				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(1., 2., 3), new THREE.Euler(0., 1., 0.), new THREE.Vector3(0., 1., 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
+				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(1., 2., 3), new THREE.Euler(0., 1., 0.), new THREE.Vector3(0., 1., 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
+				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(1., 2., 3), new THREE.Euler(0., 1., 0.), new THREE.Vector3(0., 1., 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
+				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(1., 2., 3), new THREE.Euler(0., 1., 0.), new THREE.Vector3(0., 1., 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
+				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(1., 2., 3), new THREE.Euler(0., 1., 0.), new THREE.Vector3(0., 1., 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
+				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(1., 2., 3), new THREE.Euler(0., 1., 0.), new THREE.Vector3(0., 1., 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
+				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(1., 2., 3), new THREE.Euler(0., 1., 0.), new THREE.Vector3(0., 1., 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
+				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(1., 2., 3), new THREE.Euler(0., 1., 0.), new THREE.Vector3(0., 1., 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
+				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(1., 2., 3), new THREE.Euler(0., 1., 0.), new THREE.Vector3(0., 1., 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue")];
 
 	
 	init();
