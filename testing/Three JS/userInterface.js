@@ -20,6 +20,7 @@ createUi = function() {
   gui.add(text, 'spin',-1,1);
   var controller = gui.add(text, 'offset',-5,5);
 	controller.onChange(function(value) {
+	ballOffset=value/10.0;
 	ball.position.set(value/10.0,0.11,10);
 	});
 };

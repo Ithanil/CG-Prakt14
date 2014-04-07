@@ -1,11 +1,11 @@
 
 var renderer, camera, controls, moreLight, directionalLight;
-var time=0.0; 
+var time;
 
 //var physobjs = [new BowlBall([1., 1., -6.], [0., 0., 0.], [0., 0., 0.], [0., 0., 0.], [0.,0.,0.001]), new BowlPin([0., 0., -6.], [0., 0., 0.], [0., 0., 0.], [0., 0., 0.],[0., 0.147558, 0.],10,"blue")];
 //var physobjs = [new BowlPin([0., 0., -6.], [0., 0., 0.], [0., 0., 0.], [0., 0., 0.],[0., 0.147558, 0.],10,"blue")];
-var physobjs = [new BowlBall(new THREE.Vector3(1., 1., -6.), new THREE.Vector3(1., 2., 3), new THREE.Euler(0., 1., 0.), new THREE.Vector3(0., 1., 0.), new THREE.Vector3(0.,0.,0.001)),
-                new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(1., 2., 3), new THREE.Euler(0., 1., 0.), new THREE.Vector3(0., 1., 0.), new THREE.Vector3(0., 0.147558, 0.),10,"blue")];
+var physobjs = [new BowlBall(new THREE.Vector3(1., 1., -6.), new THREE.Vector3(0., 0., 0), new THREE.Euler(0., 0., 0.), new THREE.Vector3(1., 1., 0.), new THREE.Vector3(0.,0.,0.001)),
+                new BowlPin(new THREE.Vector3(0., 1., -6.), new THREE.Vector3(0., 0., 0), new THREE.Euler(0., 0., 0.), new THREE.Vector3(1., 1., 1.), new THREE.Vector3(0., 0.147558, 0.),10,"blue")];
 var ifocus = 0; //Index of object which is manipulated by keys (changed by +/-)
 var keyPosAdd = 0.05, keyVelAdd = 0.05, keyQuAddS = 0.99875, keyQuAddV = 0.0499792;
 
@@ -22,6 +22,7 @@ animate();
 function init(){
 	document.addEventListener("keydown", keyDown, false);
 	scene = new THREE.Scene(); 
+	time = new Date();
 	// PerspectiveCamera(fovy, aspect, near, far)
 	var SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;
 	var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 0.1, FAR = 20000;
@@ -90,10 +91,20 @@ function init(){
 }
 
 function animate() {
+	var oldtime = time.getTime();
+	time = new Date();
+	var dt = (time.getTime() - oldtime) / 1000.;
+	
 	requestAnimationFrame( animate );
 
-	integrate(physobjs, 0.001);
+
+	integrate(physobjs, dt);
 	for (var it=0; it<physobjs.length; it++) {physobjs[it].updateObject3D()}
+	
+	for (var it=0; it<physobjs.length; it++) {console.log(physobjs[it].anglvel.x);
+											console.log(physobjs[it].anglvel.y);
+											console.log(physobjs[it].anglvel.z);}
+	
 	render();
 	controls.update();
 }
