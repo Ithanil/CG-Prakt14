@@ -300,7 +300,7 @@
 		render();
 		//controls.update();
 	}
-	time=0.01;
+	
 	function moveBall(){
 		if(slide){
 			if (physobjs[0].velocity.x>0.0001||physobjs[0].velocity.x<-0.0001) physobjs[0].velocity.x = physobjs[0].velocity.x-time*a[0]*Math.sin(Math.PI/180.0*angle);
