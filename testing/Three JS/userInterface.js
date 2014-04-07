@@ -20,8 +20,8 @@ createUi = function() {
   gui.add(text, 'spin',-1,1);
   var controller = gui.add(text, 'offset',-5,5);
 	controller.onChange(function(value) {
-	ballOffset=value/10.0;
-	physobjs[0].refpos.x=value/10.0;
+	if(!thrown)ballOffset=value/10.0;
+	if(!thrown)physobjs[0].refpos.x=value/10.0;
 	//physobjs[0].updateObject3D();
 	});
 };
