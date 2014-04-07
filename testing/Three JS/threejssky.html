@@ -18,7 +18,7 @@
 	var renderer, camera, controls, moreLight, directionalLight;
 	
 	// custom global variables
-	var back, lane, approach, pinVertices, ballOffset, ball;
+	var back, lane, approach, pinVertices, ball;
 	var time=0.0;
 	
 	
@@ -34,6 +34,7 @@
 	var V0=5; //Velocity at the beginning
 	var a=[9.81*0.12,9.81*0.12,9.81*0.12]; //gleitreibung
 	var angle=0; //throwing angle -45,45
+	var ballOffset=0; 
 	var thrown=false;
 	
 	init();
@@ -318,7 +319,7 @@
 		 camera.position.set( 0, 1, 14 );
 		 //camera.lookAt(new THREE.Vector3(0, 0, 0));
 		 scene.remove(ball);
-         drawBall([0,0.11,10]);
+         drawBall([ballOffset,0.11,10]);
          break;
       case 87: ///Key W
 		 thrown=true;
