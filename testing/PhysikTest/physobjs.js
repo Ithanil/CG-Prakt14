@@ -87,9 +87,9 @@ PhysObj.method('comvel', function() {
 PhysObj.method('updateObject3D', function() {
 	var poshelp = new THREE.Vector3(-this.refposG.x, -this.refposG.y, -this.refposG.z);
 	poshelp.applyQuaternion(this.orquat);
-	this.position.x = this.refpos.x + 2 * poshelp.x;	//position is from THREE.Object3D and is not necessarily
-	this.position.y = this.refpos.y + 2 * poshelp.y;  // either the reference nor center of mass position !!
-	this.position.z = this.refpos.z + 2 * poshelp.z;
+	this.position.x = this.refpos.x +  poshelp.x;	//position is from THREE.Object3D and is not necessarily
+	this.position.y = this.refpos.y +  poshelp.y;  // either the reference nor center of mass position !!
+	this.position.z = this.refpos.z +  poshelp.z;
 	
 	this.quaternion.copy(this.orquat);
 });

@@ -90,9 +90,9 @@ function init(){
 }
 
 function animate() {
-	//requestAnimationFrame( animate );
+	requestAnimationFrame( animate );
 
-	//integrate(physobjs, 0.001);
+	integrate(physobjs, 0.001);
 	for (var it=0; it<physobjs.length; it++) {physobjs[it].updateObject3D()}
 	render();
 	controls.update();
@@ -145,22 +145,22 @@ function keyDown(event) {
 		switch(event.keyCode) {
 
 		case 65: ///Key a
-			physobjs[ifocus].position.x -= keyPosAdd;
+			physobjs[ifocus].refpos.x -= keyPosAdd;
 			break;
 		case 68: ///Key d
-			physobjs[ifocus].position.x += keyPosAdd;
+			physobjs[ifocus].refpos.x += keyPosAdd;
 			break;
 		case 78: ///Key n
-			physobjs[ifocus].position.y -= keyPosAdd;
+			physobjs[ifocus].refpos.y -= keyPosAdd;
 			break;
 		case 77: ///Key m
-			physobjs[ifocus].position.y += keyPosAdd;
+			physobjs[ifocus].refpos.y += keyPosAdd;
 			break;
 		case 87: ///Key w
-			physobjs[ifocus].position.z -= keyPosAdd;
+			physobjs[ifocus].refpos.z -= keyPosAdd;
 			break;
 		case 83: ///Key s
-			physobjs[ifocus].position.z += keyPosAdd;
+			physobjs[ifocus].refpos.z += keyPosAdd;
 			break;
 		case 81: ///Key q
 			physobjs[ifocus].orquat.multiply(new THREE.Quaternion(keyQuAddV,0.,0.,keyQuAddS));
@@ -182,17 +182,18 @@ function keyDown(event) {
 			break;
 		case 50:///Key 2
 			if (physobjs.length > 1) {
-				ifocus = (ifocus + 1) % (physobjs.length);
+				ifocus = (physobjs.length + ifocus + 1) % (physobjs.length);
 				console.log(ifocus);
 			}
 			break;
 		case 49:///Key 1
 			if (physobjs.length > 1) {
-				ifocus = (ifocus - 1) % (physobjs.length);
+				ifocus = (physobjs.length + ifocus - 1) % (physobjs.length);
 				if (ifocus==-0) { ifocus = 0; }
 			}
 			break;
-
+		case 51:///Key 3
+			break;
 		default:
 			break;
 		}
