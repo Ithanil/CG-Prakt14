@@ -22,6 +22,6 @@ createUi = function() {
 	controller.onChange(function(value) {
 	ballOffset=value/10.0;
 	physobjs[0].refpos.x=value/10.0;
-	physobjs[0].updateObject3D();
+	//physobjs[0].updateObject3D();
 	});
 };
