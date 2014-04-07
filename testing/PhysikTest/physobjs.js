@@ -19,38 +19,47 @@ function PhysObj(pos0, vel0, eulrot0, anglvel0, refposG0, composG, intensC, geom
 
 //	velocity, anglvel and orquat describe the current rotation system (R) (given by refposG)
 
+	//	refpos		- 	position coordinates of reference point
+	// 	velocity 	-	velocity coordinates of reference point
+	//  eulrot0		- 	Initial orientation given by euler angles (very optional)
+	//	orquat		-	Orientation quaternion of reference system
+	//  anglvel		-	Angular velocity of reference system
+	//	refposG		-	Position of reference point in coordinate system of geometry (e.g. bottom for pin)
+	//  composG		-	Center Of Mass position in coordinate system of geometry
+	//  intensC		-	Inertia Tensor in Center of Mass system
+
 	THREE.Mesh.call(this, geometry, material);
-	
+
 	this.velocity = new THREE.Vector3();
 	if (typeof vel0 != 'undefined') {this.velocity.copy(vel0)};
-	
+
 	this.anglvel = new THREE.Vector3();
 	if (typeof anglvel0 != 'undefined') {this.anglvel.copy(anglvel0)};
-	
+
 //	this.orquat = new THREE.Quaternion(0., 0., 0., 1.);
 //	this.orquat.setFromEuler(new THREE.Euler(eulrot0[0], eulrot0[1], eulrot0[2]);
-	this.eulrot = new THREE.Euler();
-	if (typeof eulrot0 != 'undefined') {this.eulrot.copy(eulrot0)};
+	this.eulrot0 = new THREE.Euler();
+	if (typeof eulrot0 != 'undefined') {this.eulrot0.copy(eulrot0)};
 	this.orquat = new THREE.Quaternion();
-	this.orquat.setFromEuler(this.eulrot);
-	
+	this.orquat.setFromEuler(this.eulrot0);
+
 	this.refposG = new THREE.Vector3();
 	if (typeof refposG0 != 'undefined') {this.refposG.copy(refposG0)};
-	
+
 	this.refpos = new THREE.Vector3();
 	if (typeof pos0 != 'undefined') { this.refpos.copy(pos0)};
 
 	this.updateObject3D();
-	
+
 	this.composG = new THREE.Vector3();
 	if (typeof composG != 'undefined') {this.composG.copy(composG)};
-	
+
 	this.composR = new THREE.Vector3(this.composG.x - this.refposG.x, this.composG.y - this.refposG.y, this.composG.z - this.refposG.z);
 	this.refposC = new THREE.Vector3(-this.composR.x,-this.composR.y,-this.composR.z);
-	
+
 	this.intensC = new THREE.Matrix3();
 	if (typeof intensC != 'undefined') {this.intensC.copy(intensC)};
-	
+
 	this.intensR = new THREE.Matrix3(0.,0.,0.,0.,0.,0.,0.,0.,0.);
 	SvSteiner(this.intensC, this.mass, this.refposC, this.intensR);
 
@@ -90,7 +99,7 @@ PhysObj.method('updateObject3D', function() {
 	this.position.x = this.refpos.x +  poshelp.x;	//position is from THREE.Object3D and is not necessarily
 	this.position.y = this.refpos.y +  poshelp.y;  // either the reference nor center of mass position !!
 	this.position.z = this.refpos.z +  poshelp.z;
-	
+
 	this.quaternion.copy(this.orquat);
 });
 
@@ -172,9 +181,10 @@ function BowlPin(pos0, vel0, eulrot0, anglvel0, refposG0, slices,color) {
 	var material = new THREE.MeshPhongMaterial({color: color });
 
 	/* Initialize extensions to THREE.Mesh */
-	
+
 	this.mass = 1.5875733;
 	var composG = new THREE.Vector3(0., 0.147558, 0.);	// with respect to the origin of geometry (bottom center for pin, center for ball)
+	//var intensC = new THREE.Matrix3(0.0134109, 0, 0, 0, 0.0019401, 0, 0, 0, 0.0134109);
 	var intensC = new THREE.Matrix3(0.0134109, 0, 0, 0, 0.0019401, 0, 0, 0, 0.0134109);
 
 	PhysObj.call(this, pos0, vel0, eulrot0, anglvel0, refposG0, composG, intensC, geometry, material);
@@ -224,23 +234,26 @@ function createPins()
 	var pins = [];
 	for (var i = 0; i < 10; i++) 
 	{
-		pins.push(new BowlPin([0,0,0], [0,0,0], [0,0,0], [0,0,0], 10,"blue"));
+		pins.push(new BowlPin(new THREE.Vector3(0., 0.147558, 0.), new THREE.Vector3(0,0,0), new THREE.Euler(0,0,0), new THREE.Vector3(0,0,0), new THREE.Vector3(0., 0.147558, 0.), 10,"blue"));
 	}
 	return pins;
 }
 
 function putPins(pins,posarr)
 {
-	for (var i = 0; i < 10; i++) 
-	{
-		scene.remove(pins[i])
-		pins[i].position.set(posarr[i]);
-		pins[i].receiveShadow = true;
-		pins[i].castShadow = true;
-		scene.add(pins[i]);
+	if (pins.length != 10) {
+		alert('putPins:  Array of pins has invalid length!');
+	} else {
+		for (var i = 0; i < 10; i++) 
+		{
+			scene.remove(pins[i])
+			pins[i].refpos.copy(posarr[i]);
+			pins[i].receiveShadow = true;
+			pins[i].castShadow = true;
+			scene.add(pins[i]);
+		}
+		return pins;
 	}
-
-	return pins;
 }
 
 
@@ -274,7 +287,7 @@ function BowlBall(pos0, vel0, eulrot0, anglvel0, refposG0) {
 	this.mass = 7.0;
 	var composG = new THREE.Vector3(0., 0., 0.001);
 	var intensC = new THREE.Matrix3(0.031, 0, 0, 0, 0.033, 0, 0, 0, 0.035);
-	
+
 	PhysObj.call(this, pos0, vel0, eulrot0, anglvel0, refposG0, composG, intensC, geometry, material);
 
 }
