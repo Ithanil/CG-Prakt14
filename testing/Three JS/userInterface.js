@@ -21,6 +21,7 @@ createUi = function() {
   var controller = gui.add(text, 'offset',-5,5);
 	controller.onChange(function(value) {
 	ballOffset=value/10.0;
-	ball.position.set(value/10.0,0.11,10);
+	physobjs[0].refpos.x=value/10.0;
+	physobjs[0].updateObject3D();
 	});
 };
