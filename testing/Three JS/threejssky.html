@@ -39,7 +39,7 @@
 		xDistPin = 0.3048,			// x-distance of the pins
 		zDistPin = 0.264;			// z-distance of the pins
 		
-	var slices = 20; 		// Pin slices
+	var slices = 30; 		// Pin slices
 	
 	var posarr = [new THREE.Vector3(0.0,cmPin,-laneLength/2),
 				new THREE.Vector3(xDistPin/2,cmPin,-laneLength/2-zDistPin),
@@ -54,7 +54,7 @@
 	
 	var V0=5; //Velocity at the beginning
 	var a=[9.81*0.12,0,9.81*0.12]; //gleitreibung
-	var angle=0; //throwing angle
+	var angle=0, phi=0; //throwing angle
 	var ballOffset=0; 
 	var thrown=false;
 	var slide=true;
@@ -315,6 +315,8 @@
 				physobjs[0].velocity.y =0 ;
 				physobjs[0].velocity.z = 0;
 				}	
+				phi=phi+time;
+			if(physobjs[0].velocity.z>0.0001)physobjs[0].orquat.setFromAxisAngle(new THREE.Vector3(1.0/Math.sqrt(2),1.0/Math.sqrt(2),0.),phi);
 			physobjs[0].refpos.z=(physobjs[0].refpos.z-time*physobjs[0].velocity.z);
 			physobjs[0].refpos.y=(physobjs[0].refpos.y+time*physobjs[0].velocity.y);
 			physobjs[0].refpos.x=(physobjs[0].refpos.x+time*physobjs[0].velocity.x);
@@ -368,6 +370,8 @@
 	
 	function drawBall(r){
 	//scene.remove(ball);
+	  phi=0
+	  physobjs[0].orquat.setFromEuler(new THREE.Euler(0., 1., 0.));
 	  physobjs[0].refpos.x=r[0];
 	  physobjs[0].refpos.y=r[1];
 	  physobjs[0].refpos.z=r[2];
