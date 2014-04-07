@@ -20,7 +20,7 @@
 	
 	// custom global variables
 	var back, lane, approach, pinVertices, ball;
-	var time=0.0;
+	
 	
 	// Variablen für die Maße der Szene
 	var laneLevel = 0.1,			// Height of the lane surface
@@ -54,10 +54,11 @@
 	
 	var V0=5; //Velocity at the beginning
 	var a=[9.81*0.12,0,9.81*0.12]; //gleitreibung
-	var angle=0; //throwing angle -45,45
+	var angle=0; //throwing angle
 	var ballOffset=0; 
 	var thrown=false;
 	var slide=true;
+	var time=0.01; //timestep
 	
 	var physobjs = [new BowlBall(new THREE.Vector3(1., 1., -6.), new THREE.Vector3(1., 2., 3), new THREE.Euler(0., 1., 0.), new THREE.Vector3(0., 1., 0.), new THREE.Vector3(0.,0.,0.001)),
                 new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(1., 2., 3), new THREE.Euler(0., 1., 0.), new THREE.Vector3(0., 1., 0.), new THREE.Vector3(0., 0.147558, 0.),10,"blue"),
@@ -299,7 +300,7 @@
 		render();
 		//controls.update();
 	}
-	
+	time=0.01;
 	function moveBall(){
 		if(slide){
 			if (physobjs[0].velocity.x>0.0001||physobjs[0].velocity.x<-0.0001) physobjs[0].velocity.x = physobjs[0].velocity.x-time*a[0]*Math.sin(Math.PI/180.0*angle);
@@ -334,7 +335,7 @@
 		renderer.render(scene, camera); 
 	} 
 	V0=5;
-		
+	
 	function keyDown(event) {
 
 		switch(event.keyCode) {
@@ -352,7 +353,6 @@
          break;
       case 87: ///Key W
 		 thrown=true;
-         time=0.01;
 		 physobjs[0].velocity.x=V0*Math.sin(Math.PI/180.0*angle);
 		 physobjs[0].velocity.y=0;
 		 physobjs[0].velocity.z=V0*Math.cos(Math.PI/180.0*angle);
@@ -368,7 +368,6 @@
 	
 	function drawBall(r){
 	//scene.remove(ball);
-	  time=0;
 	  physobjs[0].refpos.x=r[0];
 	  physobjs[0].refpos.y=r[1];
 	  physobjs[0].refpos.z=r[2];
