@@ -20,8 +20,8 @@ function integrate(physobjs, dt)
 	var nobj = physobjs.length;
 	var hdt = 0.5 * dt;
 	var accs = getAccs(physobjs, nobj);
-	var veldt = new THREE.Vector3(0., 0., 0.), accsdt1 = new THREE.Vector3(0., 0., 0.), accsdt2 = new THREE.Vector3(0., 0., 0.);
-	var avorquat = new THREE.Quaternion(0., 0., 0., 0.);
+	var veldt = new THREE.Vector3(), accsdt1 = new THREE.Vector3(), accsdt2 = new THREE.Vector3();
+	var avorquat = new THREE.Quaternion();
 
 	//accs = [[ [0., 0., 0. ], [0., 0., 0.]], ...]
 
