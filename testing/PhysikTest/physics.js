@@ -19,7 +19,7 @@ function integrate(physobjs, dt)
 {
 	var nobj = physobjs.length;
 	var hdt = 0.5 * dt;
-	var accs = getAccs(physobjs, nobj);
+	var accs = getAccs(physobjs, dt);
 	var veldt = new THREE.Vector3(), accsdt1 = new THREE.Vector3(), accsdt2 = new THREE.Vector3();
 	var avorquat = new THREE.Quaternion();
 
@@ -29,8 +29,8 @@ function integrate(physobjs, dt)
 	{	
 		/*
 		console.log("before");
-		console.log(physobjs[i].position.x, physobjs[i].position.y, physobjs[i].position.z);
-		console.log(physobjs[i].quaternion.x,physobjs[i].quaternion.y,physobjs[i].quaternion.z,physobjs[i].quaternion.w);
+		console.log(physobjs[i].refpos.x, physobjs[i].refpos.y, physobjs[i].refpos.z);
+		console.log(physobjs[i].orquat.x,physobjs[i].orquat.y,physobjs[i].orquat.z,physobjs[i].orquat.w);
 		console.log(physobjs[i].velocity.x, physobjs[i].velocity.y, physobjs[i].velocity.z);
 		console.log(physobjs[i].anglvel.x, physobjs[i].anglvel.y, physobjs[i].anglvel.z);
 		console.log("---");
@@ -51,12 +51,12 @@ function integrate(physobjs, dt)
 		accsdt2.z = accs[i][1].z;
 		accsdt2.multiplyScalar(dt);
 		
-		//console.log(physobjs[i].quaternion.x,physobjs[i].quaternion.y,physobjs[i].quaternion.z,physobjs[i].quaternion.w);
-		avorquat.multiplyQuaternions(physobjs[i].quaternion,physobjs[i].anglvquat());
-		avorquat.x = physobjs[i].quaternion.x + hdt * avorquat.x;
-		avorquat.y = physobjs[i].quaternion.y + hdt * avorquat.y;
-		avorquat.z = physobjs[i].quaternion.z + hdt * avorquat.z;
-		avorquat.w = physobjs[i].quaternion.w + hdt * avorquat.w;
+		//console.log(physobjs[i].orquat.x,physobjs[i].orquat.y,physobjs[i].orquat.z,physobjs[i].orquat.w);
+		avorquat.multiplyQuaternions(physobjs[i].orquat,physobjs[i].anglvquat());
+		avorquat.x = physobjs[i].orquat.x + hdt * avorquat.x;
+		avorquat.y = physobjs[i].orquat.y + hdt * avorquat.y;
+		avorquat.z = physobjs[i].orquat.z + hdt * avorquat.z;
+		avorquat.w = physobjs[i].orquat.w + hdt * avorquat.w;
 		avorquat.normalize();
 		//console.log(physobjs[i].anglvquat().x,physobjs[i].anglvquat().y,physobjs[i].anglvquat().z,physobjs[i].anglvquat().w);
 		
@@ -72,10 +72,9 @@ function integrate(physobjs, dt)
 		
 		/* 	Update of Coordinates 	*/
 		
-		physobjs[i].position.add(veldt);
+		physobjs[i].refpos.add(veldt);
 		
-		physobjs[i].quaternion.copy(avorquat);
-		//physobjs[i].setRotationFromQuaternion(physobjs[i].orquat);	//updates this.quaternion
+		physobjs[i].orquat.copy(avorquat);
 	
 		physobjs[i].velocity.add(accsdt1);
 		
@@ -83,12 +82,12 @@ function integrate(physobjs, dt)
 		
 		/* 							*/
 				
-		//console.log(physobjs[i].quaternion.x,physobjs[i].quaternion.y,physobjs[i].quaternion.z,physobjs[i].quaternion.w);
+		//console.log(physobjs[i].orquat.x,physobjs[i].orquat.y,physobjs[i].orquat.z,physobjs[i].orquat.w);
 	
 		/*
 		console.log("after");
-		console.log(physobjs[i].position.x, physobjs[i].position.y, physobjs[i].position.z);
-		console.log(physobjs[i].quaternion.x,physobjs[i].quaternion.y,physobjs[i].quaternion.z,physobjs[i].quaternion.w);
+		console.log(physobjs[i].refpos.x, physobjs[i].refpos.y, physobjs[i].refpos.z);
+		console.log(physobjs[i].orquat.x,physobjs[i].orquat.y,physobjs[i].orquat.z,physobjs[i].orquat.w);
 		console.log(physobjs[i].velocity.x, physobjs[i].velocity.y, physobjs[i].velocity.z);
 		console.log(physobjs[i].anglvel.x, physobjs[i].anglvel.y, physobjs[i].anglvel.z);
 		console.log("---");
@@ -97,7 +96,7 @@ function integrate(physobjs, dt)
 	return physobjs;
 }
 
-function getAccs(physobjs)
+function getAccs(physobjs, dt)
 {
 	var nobj = physobjs.length;
 	var accs = [];
@@ -106,7 +105,10 @@ function getAccs(physobjs)
 	{
 		//accs.push([new THREE.Vector3(0.0, -9.81, 0.), new THREE.Vector3(0., 0., 0.)]);
 		//accs.push([new THREE.Vector3(1.0, 1.0, 1.0), new THREE.Vector3(45.0, 60.0, 75.0)]);
-		accs.push([new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Vector3(0.0, 0.0, 0.0)]);
+		if (physobjs[i].refpos.y < 0) {
+			physobjs[i].velocity.y = -0.5*physobjs[i].velocity.y 
+		}
+		accs.push([new THREE.Vector3(0.0, -9.81, 0.0), new THREE.Vector3(0.0, 0.0, 0.0)]);
 	}
 	/*
 	console.log("accs")

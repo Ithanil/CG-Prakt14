@@ -90,9 +90,9 @@ function init(){
 }
 
 function animate() {
-	//requestAnimationFrame( animate );
+	requestAnimationFrame( animate );
 
-	//integrate(physobjs, 0.001);
+	integrate(physobjs, 0.001);
 	for (var it=0; it<physobjs.length; it++) {physobjs[it].updateObject3D()}
 	render();
 	controls.update();
@@ -192,7 +192,8 @@ function keyDown(event) {
 				if (ifocus==-0) { ifocus = 0; }
 			}
 			break;
-
+		case 51:///Key 3
+			break;
 		default:
 			break;
 		}
