@@ -2,7 +2,9 @@
 
 function SvSteiner(intens0, mass, avec, dest) {
 	var me = intens0.elements;
-	dest.set(me[0] + mass*(avec.y*avec.y + avec.z*avec.z), me[3] - mass*avec.x*avec.y, me[6] - mass*avec.x*avec.z, me[1] - mass*avec.x*avec.y, me[4] + mass*(avec.x*avec.x + avec.z*avec.z), me[7] - mass*avec.y*avec.z, me[2] - mass*avec.x*avec.z, me[5] - mass*avec.y*avec.z, me[8] + mass*(avec.x*avec.x + avec.y*avec.y) );
+	dest.set(me[0] + mass*(avec.y*avec.y + avec.z*avec.z), 	me[3] - mass*avec.x*avec.y, 					me[6] - mass*avec.x*avec.z, 
+			me[1] - mass*avec.x*avec.y, 					me[4] + mass*(avec.x*avec.x + avec.z*avec.z), 	me[7] - mass*avec.y*avec.z, 
+			me[2] - mass*avec.x*avec.z, 					me[5] - mass*avec.y*avec.z, 					me[8] + mass*(avec.x*avec.x + avec.y*avec.y) );
 	return dest;
 }
 
@@ -103,6 +105,12 @@ PhysObj.method('updateObject3D', function() {
 	this.quaternion.copy(this.orquat);
 });
 
+PhysObj.method('getAnglMom', function() {
+	var intensarr = this.intensR.toArray();
+	return new THREE.Vector3(intensarr[0]*this.anglvel.x , intensarr[4]*this.anglvel.y , intensarr[8]*this.anglvel.z);
+});
+
+/*
 PhysObj.method('updateObjPos', function(newPosR) {
 	var poshelp = new THREE.Vector3(-this.refposG.x, -this.refposG.y, -this.refposG.z);
 	poshelp.applyQuaternion(this.quaternion);
@@ -112,6 +120,7 @@ PhysObj.method('updateObjPos', function(newPosR) {
 
 	return this;
 });
+ */
 
 /*PhysObj.method('updateRefPosG', function(newRefPosG) {
 	var poshelp = new THREE.Vector3(-this.refposG.x, -this.refposG.y, -this.refposG.z);
@@ -266,7 +275,7 @@ function BowlBall(pos0, vel0, eulrot0, anglvel0, refposG0) {
 
 	/* Initialize THREE.MESH */
 
-	var geometry = new THREE.SphereGeometry(this.radius, 5, 5)	
+	var geometry = new THREE.SphereGeometry(this.radius, 20, 20)	
 	/* Was ist mit Faces und Normalen bei der Kugel?
 	for (var i = 0; i < count-3; i = i +2) 
 	{

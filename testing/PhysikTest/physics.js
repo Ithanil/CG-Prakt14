@@ -78,6 +78,17 @@ function integrate(physobjs, dt)
 		physobjs[i].orquat.copy(avorquat);
 
 		physobjs[i].velocity.add(accsdt1);
+		
+		var fixdirs = [0,1,0];
+		if (fixdirs[0]==1) {
+			physobjs[i].velocity.x = 0.0;
+		}
+		if (fixdirs[1]==1) {
+			physobjs[i].velocity.y = 0.0;
+		}
+		if (fixdirs[2]==1) {
+			physobjs[i].velocity.z = 0.0;
+		}
 
 		physobjs[i].anglvel.add(accsdt2);
 
@@ -106,18 +117,56 @@ function getAccs(physobjs, dt)
 	{
 		//accs.push([new THREE.Vector3(0.0, -9.81, 0.), new THREE.Vector3(0., 0., 0.)]);
 		//accs.push([new THREE.Vector3(1.0, 1.0, 1.0), new THREE.Vector3(45.0, 60.0, 75.0)]);
-		/*if (physobjs[i].refpos.y < 0) {
-			physobjs[i].velocity.y = -0.5*physobjs[i].velocity.y;
-			physobjs[i].refpos.y = 0.0;
-		}*/
+		if (physobjs[i].velocity.y < 0.0) {
+			if (physobjs[i] instanceof BowlPin) {
+				if (physobjs[i].refpos.y < physobjs[i].refposG.y) {
+					physobjs[i].velocity.y = -0.75*physobjs[i].velocity.y;
+					physobjs[i].refpos.y = physobjs[i].refposG.y;
+				}
+			}
+			if (physobjs[i] instanceof BowlBall) {
+				if (physobjs[i].refpos.y < physobjs[i].radius) {
+					physobjs[i].velocity.y = -0.75*physobjs[i].velocity.y;
+					physobjs[i].refpos.y = physobjs[i].radius;
+				}
+			}
+		}
 		var intensarr = physobjs[i].intensR.toArray();
+		
+		var force  = new THREE.Vector3(0., -physobjs[i].mass * 9.81, 0.);
+		var torque = new THREE.Vector3();
+		var rotforce = new THREE.Vector3();
+		var frotquat = new THREE.Quaternion(-physobjs[i].orquat.x, -physobjs[i].orquat.y, -physobjs[i].orquat.z, physobjs[i].orquat.w);
+		
+		rotforce.copy(force);
+		rotforce.applyQuaternion(frotquat);
+		torque.crossVectors(physobjs[i].composR, rotforce);
+		torque.add(new THREE.Vector3(0., 0., 0.));
+		
+		var massi = 1./physobjs[i].mass;
+		var anglacc = new THREE.Vector3(
+     		   (torque.x - (intensarr[8]-intensarr[4]) * physobjs[i].anglvel.y * physobjs[i].anglvel.z)/intensarr[0],
+    		   (torque.y - (intensarr[0]-intensarr[8]) * physobjs[i].anglvel.x * physobjs[i].anglvel.z)/intensarr[4], 
+    		   (torque.z - (intensarr[4]-intensarr[0]) * physobjs[i].anglvel.y * physobjs[i].anglvel.x)/intensarr[8]);
+		
+		var linacc = new THREE.Vector3(force.x, force.y, force.z);
+		var vechelp1 = new THREE.Vector3();
+		var vechelp2 = new THREE.Vector3();
+		
+		
+		vechelp1.crossVectors(physobjs[i].composR, anglacc);
+		linacc.add(vechelp1);
+		console.log(vechelp1.x, vechelp1.y, vechelp1.z)
 
-		var torque = new THREE.Vector3(0.1,0.,0.);
-		accs.push([new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Vector3(
-				(torque.x - (intensarr[8]-intensarr[4]) * physobjs[i].anglvel.y * physobjs[i].anglvel.z)/intensarr[0],
-				(torque.y - (intensarr[0]-intensarr[8]) * physobjs[i].anglvel.x * physobjs[i].anglvel.z)/intensarr[4], 
-				(torque.z - (intensarr[4]-intensarr[0]) * physobjs[i].anglvel.y * physobjs[i].anglvel.x)/intensarr[8])
-		]);
+		
+		vechelp1.crossVectors(physobjs[i].anglvel, physobjs[i].composR);
+		vechelp2.crossVectors(vechelp1, physobjs[i].anglvel);		
+		linacc.add(vechelp2);
+		console.log(vechelp2.x, vechelp2.y, vechelp2.z)
+		linacc.multiplyScalar(massi);
+		console.log(linacc.x, linacc.y, linacc.z)
+		
+		accs.push([linacc, anglacc]);
 	}
 	/*
 	console.log("accs")

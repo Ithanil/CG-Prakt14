@@ -4,16 +4,18 @@ var time;
 
 //var physobjs = [new BowlBall([1., 1., -6.], [0., 0., 0.], [0., 0., 0.], [0., 0., 0.], [0.,0.,0.001]), new BowlPin([0., 0., -6.], [0., 0., 0.], [0., 0., 0.], [0., 0., 0.],[0., 0.147558, 0.],10,"blue")];
 //var physobjs = [new BowlPin([0., 0., -6.], [0., 0., 0.], [0., 0., 0.], [0., 0., 0.],[0., 0.147558, 0.],10,"blue")];
-var physobjs = [new BowlBall(new THREE.Vector3(1., 1., -6.), new THREE.Vector3(0., 0., 0), new THREE.Euler(0., 0., 0.), new THREE.Vector3(1., 1., 0.), new THREE.Vector3(0.,0.,0.001)),
-                new BowlPin(new THREE.Vector3(0., 1., -6.), new THREE.Vector3(0., 0., 0), new THREE.Euler(0., 0., 0.), new THREE.Vector3(1., 1., 1.), new THREE.Vector3(0., 0.147558, 0.),10,"blue")];
+var physobjs = [new BowlBall(new THREE.Vector3(1., 1., -6.), new THREE.Vector3(0., 0., 0), new THREE.Euler(0., 0., 0.), new THREE.Vector3(0., 0., 0.), new THREE.Vector3(0.,0.,0.0)),
+                new BowlPin(new THREE.Vector3(0., 1., -6.), new THREE.Vector3(0., 0., 0), new THREE.Euler(1., 0., 0.), new THREE.Vector3(0., 0., 0.), new THREE.Vector3(0., 0., 0.),10,"blue")];
 var ifocus = 0; //Index of object which is manipulated by keys (changed by +/-)
 var keyPosAdd = 0.05, keyVelAdd = 0.05, keyQuAddS = 0.99875, keyQuAddV = 0.0499792;
+var oldanglmom = new THREE.Vector3();
+var oldanglvel = new THREE.Vector3();
 
 /*
 console.log(physobjs[0].position.x);
 console.log(physobjs[0].position.y);
 console.log(physobjs[0].position.z);
-*/
+ */
 
 init();
 animate();
@@ -41,12 +43,14 @@ function init(){
 	document.body.appendChild( renderer.domElement );
 
 	for (var it=0; it<physobjs.length; it++) {scene.add(physobjs[it]);}
+	oldanglmom = physobjs[1].getAnglMom();
+	oldanglvel.copy(physobjs[1].anglvel);
 
-	// Plattform
+	/*// Plattform
 	var plattform_material = new THREE.MeshPhongMaterial( { color: 0x339933 } ); 
 	var plattform = new THREE.Mesh( new THREE.CylinderGeometry( 15,15,1, 5), plattform_material ); 
 	plattform.translateY(-0.5-0.1);
-	scene.add( plattform ); 
+	scene.add( plattform ); */
 
 	// Position oder Kamera
 	//camera.position.set( 4, 4, 21 );
@@ -91,19 +95,46 @@ function init(){
 }
 
 function animate() {
-	var oldtime = time.getTime();
-	time = new Date();
-	var dt = (time.getTime() - oldtime) / 1000.;
-	
-	requestAnimationFrame( animate );
+	//var oldtime = time.getTime();
+	//time = new Date();
+	//var dt = (time.getTime() - oldtime) / 1000.;
 
+	//requestAnimationFrame( animate );
+	var dt = 0.005;
 
 	integrate(physobjs, dt);
 	for (var it=0; it<physobjs.length; it++) {physobjs[it].updateObject3D()}
-	
-	for (var it=0; it<physobjs.length; it++) {console.log(physobjs[it].anglvel.x);
+
+	/*for (var it=0; it<physobjs.length; it++) {console.log(physobjs[it].anglvel.x);
 											console.log(physobjs[it].anglvel.y);
-											console.log(physobjs[it].anglvel.z);}
+											console.log(physobjs[it].anglvel.z);}*/
+	
+	for (var it=0; it<physobjs.length; it++) {
+		if (it==1) {
+			
+			var anglmom = physobjs[it].getAnglMom();
+			var anglmdiff = new THREE.Vector3(anglmom.x - oldanglmom.x, anglmom.y - oldanglmom.y, anglmom.z - oldanglmom.z );
+			
+			//var alltorq = new THREE.Vector3();
+			//alltorq.crossVectors(oldanglmom, oldanglvel);
+			//var torque = new THREE.Vector3(0.0, 0.0, 0.0);
+			//alltorq.add(torque);
+			
+			console.log(physobjs[it].anglvel.x);
+			console.log(physobjs[it].anglvel.y);
+			console.log(physobjs[it].anglvel.z);
+			console.log(anglmdiff.x/dt);
+			console.log(anglmdiff.y/dt);
+			console.log(anglmdiff.z/dt);
+			//console.log(alltorq.x);
+			//console.log(alltorq.y);
+			//console.log(alltorq.z);
+			//console.log(anglmom.x*anglmom.x + anglmom.y*anglmom.y + anglmom.y*anglmom.y);
+			
+			oldanglmom.copy(anglmom);		
+			oldanglvel.copy(physobjs[it].anglvel);
+		}
+	}
 	
 	render();
 	controls.update();
@@ -194,7 +225,7 @@ function keyDown(event) {
 		case 50:///Key 2
 			if (physobjs.length > 1) {
 				ifocus = (physobjs.length + ifocus + 1) % (physobjs.length);
-				console.log(ifocus);
+				//console.log(ifocus);
 			}
 			break;
 		case 49:///Key 1
