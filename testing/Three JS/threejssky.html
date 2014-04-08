@@ -6,7 +6,7 @@
 	<body> 
 		<script src="three.js"></script> 
 		<script src="OrbitControls.js"></script>
-		<script type="text/javascript" src="sugar.js"></script>
+		<script type="text/javascript" src="inherit.js"></script>
 		<script type="text/javascript" src="gl-matrix.js"></script>
 		<script type="text/javascript" src="dat.gui.js"></script>
 		<script type="text/javascript" src="physics.js"></script>
@@ -65,7 +65,7 @@
 	var slide=true;
 	var dt=0.01; //timestep
 	
-	var physobjs = [new BowlBall(new THREE.Vector3(1., 1., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 5, 0.), new THREE.Vector3(0.,0.,0.001)),
+	var physobjs = [new BowlBall(new THREE.Vector3(1., 1., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0.,0.,0.001)),
                 new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
 				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0.,0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
 				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
@@ -366,7 +366,16 @@
 		renderer.shadowMapHeight = 1024; 
 		renderer.render(scene, camera); 
 	} 
+	
+	function drawBall(r){
+	//scene.remove(ball);
+	  physobjs[0].refpos.x=r[0];
+	  physobjs[0].refpos.y=r[1];
+	  physobjs[0].refpos.z=r[2];
+	  physobjs[0].updateObject3D();
 	  
+	  scene.add(physobjs[0]);
+	 }
 	</script>
 	
 	</body>
