@@ -105,7 +105,7 @@ function getAccs(physobjs, dt)
 	{
 		//accs.push([new THREE.Vector3(0.0, -9.81, 0.), new THREE.Vector3(0., 0., 0.)]);
 		//accs.push([new THREE.Vector3(1.0, 1.0, 1.0), new THREE.Vector3(45.0, 60.0, 75.0)]);
-		if (physobjs[i].refpos.y < laneLevel+(physobjs[i].refposG.y)) {
+		if (physobjs[i].refpos.y < laneLevel/2+physobjs[i].refposG.y*0.6777) {
 			if(physobjs[i].velocity.y<0)physobjs[i].velocity.y = -0.5*physobjs[i].velocity.y ;
 		}
 		accs.push([new THREE.Vector3(0.0, -9.81, 0.0), new THREE.Vector3(0.0, 0.0, 0.0)]);

@@ -85,13 +85,13 @@ function keyDown(event) {
 			thrown=false;
 			camera.position.set( 0, 1, 14 );
 			scene.remove(physobjs[0]);
-			drawBall([ballOffset,0.11,10]);
+			drawBall([ballOffset,0.3,10]);
 			break;
 		case 87: //Key W
 			thrown=true;
 			physobjs[0].velocity.x=V0*Math.sin(Math.PI/180.0*angle);
 			physobjs[0].velocity.y=0;
-			physobjs[0].velocity.z=V0*Math.cos(Math.PI/180.0*angle);
+			physobjs[0].velocity.z=-V0*Math.cos(Math.PI/180.0*angle);
 			break;
 		case 83: //Key S
 			;
