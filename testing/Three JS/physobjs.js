@@ -281,7 +281,7 @@ function BowlBall(pos0, vel0, eulrot0, anglvel0, refposG0) {
 
 	/* Initialize THREE.MESH */
 
-	var geometry = new THREE.SphereGeometry(this.radius, 11,11)	
+	var geometry = new THREE.SphereGeometry(this.radius, 22,22)	
 	/* Was ist mit Faces und Normalen bei der Kugel?
 	for (var i = 0; i < count-3; i = i +2) 
 	{
@@ -295,7 +295,7 @@ function BowlBall(pos0, vel0, eulrot0, anglvel0, refposG0) {
 	geometry.computeFaceNormals();
 	 */
 
-	var material = new THREE.MeshNormalMaterial();
+	var material = new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture("textures/smiley.png") });
 
 	/* Initialize extensions to THREE.Mesh */
 
