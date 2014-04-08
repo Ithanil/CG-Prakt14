@@ -6,7 +6,7 @@
 	<body> 
 		<script src="three.js"></script> 
 		<script src="OrbitControls.js"></script>
-		<script type="text/javascript" src="sugar.js"></script>
+		<script type="text/javascript" src="inherit.js"></script>
 		<script type="text/javascript" src="gl-matrix.js"></script>
 		<script type="text/javascript" src="dat.gui.js"></script>
 		<script type="text/javascript" src="physics.js"></script>
@@ -366,7 +366,16 @@
 		renderer.shadowMapHeight = 1024; 
 		renderer.render(scene, camera); 
 	} 
+	
+	function drawBall(r){
+	//scene.remove(ball);
+	  physobjs[0].refpos.x=r[0];
+	  physobjs[0].refpos.y=r[1];
+	  physobjs[0].refpos.z=r[2];
+	  physobjs[0].updateObject3D();
 	  
+	  scene.add(physobjs[0]);
+	 }
 	</script>
 	
 	</body>
