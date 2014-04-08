@@ -61,11 +61,11 @@
 	var angle=0; //throwing angle -45,45
 	var ballOffset=0; 
 	var thrown=false;
-
+	
 	var slide=true;
 	var dt=0.01; //timestep
 	
-	var physobjs = [new BowlBall(new THREE.Vector3(1., 1., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 5, 0.), new THREE.Vector3(0.,0.,0.001)),
+	var physobjs = [new BowlBall(new THREE.Vector3(1., 1., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., -1.5, 0.), new THREE.Vector3(2., 5, 11.), new THREE.Vector3(0.,0.,0.001)),
                 new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
 				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0.,0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
 				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
@@ -76,7 +76,9 @@
 				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
 				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
 				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue")];
-
+	
+	var oldaccs = getAccs(physobjs);
+	
 	init();
 	animate();
 	createUi();
@@ -322,7 +324,7 @@
 	
 	function animate() {
 		requestAnimationFrame( animate );
-		if(thrown){integrate(physobjs,dt);
+		if(thrown){integrate(physobjs,dt, oldaccs);
 				moveCamera();
 				}
 
