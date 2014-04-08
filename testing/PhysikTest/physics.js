@@ -15,6 +15,74 @@ quat4.add = function (quat, quat2, dest) {
 	return dest;
 };*/
 
+function updateCoords(physobjs, accs, dt) {
+	for (var i = 0; i < physobjs.length; i++) 
+	{	
+		/*
+		console.log("before");
+		console.log(physobjs[i].refpos.x, physobjs[i].refpos.y, physobjs[i].refpos.z);
+		console.log(physobjs[i].orquat.x,physobjs[i].orquat.y,physobjs[i].orquat.z,physobjs[i].orquat.w);
+		console.log(physobjs[i].velocity.x, physobjs[i].velocity.y, physobjs[i].velocity.z);
+		console.log(physobjs[i].anglvel.x, physobjs[i].anglvel.y, physobjs[i].anglvel.z);
+		console.log("---");
+		 */
+
+		veldt.x = physobjs[i].velocity.x;
+		veldt.y = physobjs[i].velocity.y;
+		veldt.z = physobjs[i].velocity.z;
+		veldt.multiplyScalar(dt);
+
+		accsdt1.x = accs[i][0].x;
+		accsdt1.y = accs[i][0].y;
+		accsdt1.z = accs[i][0].z;
+		accsdt1.multiplyScalar(dt);
+
+		accsdt2.x = accs[i][1].x;
+		accsdt2.y = accs[i][1].y;
+		accsdt2.z = accs[i][1].z;
+		accsdt2.multiplyScalar(dt);
+
+		//console.log(physobjs[i].orquat.x,physobjs[i].orquat.y,physobjs[i].orquat.z,physobjs[i].orquat.w);
+		//var anglvquat = physobjs[i].anglvquat();
+		avorquat.multiplyQuaternions(physobjs[i].anglvquat(), physobjs[i].orquat);
+		avorquat.x = physobjs[i].orquat.x + hdt * avorquat.x;
+		avorquat.y = physobjs[i].orquat.y + hdt * avorquat.y;
+		avorquat.z = physobjs[i].orquat.z + hdt * avorquat.z;
+		avorquat.w = physobjs[i].orquat.w + hdt * avorquat.w;
+		avorquat.normalize();
+		//console.log(physobjs[i].anglvquat().x,physobjs[i].anglvquat().y,physobjs[i].anglvquat().z,physobjs[i].anglvquat().w);
+
+		/*
+		console.log("middle")
+		console.log(veldt.x,veldt.y,veldt.z);
+		console.log(accsdt1.x,accsdt1.y,accsdt1.z);
+		console.log(accsdt2.x,accsdt2.y,accsdt2.z);
+		console.log(avorquat.x,avorquat.y,avorquat.z,avorquat.w);
+		console.log(avorquatdt.x,avorquatdt.y,avorquatdt.z,avorquatdt.w);
+		console.log("---")
+		 */
+
+		/* 	Update of Coordinates 	*/
+
+		physobjs[i].refpos.add(veldt);
+
+		physobjs[i].orquat.copy(avorquat);
+
+		physobjs[i].velocity.add(accsdt1);
+		
+		var fixdirs = [0,1,0];
+		if (fixdirs[0]==1) {
+			physobjs[i].velocity.x = 0.0;
+		}
+		if (fixdirs[1]==1) {
+			physobjs[i].velocity.y = 0.0;
+		}
+		if (fixdirs[2]==1) {
+			physobjs[i].velocity.z = 0.0;
+		}
+		physobjs[i].anglvel.add(accsdt2);
+		
+}
 function integrate(physobjs, dt)
 {
 	var nobj = physobjs.length;

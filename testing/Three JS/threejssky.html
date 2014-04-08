@@ -9,14 +9,9 @@
 		<script type="text/javascript" src="sugar.js"></script>
 		<script type="text/javascript" src="gl-matrix.js"></script>
 		<script type="text/javascript" src="dat.gui.js"></script>
-<<<<<<< HEAD
 		<script type="text/javascript" src="physics.js"></script>
 		<script type="text/javascript" src="controlz.js"></script>
 		<script type="text/javascript" src="physobjs.js"></script>
-=======
-		<script type="text/javascript" src="pintest.js"></script>
-		<script type="text/javascript" src="ball.js"></script>
->>>>>>> parent of a63da81... Merge branch 'master' of https://github.com/Ithanil/CG-Prakt14
 		<script type="text/javascript" src="userInterface.js"></script>
 		<script> 
 		
@@ -27,8 +22,28 @@
 	var back, lane, approach, pinVertices, ball;
 	var time=0.0;
 	
+	var isMouseDown = false, isBallSelected = false, 
+	lastX, lastY;
 	
-	var slices = 10; 		// Pin slices
+	// Variablen für die Maße der Szene
+	var laneLevel = 0.1,			// Height of the lane surface
+		laneWidth = 1.05,			
+		laneLength = 18.29,
+		gutterWidth = 0.2359,
+		apprLength = 2.0,			// Approach Length
+		apprLineLength = 0.02,		// Grey line
+		boxBackLength = 0.25,		// Parts of the box at the back
+		boxLRWidth = 0.5,		 
+		boxLRLength = 1.75,			
+		boxUpHeight = 0.5,		 
+		boxHeight = 1.25,
+		distFromPins = 1.3,			// Distance from box to first pin
+		cmPin = 0.147558,			// center of mass pin
+		xDistPin = 0.3048,			// x-distance of the pins
+		zDistPin = 0.264;			// z-distance of the pins
+		
+		
+	var slices = 30; 		// Pin slices
 	
 	var pins;
 			
@@ -44,19 +59,19 @@
 	var thrown=false;
 <<<<<<< HEAD
 	var slide=true;
-	var dt=0.01; //timestep
+	var time=0.01; //timestep
 	
-	var physobjs = [new BowlBall(new THREE.Vector3(1., 1., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 5, 0.), new THREE.Vector3(0.,0.,0.001)),
-                new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
-				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0.,0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
-				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
-				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
-				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
-				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
-				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
-				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
-				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
-				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue")];
+	var physobjs = [new BowlBall(new THREE.Vector3(1., 1., -6.), new THREE.Vector3(1., 2., 3), new THREE.Euler(0., 1., 0.), new THREE.Vector3(0., 1., 0.), new THREE.Vector3(0.,0.,0.001)),
+                new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(1., 2., 3), new THREE.Euler(0., 1., 0.), new THREE.Vector3(0., 1., 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
+				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(1., 2., 3), new THREE.Euler(0., 1., 0.), new THREE.Vector3(0., 1., 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
+				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(1., 2., 3), new THREE.Euler(0., 1., 0.), new THREE.Vector3(0., 1., 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
+				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(1., 2., 3), new THREE.Euler(0., 1., 0.), new THREE.Vector3(0., 1., 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
+				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(1., 2., 3), new THREE.Euler(0., 1., 0.), new THREE.Vector3(0., 1., 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
+				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(1., 2., 3), new THREE.Euler(0., 1., 0.), new THREE.Vector3(0., 1., 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
+				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(1., 2., 3), new THREE.Euler(0., 1., 0.), new THREE.Vector3(0., 1., 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
+				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(1., 2., 3), new THREE.Euler(0., 1., 0.), new THREE.Vector3(0., 1., 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
+				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(1., 2., 3), new THREE.Euler(0., 1., 0.), new THREE.Vector3(0., 1., 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
+				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(1., 2., 3), new THREE.Euler(0., 1., 0.), new THREE.Vector3(0., 1., 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue")];
 
 =======
 >>>>>>> parent of a63da81... Merge branch 'master' of https://github.com/Ithanil/CG-Prakt14
@@ -84,6 +99,27 @@
 		renderer.setClearColor( 0xffffff, 1 );	// Canvas Background Color
 		document.body.appendChild( renderer.domElement );
 		
+<<<<<<< HEAD
+=======
+		// PROJECTOR 
+		projector = new THREE.Projector();
+		document.onmousedown = mouseDown;
+		document.onmousemove = mouseMove;
+		document.onmouseup = mouseUp;
+		
+		// ANZEIGE
+		
+		varsPanel = document.createElement('div');
+		varsPanel.style.position = 'absolute';
+		varsPanel.style.width = 100;
+		varsPanel.style.height = 100;
+		varsPanel.style.backgroundColor = "rgba( 1, 0, 0, 0.25 )";
+		setText();
+		varsPanel.style.top = 5 + 'px';
+		varsPanel.style.left = 5 + 'px';
+		document.body.appendChild(varsPanel);
+		
+>>>>>>> 7c7cff2ed11acd2da32f2e6bb5d36607300ba810
 		// Bahn
 		var laneTexture = new THREE.ImageUtils.loadTexture("textures/wood.jpg");
 		laneTexture.wrapS = laneTexture.wrapT = THREE.RepeatWrapping;
@@ -288,67 +324,38 @@
 	
 	function animate() {
 		requestAnimationFrame( animate );
-<<<<<<< HEAD
 		if(thrown){integrate(physobjs,dt);
 				moveCamera();
 				}
-		for (var it=0; it<physobjs.length; it++) {physobjs[it].updateObject3D();}
-=======
-		if(thrown)moveBall();
 		
->>>>>>> parent of a63da81... Merge branch 'master' of https://github.com/Ithanil/CG-Prakt14
 		render();
 		//controls.update();
 	}
 	
-<<<<<<< HEAD
 	function moveCamera(){
 		/*
 			if (physobjs[0].velocity.x>0.0001||physobjs[0].velocity.x<-0.0001) physobjs[0].velocity.x = physobjs[0].velocity.x-dt*a[0]*Math.sin(Math.PI/180.0*angle);
 				else physobjs[0].velocity.x=0;
-			if (physobjs[0].velocity.y>0.0001) physobjs[0].velocity.y = physobjs[0].velocity.y-dt*a[1];
-				else if (physobjs[0].velocity.y<-0.0001)physobjs[0].velocity.y = physobjs[0].velocity.y+dt*a[1];
+			if (physobjs[0].velocity.y>0.0001) physobjs[0].velocity.y = physobjs[0].velocity.y-time*a[1];
+				else if (physobjs[0].velocity.y<-0.0001)physobjs[0].velocity.y = physobjs[0].velocity.y+time*a[1];
 				else physobjs[0].velocity.y = 0;
-			if(physobjs[0].velocity.z>0.0001)physobjs[0].velocity.z = physobjs[0].velocity.z-dt*a[2]*Math.cos(Math.PI/180.0*angle);
+			if(physobjs[0].velocity.z>0.0001)physobjs[0].velocity.z = physobjs[0].velocity.z-time*a[2]*Math.cos(Math.PI/180.0*angle);
 				else physobjs[0].velocity.z=0;
 			if(physobjs[0].velocity.z<0){
 				physobjs[0].velocity.x = 0;
 				physobjs[0].velocity.y =0 ;
 				physobjs[0].velocity.z = 0;
 				}	
-				phi=phi+dt*3;
+				phi=phi+time;
 			if(physobjs[0].velocity.z>0.0001)physobjs[0].orquat.setFromAxisAngle(new THREE.Vector3(1.0/Math.sqrt(2),1.0/Math.sqrt(2),0.),phi);
-			physobjs[0].refpos.z=(physobjs[0].refpos.z-dt*physobjs[0].velocity.z);
-			physobjs[0].refpos.y=(physobjs[0].refpos.y+dt*physobjs[0].velocity.y);
-			physobjs[0].refpos.x=(physobjs[0].refpos.x+dt*physobjs[0].velocity.x);*/
+			physobjs[0].refpos.z=(physobjs[0].refpos.z-time*physobjs[0].velocity.z);
+			physobjs[0].refpos.y=(physobjs[0].refpos.y+time*physobjs[0].velocity.y);
+			physobjs[0].refpos.x=(physobjs[0].refpos.x+time*physobjs[0].velocity.x);*/
 			if(physobjs[0].refpos.z>-18.0/2 ){
 			camera.translateZ(dt*physobjs[0].velocity.z);
 			camera.translateY(-0.05*dt*physobjs[0].velocity.z);
+			};
 			
-=======
-	function moveBall(){
-		if (ball.velocity.x>0.0001) ball.velocity.x = ball.velocity.x-time*a[0]*Math.sin(Math.PI/180.0*angle);
-			else if (ball.velocity.x<-0.0001)ball.velocity.x = ball.velocity.x+time*a[0]*Math.sin(Math.PI/180.0*angle);
-			else ball.velocity.x=0;
-		if (ball.velocity.y>0.0001) ball.velocity.y = ball.velocity.y-time*a[1];
-			else if (ball.velocity.y<-0.0001)ball.velocity.y = ball.velocity.y+time*a[1];
-			else ball.velocity.y = 0;
-		if(ball.velocity.z>0.0001)ball.velocity.z = ball.velocity.z-time*a[2]*Math.cos(Math.PI/180.0*angle);
-			else ball.velocity.z=0;
-		if(ball.velocity.z<0){
-			ball.velocity.x = 0;
-			ball.velocity.y =0 ;
-			ball.velocity.z = 0;
-			}
-		ball.translateZ(-time*ball.velocity.z);
-		ball.translateY(time*ball.velocity.y);
-		ball.translateX(time*ball.velocity.x);
-		if(ball.position.z>-18.0/2 ){
-		camera.translateZ(-time*ball.velocity.z);
-		camera.translateY(0.05*time*ball.velocity.z);
->>>>>>> parent of a63da81... Merge branch 'master' of https://github.com/Ithanil/CG-Prakt14
-		}
-		//camera.lookAt(new THREE.Vector3(0, 0, -time*ball.velocity.z));
 	}
 	// Renderer
 	function render() { 
@@ -360,53 +367,6 @@
 		renderer.shadowMapHeight = 1024; 
 		renderer.render(scene, camera); 
 	} 
-	V0=5;
-<<<<<<< HEAD
-=======
-		
-	function keyDown(event) {
-
-		switch(event.keyCode) {
->>>>>>> parent of a63da81... Merge branch 'master' of https://github.com/Ithanil/CG-Prakt14
-
-      case 65: ///Key A
-		 putPins(pins,posarr);
-		 
-		 //putPins(slices);
-         break;
-      case 68: ///Key D
-		 thrown=false;
-		 camera.position.set( 0, 1, 14 );
-		 //camera.lookAt(new THREE.Vector3(0, 0, 0));
-		 scene.remove(ball);
-         drawBall([ballOffset,0.11,10]);
-         break;
-      case 87: ///Key W
-		 thrown=true;
-         time=0.01;
-		 ball.velocity.x=V0*Math.sin(Math.PI/180.0*angle);
-		 ball.velocity.y=0;
-		 ball.velocity.z=V0*Math.cos(Math.PI/180.0*angle);
-         break;
-      case 83: ///Key S
-         ;
-         break;
-      default:
-         break;
-		}
-		animate();
-	}			
-	
-	function drawBall(r){
-	//scene.remove(ball);
-	  time=0;
-	  ball.position.set(r[0],r[1],r[2]); 
-	  scene.add(ball);
-	  }
-	
-	//var animationstep = window.setInterval("timing()",50);
-
-	  
 	  
 	</script>
 	

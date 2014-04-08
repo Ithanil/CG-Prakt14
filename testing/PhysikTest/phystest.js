@@ -6,7 +6,7 @@ var time;
 //var physobjs = [new BowlPin([0., 0., -6.], [0., 0., 0.], [0., 0., 0.], [0., 0., 0.],[0., 0.147558, 0.],10,"blue")];
 
 var physobjs = [new BowlBall(new THREE.Vector3(1., 1., -6.), new THREE.Vector3(0., 0., 0), new THREE.Euler(0., 0., 0.), new THREE.Vector3(0., 0., 0.), new THREE.Vector3(0.,0.,0.0)),
-                new BowlPin(new THREE.Vector3(0., 1., -6.), new THREE.Vector3(0., 0., 0), new THREE.Euler(1., 0., 0.), new THREE.Vector3(0., 0., 0.), new THREE.Vector3(0., 0., 0.),10,"blue")];
+                new BowlPin(new THREE.Vector3(0., 1., -6.), new THREE.Vector3(0., 0., 0), new THREE.Euler(0.25, 0., 0.), new THREE.Vector3(0., 0., 0.), new THREE.Vector3(0., 0., 0.),10,"blue")];
 var ifocus = 0; //Index of object which is manipulated by keys (changed by +/-)
 var keyPosAdd = 0.05, keyVelAdd = 0.05, keyQuAddS = 0.99875, keyQuAddV = 0.0499792;
 var oldanglmom = new THREE.Vector3();
@@ -96,12 +96,12 @@ function init(){
 
 function animate() {
 
-	//var oldtime = time.getTime();
-	//time = new Date();
-	//var dt = (time.getTime() - oldtime) / 1000.;
+	var oldtime = time.getTime();
+	time = new Date();
+	var dt = (time.getTime() - oldtime) / 1000.;
 
-	//requestAnimationFrame( animate );
-	var dt = 0.005;
+	requestAnimationFrame( animate );
+	var dt = 0.001;
 
 	integrate(physobjs, dt);
 	for (var it=0; it<physobjs.length; it++) {physobjs[it].updateObject3D()}
@@ -121,12 +121,12 @@ function animate() {
 			//var torque = new THREE.Vector3(0.0, 0.0, 0.0);
 			//alltorq.add(torque);
 			
-			console.log(physobjs[it].anglvel.x);
+			/*console.log(physobjs[it].anglvel.x);
 			console.log(physobjs[it].anglvel.y);
 			console.log(physobjs[it].anglvel.z);
 			console.log(anglmdiff.x/dt);
 			console.log(anglmdiff.y/dt);
-			console.log(anglmdiff.z/dt);
+			console.log(anglmdiff.z/dt);*/
 			//console.log(alltorq.x);
 			//console.log(alltorq.y);
 			//console.log(alltorq.z);
@@ -241,7 +241,6 @@ function keyDown(event) {
 			break;
 		}
 	}
-	animate();
 }	
 
 /*
