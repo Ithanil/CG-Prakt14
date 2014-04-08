@@ -79,7 +79,7 @@ function integrate(physobjs, dt)
 
 		physobjs[i].velocity.add(accsdt1);
 		
-		var fixdirs = [0,1,0];
+		var fixdirs = [0,0,0];
 		if (fixdirs[0]==1) {
 			physobjs[i].velocity.x = 0.0;
 		}
@@ -121,13 +121,15 @@ function getAccs(physobjs, dt)
 		if (physobjs[i].velocity.y < 0.0) {
 			if (physobjs[i] instanceof BowlPin) {
 				if (physobjs[i].refpos.y < physobjs[i].refposG.y) {
-					physobjs[i].velocity.y = -0.75*physobjs[i].velocity.y;
+					physobjs[i].velocity.y = -0.2*physobjs[i].velocity.y;
+					if((physobjs[i].velocity.y*physobjs[i].velocity.y)<0.1) physobjs[i].velocity.y=0;
 					physobjs[i].refpos.y = physobjs[i].refposG.y;
 				}
 			}
 			if (physobjs[i] instanceof BowlBall) {
 				if (physobjs[i].refpos.y < physobjs[i].radius) {
-					physobjs[i].velocity.y = -0.75*physobjs[i].velocity.y;
+					physobjs[i].velocity.y = -0.2*physobjs[i].velocity.y;
+					if((physobjs[i].velocity.y*physobjs[i].velocity.y)<0.1) physobjs[i].velocity.y=0;
 					physobjs[i].refpos.y = physobjs[i].radius;
 				}
 			}
