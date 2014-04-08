@@ -6,13 +6,12 @@
 	</head> 
 	<body> 
 		<script src="three.js"></script> 
-		<script src="OrbitControls.js"></script>
 		<script src="projector.js"></script> 
 		<script src="raycaster.js"></script> 
 		<script type="text/javascript" src="inherit.js"></script>
 		<script type="text/javascript" src="gl-matrix.js"></script>
 		<script type="text/javascript" src="dat.gui.js"></script>
-
+		
 		<script type="text/javascript" src="physobjs.js"></script>
 		<script type="text/javascript" src="userInterface.js"></script>
 		<script> 
@@ -401,7 +400,6 @@
       default:
          break;
 		}
-		animate();
 	}		
 
 function mouseUp(event) 
@@ -436,7 +434,7 @@ function mouseUp(event)
 		if (!isMouseDown || !isBallSelected) return;
 	
 		var d = Math.min(window.innerWidth,window.innerHeight);
-		var dX =  2.0*4.5*(event.clientX-lastX)/window.innerWidth;		// 4.5 Skalierungsfaktor
+		var dX =  2.0*3.3*(event.clientX-lastX)/window.innerWidth;		// 4.5 Skalierungsfaktor
 		lastX = event.clientX;
 		if (Math.abs(physobjs[0].refpos.x) < laneWidth/2 + gutterWidth)
 			physobjs[0].refpos.x+= dX;
@@ -448,8 +446,6 @@ function mouseUp(event)
 				if (dX < 0)
 					physobjs[0].refpos.x+= dX;
 			}
-					
-		animate();
 		console.log("X:"+physobjs[0].refpos.x);
 	   }	
 	
