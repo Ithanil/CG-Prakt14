@@ -34,33 +34,32 @@ function integrate(physobjs, dt)
 		console.log(physobjs[i].velocity.x, physobjs[i].velocity.y, physobjs[i].velocity.z);
 		console.log(physobjs[i].anglvel.x, physobjs[i].anglvel.y, physobjs[i].anglvel.z);
 		console.log("---");
-		 */
-
+		*/
+		
 		veldt.x = physobjs[i].velocity.x;
 		veldt.y = physobjs[i].velocity.y;
 		veldt.z = physobjs[i].velocity.z;
 		veldt.multiplyScalar(dt);
-
+		
 		accsdt1.x = accs[i][0].x;
 		accsdt1.y = accs[i][0].y;
 		accsdt1.z = accs[i][0].z;
 		accsdt1.multiplyScalar(dt);
-
+		
 		accsdt2.x = accs[i][1].x;
 		accsdt2.y = accs[i][1].y;
 		accsdt2.z = accs[i][1].z;
 		accsdt2.multiplyScalar(dt);
-
+		
 		//console.log(physobjs[i].orquat.x,physobjs[i].orquat.y,physobjs[i].orquat.z,physobjs[i].orquat.w);
-		//var anglvquat = physobjs[i].anglvquat();
-		avorquat.multiplyQuaternions(physobjs[i].anglvquat(), physobjs[i].orquat);
+		avorquat.multiplyQuaternions(physobjs[i].orquat,physobjs[i].anglvquat());
 		avorquat.x = physobjs[i].orquat.x + hdt * avorquat.x;
 		avorquat.y = physobjs[i].orquat.y + hdt * avorquat.y;
 		avorquat.z = physobjs[i].orquat.z + hdt * avorquat.z;
 		avorquat.w = physobjs[i].orquat.w + hdt * avorquat.w;
 		avorquat.normalize();
 		//console.log(physobjs[i].anglvquat().x,physobjs[i].anglvquat().y,physobjs[i].anglvquat().z,physobjs[i].anglvquat().w);
-
+		
 		/*
 		console.log("middle")
 		console.log(veldt.x,veldt.y,veldt.z);
@@ -69,16 +68,17 @@ function integrate(physobjs, dt)
 		console.log(avorquat.x,avorquat.y,avorquat.z,avorquat.w);
 		console.log(avorquatdt.x,avorquatdt.y,avorquatdt.z,avorquatdt.w);
 		console.log("---")
-		 */
-
+		*/
+		
 		/* 	Update of Coordinates 	*/
-
+		
 		physobjs[i].refpos.add(veldt);
-
+		
 		physobjs[i].orquat.copy(avorquat);
-
+	
 		physobjs[i].velocity.add(accsdt1);
 		
+<<<<<<< HEAD
 		var fixdirs = [0,1,0];
 		if (fixdirs[0]==1) {
 			physobjs[i].velocity.x = 0.0;
@@ -90,12 +90,14 @@ function integrate(physobjs, dt)
 			physobjs[i].velocity.z = 0.0;
 		}
 
+=======
+>>>>>>> 702ce17e9a03fa846dbda113ac79a769ab29d3f1
 		physobjs[i].anglvel.add(accsdt2);
-
+		
 		/* 							*/
-
+				
 		//console.log(physobjs[i].orquat.x,physobjs[i].orquat.y,physobjs[i].orquat.z,physobjs[i].orquat.w);
-
+	
 		/*
 		console.log("after");
 		console.log(physobjs[i].refpos.x, physobjs[i].refpos.y, physobjs[i].refpos.z);
@@ -103,7 +105,7 @@ function integrate(physobjs, dt)
 		console.log(physobjs[i].velocity.x, physobjs[i].velocity.y, physobjs[i].velocity.z);
 		console.log(physobjs[i].anglvel.x, physobjs[i].anglvel.y, physobjs[i].anglvel.z);
 		console.log("---");
-		 */
+		*/
 	}
 	return physobjs;
 }
@@ -112,11 +114,12 @@ function getAccs(physobjs, dt)
 {
 	var nobj = physobjs.length;
 	var accs = [];
-
+	
 	for (var i = 0; i < nobj; i++) 
 	{
 		//accs.push([new THREE.Vector3(0.0, -9.81, 0.), new THREE.Vector3(0., 0., 0.)]);
 		//accs.push([new THREE.Vector3(1.0, 1.0, 1.0), new THREE.Vector3(45.0, 60.0, 75.0)]);
+<<<<<<< HEAD
 		if (physobjs[i].velocity.y < 0.0) {
 			if (physobjs[i] instanceof BowlPin) {
 				if (physobjs[i].refpos.y < physobjs[i].refposG.y) {
@@ -167,13 +170,19 @@ function getAccs(physobjs, dt)
 		console.log(linacc.x, linacc.y, linacc.z)
 		
 		accs.push([linacc, anglacc]);
+=======
+		if (physobjs[i].refpos.y < 0) {
+			physobjs[i].velocity.y = -0.5*physobjs[i].velocity.y 
+		}
+		accs.push([new THREE.Vector3(0.0, -9.81, 0.0), new THREE.Vector3(0.0, 0.0, 0.0)]);
+>>>>>>> 702ce17e9a03fa846dbda113ac79a769ab29d3f1
 	}
 	/*
 	console.log("accs")
 	console.log(accs[0][0].x, accs[0][0].y, accs[0][0].z);
 	console.log(accs[0][1].x, accs[0][1].y, accs[0][1].z);
 	console.log("---")
-	 */
+	*/
 
 	return accs;
 }
@@ -184,7 +193,7 @@ for (var vertexIndex = 0; vertexIndex < MovingCube.geometry.vertices.length; ver
 	var localVertex = MovingCube.geometry.vertices[vertexIndex].clone();
 	var globalVertex = localVertex.applyMatrix4( MovingCube.matrix );
 	var directionVector = globalVertex.sub( MovingCube.position );
-
+	
 	var ray = new THREE.Raycaster( originPoint, directionVector.clone().normalize() );
 	var collisionResults = ray.intersectObjects( collidableMeshList );
 	if ( collisionResults.length > 0 && collisionResults[0].distance < directionVector.length() ) 
