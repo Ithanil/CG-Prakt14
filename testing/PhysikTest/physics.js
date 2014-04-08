@@ -15,12 +15,44 @@ quat4.add = function (quat, quat2, dest) {
 	return dest;
 };*/
 
-function integrate(physobjs, dt)
+
+function calcVelHelpers(physobj, acc, dt, accdt1, accdt2) {
+
+	accdt1.x = acc[0].x;
+	accdt1.y = acc[0].y;
+	accdt1.z = acc[0].z;
+	accdt1.multiplyScalar(dt);
+
+	accdt2.x = acc[1].x;
+	accdt2.y = acc[1].y;
+	accdt2.z = acc[1].z;
+	accdt2.multiplyScalar(dt);
+
+}
+
+function calcPosHelpers(physobj, dt, veldt, avorquat) {
+	var hdt = 0.5 * dt;
+
+	veldt.x = physobj.velocity.x;
+	veldt.y = physobj.velocity.y;
+	veldt.z = physobj.velocity.z;
+	veldt.multiplyScalar(dt);
+
+	avorquat.multiplyQuaternions(physobj.anglvquat(), physobj.orquat);
+	avorquat.x = physobj.orquat.x + hdt * avorquat.x;
+	avorquat.y = physobj.orquat.y + hdt * avorquat.y;
+	avorquat.z = physobj.orquat.z + hdt * avorquat.z;
+	avorquat.w = physobj.orquat.w + hdt * avorquat.w;
+	avorquat.normalize();
+
+}
+
+function integrate(physobjs, dt, oldaccs)
 {
 	var nobj = physobjs.length;
 	var hdt = 0.5 * dt;
-	var accs = getAccs(physobjs, dt);
-	var veldt = new THREE.Vector3(), accsdt1 = new THREE.Vector3(), accsdt2 = new THREE.Vector3();
+
+	var veldt = new THREE.Vector3(), accdt1 = new THREE.Vector3(), accdt2 = new THREE.Vector3();
 	var avorquat = new THREE.Quaternion();
 
 	//accs = [[ [0., 0., 0. ], [0., 0., 0.]], ...]
@@ -36,30 +68,6 @@ function integrate(physobjs, dt)
 		console.log("---");
 		 */
 
-		veldt.x = physobjs[i].velocity.x;
-		veldt.y = physobjs[i].velocity.y;
-		veldt.z = physobjs[i].velocity.z;
-		veldt.multiplyScalar(dt);
-
-		accsdt1.x = accs[i][0].x;
-		accsdt1.y = accs[i][0].y;
-		accsdt1.z = accs[i][0].z;
-		accsdt1.multiplyScalar(dt);
-
-		accsdt2.x = accs[i][1].x;
-		accsdt2.y = accs[i][1].y;
-		accsdt2.z = accs[i][1].z;
-		accsdt2.multiplyScalar(dt);
-
-		//console.log(physobjs[i].orquat.x,physobjs[i].orquat.y,physobjs[i].orquat.z,physobjs[i].orquat.w);
-		//var anglvquat = physobjs[i].anglvquat();
-		avorquat.multiplyQuaternions(physobjs[i].anglvquat(), physobjs[i].orquat);
-		avorquat.x = physobjs[i].orquat.x + hdt * avorquat.x;
-		avorquat.y = physobjs[i].orquat.y + hdt * avorquat.y;
-		avorquat.z = physobjs[i].orquat.z + hdt * avorquat.z;
-		avorquat.w = physobjs[i].orquat.w + hdt * avorquat.w;
-		avorquat.normalize();
-		//console.log(physobjs[i].anglvquat().x,physobjs[i].anglvquat().y,physobjs[i].anglvquat().z,physobjs[i].anglvquat().w);
 
 		/*
 		console.log("middle")
@@ -73,13 +81,30 @@ function integrate(physobjs, dt)
 
 		/* 	Update of Coordinates 	*/
 
+		calcVelHelpers(physobjs[i], oldaccs[i], hdt, accdt1,accdt2);
+
+		physobjs[i].velocity.add(accdt1);
+
+		physobjs[i].anglvel.add(accdt2);
+
+		calcPosHelpers(physobjs[i], dt, veldt, avorquat);
+
 		physobjs[i].refpos.add(veldt);
 
 		physobjs[i].orquat.copy(avorquat);
+	}	
 
-		physobjs[i].velocity.add(accsdt1);
-		
-		var fixdirs = [0,1,0];
+	oldaccs = getAccs(physobjs);
+	for (var i = 0; i < nobj; i++) {
+		calcVelHelpers(physobjs[i], oldaccs[i], hdt, accdt1,accdt2);
+
+		physobjs[i].velocity.add(accdt1);
+
+		physobjs[i].anglvel.add(accdt2);
+
+
+
+		var fixdirs = [1,1,1];
 		if (fixdirs[0]==1) {
 			physobjs[i].velocity.x = 0.0;
 		}
@@ -90,7 +115,6 @@ function integrate(physobjs, dt)
 			physobjs[i].velocity.z = 0.0;
 		}
 
-		physobjs[i].anglvel.add(accsdt2);
 
 		/* 							*/
 
@@ -108,7 +132,7 @@ function integrate(physobjs, dt)
 	return physobjs;
 }
 
-function getAccs(physobjs, dt)
+function getAccs(physobjs)
 {
 	var nobj = physobjs.length;
 	var accs = [];
@@ -121,52 +145,57 @@ function getAccs(physobjs, dt)
 		if (physobjs[i].velocity.y < 0.0) {
 			if (physobjs[i] instanceof BowlPin) {
 				if (physobjs[i].refpos.y < physobjs[i].refposG.y) {
-					physobjs[i].velocity.y = -0.75*physobjs[i].velocity.y;
+					physobjs[i].velocity.y = -0.5*physobjs[i].velocity.y;
 					physobjs[i].refpos.y = physobjs[i].refposG.y;
 				}
 			}
 			if (physobjs[i] instanceof BowlBall) {
 				if (physobjs[i].refpos.y < physobjs[i].radius) {
-					physobjs[i].velocity.y = -0.75*physobjs[i].velocity.y;
+					physobjs[i].velocity.y = -0.5*physobjs[i].velocity.y;
 					physobjs[i].refpos.y = physobjs[i].radius;
 				}
 			}
 		}
 		var intensarr = physobjs[i].intensR.toArray();
-		
+
 		var force  = new THREE.Vector3(0., -physobjs[i].mass * 9.81, 0.);
 		var torque = new THREE.Vector3();
 		var rotforce = new THREE.Vector3();
 		var frotquat = new THREE.Quaternion(-physobjs[i].orquat.x, -physobjs[i].orquat.y, -physobjs[i].orquat.z, physobjs[i].orquat.w);
-		
+
 		rotforce.copy(force);
 		rotforce.applyQuaternion(frotquat);
+
+		//var arrowHelper = new THREE.ArrowHelper( frotquat, physobjs[i].refpos, physobjs[i].mass * 9.81, 0xffff00 ); 
+		//scene.remove( arrowHelper );
+		//scene.add( arrowHelper );
+		
 		torque.crossVectors(physobjs[i].composR, rotforce);
 		torque.add(new THREE.Vector3(0., 0., 0.));
-		
+
 		var massi = 1./physobjs[i].mass;
 		var anglacc = new THREE.Vector3(
-     		   (torque.x - (intensarr[8]-intensarr[4]) * physobjs[i].anglvel.y * physobjs[i].anglvel.z)/intensarr[0],
-    		   (torque.y - (intensarr[0]-intensarr[8]) * physobjs[i].anglvel.x * physobjs[i].anglvel.z)/intensarr[4], 
-    		   (torque.z - (intensarr[4]-intensarr[0]) * physobjs[i].anglvel.y * physobjs[i].anglvel.x)/intensarr[8]);
-		
+				(torque.x - (intensarr[8]-intensarr[4]) * physobjs[i].anglvel.y * physobjs[i].anglvel.z)/intensarr[0],
+				(torque.y - (intensarr[0]-intensarr[8]) * physobjs[i].anglvel.x * physobjs[i].anglvel.z)/intensarr[4], 
+				(torque.z - (intensarr[4]-intensarr[0]) * physobjs[i].anglvel.y * physobjs[i].anglvel.x)/intensarr[8]);
+
 		var linacc = new THREE.Vector3(force.x, force.y, force.z);
 		var vechelp1 = new THREE.Vector3();
 		var vechelp2 = new THREE.Vector3();
-		
-		
+
+
 		vechelp1.crossVectors(physobjs[i].composR, anglacc);
 		linacc.add(vechelp1);
-		console.log(vechelp1.x, vechelp1.y, vechelp1.z)
+		//console.log(vechelp1.x, vechelp1.y, vechelp1.z)
 
-		
+
 		vechelp1.crossVectors(physobjs[i].anglvel, physobjs[i].composR);
 		vechelp2.crossVectors(vechelp1, physobjs[i].anglvel);		
 		linacc.add(vechelp2);
-		console.log(vechelp2.x, vechelp2.y, vechelp2.z)
+		//console.log(vechelp2.x, vechelp2.y, vechelp2.z)
 		linacc.multiplyScalar(massi);
-		console.log(linacc.x, linacc.y, linacc.z)
-		
+		//console.log(linacc.x, linacc.y, linacc.z)
+
 		accs.push([linacc, anglacc]);
 	}
 	/*
