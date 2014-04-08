@@ -11,7 +11,6 @@
 		<script type="text/javascript" src="inherit.js"></script>
 		<script type="text/javascript" src="gl-matrix.js"></script>
 		<script type="text/javascript" src="dat.gui.js"></script>
-		<script type="text/javascript" src="physics.js"></script>
 		<script type="text/javascript" src="controlz.js"></script>
 		<script type="text/javascript" src="physobjs.js"></script>
 		<script type="text/javascript" src="userInterface.js"></script>
@@ -23,7 +22,7 @@
 	// custom global variables
 	var back, lane, approach, pinVertices, ball;
 	
-	var isMouseDown = false, isBallSelected = false,
+	var isMouseDown = false, isBallSelected = false, 
 	lastX, lastY;
 	
 	// Variablen für die Maße der Szene
@@ -42,8 +41,6 @@
 		cmPin = 0.147558,			// center of mass pin
 		xDistPin = 0.3048,			// x-distance of the pins
 		zDistPin = 0.264;			// z-distance of the pins
-		
-	var offsetTest = 0;
 		
 		
 	var slices = 30; 		// Pin slices
@@ -65,19 +62,19 @@
 	var ballOffset=0; 
 	var thrown=false;
 	var slide=true;
-	var dt=0.01; //timestep
+	var time=0.01; //timestep
 	
-	var physobjs = [new BowlBall(new THREE.Vector3(1., 1., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 5, 0.), new THREE.Vector3(0.,0.,0.001)),
-                new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
-				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0.,0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
-				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
-				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
-				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
-				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
-				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
-				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
-				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
-				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue")];
+	var physobjs = [new BowlBall(new THREE.Vector3(1., 1., -6.), new THREE.Vector3(1., 2., 3), new THREE.Euler(0., 1., 0.), new THREE.Vector3(0., 1., 0.), new THREE.Vector3(0.,0.,0.001)),
+                new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(1., 2., 3), new THREE.Euler(0., 1., 0.), new THREE.Vector3(0., 1., 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
+				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(1., 2., 3), new THREE.Euler(0., 1., 0.), new THREE.Vector3(0., 1., 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
+				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(1., 2., 3), new THREE.Euler(0., 1., 0.), new THREE.Vector3(0., 1., 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
+				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(1., 2., 3), new THREE.Euler(0., 1., 0.), new THREE.Vector3(0., 1., 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
+				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(1., 2., 3), new THREE.Euler(0., 1., 0.), new THREE.Vector3(0., 1., 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
+				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(1., 2., 3), new THREE.Euler(0., 1., 0.), new THREE.Vector3(0., 1., 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
+				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(1., 2., 3), new THREE.Euler(0., 1., 0.), new THREE.Vector3(0., 1., 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
+				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(1., 2., 3), new THREE.Euler(0., 1., 0.), new THREE.Vector3(0., 1., 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
+				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(1., 2., 3), new THREE.Euler(0., 1., 0.), new THREE.Vector3(0., 1., 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
+				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(1., 2., 3), new THREE.Euler(0., 1., 0.), new THREE.Vector3(0., 1., 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue")];
 
 	
 	init();
@@ -109,14 +106,14 @@
 		document.onmousemove = mouseMove;
 		document.onmouseup = mouseUp;
 		
-		// OFFSETANZEIGE
+		// ANZEIGE
 		
 		varsPanel = document.createElement('div');
 		varsPanel.style.position = 'absolute';
 		varsPanel.style.width = 100;
 		varsPanel.style.height = 100;
-		varsPanel.style.backgroundColor = "#cccccc";
-		varsPanel.innerHTML = "Offset: "+Math.round(offsetTest*100)/100;
+		varsPanel.style.backgroundColor = "rgba( 1, 0, 0, 0.25 )";
+		setText();
 		varsPanel.style.top = 5 + 'px';
 		varsPanel.style.left = 5 + 'px';
 		document.body.appendChild(varsPanel);
@@ -320,37 +317,35 @@
 	
 	function animate() {
 		requestAnimationFrame( animate );
-		if(thrown){integrate(physobjs,dt);
-				moveCamera();
-				}
+		if(thrown)moveBall();
 		for (var it=0; it<physobjs.length; it++) {physobjs[it].updateObject3D();}
 		render();
 		//controls.update();
 	}
 	
-	function moveCamera(){
-		/*
-			if (physobjs[0].velocity.x>0.0001||physobjs[0].velocity.x<-0.0001) physobjs[0].velocity.x = physobjs[0].velocity.x-dt*a[0]*Math.sin(Math.PI/180.0*angle);
+	function moveBall(){
+		if(slide){
+			if (physobjs[0].velocity.x>0.0001||physobjs[0].velocity.x<-0.0001) physobjs[0].velocity.x = physobjs[0].velocity.x-time*a[0]*Math.sin(Math.PI/180.0*angle);
 				else physobjs[0].velocity.x=0;
-			if (physobjs[0].velocity.y>0.0001) physobjs[0].velocity.y = physobjs[0].velocity.y-dt*a[1];
-				else if (physobjs[0].velocity.y<-0.0001)physobjs[0].velocity.y = physobjs[0].velocity.y+dt*a[1];
+			if (physobjs[0].velocity.y>0.0001) physobjs[0].velocity.y = physobjs[0].velocity.y-time*a[1];
+				else if (physobjs[0].velocity.y<-0.0001)physobjs[0].velocity.y = physobjs[0].velocity.y+time*a[1];
 				else physobjs[0].velocity.y = 0;
-			if(physobjs[0].velocity.z>0.0001)physobjs[0].velocity.z = physobjs[0].velocity.z-dt*a[2]*Math.cos(Math.PI/180.0*angle);
+			if(physobjs[0].velocity.z>0.0001)physobjs[0].velocity.z = physobjs[0].velocity.z-time*a[2]*Math.cos(Math.PI/180.0*angle);
 				else physobjs[0].velocity.z=0;
 			if(physobjs[0].velocity.z<0){
 				physobjs[0].velocity.x = 0;
 				physobjs[0].velocity.y =0 ;
 				physobjs[0].velocity.z = 0;
 				}	
-				phi=phi+dt*3;
+				phi=phi+time;
 			if(physobjs[0].velocity.z>0.0001)physobjs[0].orquat.setFromAxisAngle(new THREE.Vector3(1.0/Math.sqrt(2),1.0/Math.sqrt(2),0.),phi);
-			physobjs[0].refpos.z=(physobjs[0].refpos.z-dt*physobjs[0].velocity.z);
-			physobjs[0].refpos.y=(physobjs[0].refpos.y+dt*physobjs[0].velocity.y);
-			physobjs[0].refpos.x=(physobjs[0].refpos.x+dt*physobjs[0].velocity.x);*/
+			physobjs[0].refpos.z=(physobjs[0].refpos.z-time*physobjs[0].velocity.z);
+			physobjs[0].refpos.y=(physobjs[0].refpos.y+time*physobjs[0].velocity.y);
+			physobjs[0].refpos.x=(physobjs[0].refpos.x+time*physobjs[0].velocity.x);
 			if(physobjs[0].refpos.z>-18.0/2 ){
-			camera.translateZ(dt*physobjs[0].velocity.z);
-			camera.translateY(-0.05*dt*physobjs[0].velocity.z);
-			
+			camera.translateZ(-time*physobjs[0].velocity.z);
+			camera.translateY(0.05*time*physobjs[0].velocity.z);
+			}
 		}
 	}
 	// Renderer
@@ -364,6 +359,9 @@
 		renderer.render(scene, camera); 
 	} 
 	V0=5;
+	
+		
+
 
 	
 	function drawBall(r){
