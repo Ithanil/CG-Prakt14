@@ -79,8 +79,6 @@ function integrate(physobjs, dt)
 
 		physobjs[i].velocity.add(accsdt1);
 		
-<<<<<<< HEAD
-=======
 		var fixdirs = [0,1,0];
 		if (fixdirs[0]==1) {
 			physobjs[i].velocity.x = 0.0;
@@ -92,7 +90,6 @@ function integrate(physobjs, dt)
 			physobjs[i].velocity.z = 0.0;
 		}
 
->>>>>>> parent of a63da81... Merge branch 'master' of https://github.com/Ithanil/CG-Prakt14
 		physobjs[i].anglvel.add(accsdt2);
 
 		/* 							*/
@@ -120,12 +117,7 @@ function getAccs(physobjs, dt)
 	{
 		//accs.push([new THREE.Vector3(0.0, -9.81, 0.), new THREE.Vector3(0., 0., 0.)]);
 		//accs.push([new THREE.Vector3(1.0, 1.0, 1.0), new THREE.Vector3(45.0, 60.0, 75.0)]);
-<<<<<<< HEAD
-		if (physobjs[i].refpos.y < 0) {
-			physobjs[i].velocity.y = -0.5*physobjs[i].velocity.y 
-		}
-		accs.push([new THREE.Vector3(0.0, -9.81, 0.0), new THREE.Vector3(0.0, 0.0, 0.0)]);
-=======
+
 		if (physobjs[i].velocity.y < 0.0) {
 			if (physobjs[i] instanceof BowlPin) {
 				if (physobjs[i].refpos.y < physobjs[i].refposG.y) {
@@ -176,7 +168,6 @@ function getAccs(physobjs, dt)
 		console.log(linacc.x, linacc.y, linacc.z)
 		
 		accs.push([linacc, anglacc]);
->>>>>>> parent of a63da81... Merge branch 'master' of https://github.com/Ithanil/CG-Prakt14
 	}
 	/*
 	console.log("accs")

@@ -113,6 +113,12 @@ PhysObj.method('updateObjPos', function(newPosR) {
 	return this;
 });
 
+PhysObj.method('getAnglMom', function() {
+	var intensarr = this.intensR.toArray();
+	return new THREE.Vector3(intensarr[0]*this.anglvel.x , intensarr[4]*this.anglvel.y , intensarr[8]*this.anglvel.z);
+});
+	
+
 /*PhysObj.method('updateRefPosG', function(newRefPosG) {
 	var poshelp = new THREE.Vector3(-this.refposG.x, -this.refposG.y, -this.refposG.z);
 	poshelp.applyQuaternion(this.quaternion);
@@ -266,7 +272,7 @@ function BowlBall(pos0, vel0, eulrot0, anglvel0, refposG0) {
 
 	/* Initialize THREE.MESH */
 
-	var geometry = new THREE.SphereGeometry(this.radius, 5, 5)	
+	var geometry = new THREE.SphereGeometry(this.radius, 20, 20)	
 	/* Was ist mit Faces und Normalen bei der Kugel?
 	for (var i = 0; i < count-3; i = i +2) 
 	{
