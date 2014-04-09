@@ -17,12 +17,14 @@ quat4.add = function (quat, quat2, dest) {
 
 
 function calcVelHelpers(physobj, acc, dt, accdt1, accdt2) {
-
+	
+	console.log('acc[0]',acc[0].x,acc[0].y,acc[0].z);
 	accdt1.x = acc[0].x;
 	accdt1.y = acc[0].y;
 	accdt1.z = acc[0].z;
 	accdt1.multiplyScalar(dt);
 
+	console.log('acc[1]',acc[1].x,acc[1].y,acc[1].z);
 	accdt2.x = acc[1].x;
 	accdt2.y = acc[1].y;
 	accdt2.z = acc[1].z;
@@ -66,7 +68,8 @@ function integrate(physobjs, dt, oldaccs)
 
 	var fixdirs = [0, 0, 0];
 	//accs = [[ [0., 0., 0. ], [0., 0., 0.]], ...]
-
+	
+	oldaccs = getAccs(physobjs); // temporäre Lösung, ist ja eigentlich schon berechnet
 	for (var i = 0; i < nobj; i++) 
 	{	
 		/*
@@ -96,7 +99,7 @@ function integrate(physobjs, dt, oldaccs)
 		physobjs[i].velocity.add(accdt1);
 		physobjs[i].fixdirs(fixdirs);
 
-		console.log('accdt2',accdt2.x,accdt2.y,accdt2.z);
+		console.log('accdt2-1',accdt2.x,accdt2.y,accdt2.z);
 		physobjs[i].anglvel.add(accdt2);
 
 		calcPosHelpers(physobjs[i], dt, veldt, avorquat);
@@ -107,14 +110,15 @@ function integrate(physobjs, dt, oldaccs)
 	}	
 
 	oldaccs = getAccs(physobjs);
-	console.log('oldaccs 0', oldaccs[0][0], oldaccs[0][1])
-	console.log('oldaccs 1', oldaccs[1][0], oldaccs[1][1])
+	console.log('oldaccs 0', oldaccs[0][0].x,oldaccs[0][0].y,oldaccs[0][0].z, oldaccs[0][1].x, oldaccs[0][1].y, oldaccs[0][1].z)
+	console.log('oldaccs 1', oldaccs[1][0].x,oldaccs[1][0].y,oldaccs[1][0].z, oldaccs[1][1].x, oldaccs[1][1].y, oldaccs[1][1].z)
 	for (var i = 0; i < nobj; i++) {
 		calcVelHelpers(physobjs[i], oldaccs[i], hdt, accdt1,accdt2);
 
 		physobjs[i].velocity.add(accdt1);
 		physobjs[i].fixdirs(fixdirs);
-
+		
+		console.log('accdt2-2',accdt2.x,accdt2.y,accdt2.z);
 		physobjs[i].anglvel.add(accdt2);
 
 

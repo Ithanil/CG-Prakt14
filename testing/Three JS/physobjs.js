@@ -285,6 +285,15 @@ function generatePinSegment(a, b, slices){
 	return pinVertices;
 }					
 
+function createPins()
+{
+	var pins = [];
+	for (var i = 0; i < 10; i++) 
+	{
+		pins.push(new BowlPin(new THREE.Vector3(0., 0.147558, 0.), new THREE.Vector3(0,0,0), new THREE.Euler(0,0,0), new THREE.Vector3(0,0,0), new THREE.Vector3(0., 0.147558, 0.), 10,"blue"));
+	}
+	return pins;
+}
 function generatePinColor(pin_geometry, slices, ring)
 			{
 				for ( var i = 0; i < pin_geometry.faces.length; i++) {
@@ -299,16 +308,7 @@ function generatePinColor(pin_geometry, slices, ring)
 						face.color.setRGB(0.8,0.8,0.8);
 				}
 			}
-
-function createPins()
-{
-	var pins = [];
-	for (var i = 0; i < 10; i++) 
-	{
-		pins.push(new BowlPin(new THREE.Vector3(0., 0.147558, 0.), new THREE.Vector3(0,0,0), new THREE.Euler(0,0,0), new THREE.Vector3(0,0,0), new THREE.Vector3(0., 0.147558, 0.), 10,"blue"));
-	}
-	return pins;
-}
+			
 
 function putPins(pins,posarr)
 {
@@ -352,6 +352,7 @@ function BowlBall(pos0, vel0, eulrot0, anglvel0, refposG0) {
 	 */
 
 	var material = new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture("textures/smiley.png") });
+
 
 	/* Initialize extensions to THREE.Mesh */
 
