@@ -61,11 +61,11 @@
 		<script type="text/javascript" src="userInterface.js"></script>
 
 		<script>
-			var app1, app2;
+			var app1, app2, debug=0;
 			
 			var camera1, camera2, scene, scene2, projector;
 			
-			
+			var menu, varsPanel;
 
 			function init() {
 			
@@ -124,11 +124,12 @@
 				var angle=0; //throwing angle -45,45
 				var ballOffset=0; 
 				var thrown=false;
+				var angularVelocity=[0,0,0];
 				
 				var slide=true;
 				var dt=0.01; //timestep
 				
-				var physobjs = [new BowlBall(new THREE.Vector3(1., 1., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., -1.5, 0.), new THREE.Vector3(2., 5, 11.), new THREE.Vector3(0.,0.,0.001)),
+				var physobjs = [new BowlBall(new THREE.Vector3(1., 1., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0, 0, 0), new THREE.Vector3(0.,0.001,0.)),
 							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
 							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0.,0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
 							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
@@ -397,7 +398,9 @@
 							integrate(physobjs,dt, oldaccs);
 							moveCamera();
 						}
-
+						if(physobjs[0].refpos.x*physobjs[0].refpos.x>0.94/2.0*0.94/2.0 && thrown && physobjs[0].refpos.z >-18.3/2.0) gutter();
+						
+						
 						for (var it=0; it<physobjs.length; it++) {physobjs[it].updateObject3D();}
 		
 						render();
@@ -415,11 +418,9 @@
 				
 				function App2( containerId, fullWidth, fullHeight, viewX, viewY, viewWidth, viewHeight ) {
 
-					var container, menu;
+					var container;
 
 					var camera, scene, renderer;
-
-					var mesh, group1, group2, group3, light;
 
 					var mouseX = 0, mouseY = 0, canvX = 0, canvY = 0, isMouseDown = false;
 					
@@ -447,15 +448,16 @@
 						
 						// ANZEIGE
 		
+						// ANZEIGE
+		
 						menu = document.createElement('div');
 						menu.style.position = 'absolute';
-						menu.style.width = 100+'px';
+						menu.style.width = 200+'px';
 						menu.style.backgroundColor = "rgba( 1, 0, 0, 0.25 )";
-						menu.innerHTML = "hi";
-						menu.style.top = 5 + 'px';
-	
-						menu.style.left = 5 + 'px';
-						container.appendChild(menu);
+						menu.innerHTML = "Choose Spin";
+						menu.style.top = 210 + 'px';
+						menu.style.right = 5 + 'px';
+						document.body.appendChild(menu);
 
 						light = new THREE.DirectionalLight( 0xffffff );
 						light.position.set( 0, 1,0 ).normalize();
@@ -474,12 +476,11 @@
 					
 					var arrowSpinXZ, arrowSpinXY; 
 					var dirVecXZ, dirVecXY,
-						dirVec = new THREE.Vector3(0,0,0);
+						dirVec = new THREE.Vector3(angularVelocity[0],angularVelocity[1],angularVelocity[2]);
 					var selectedXZ = false,
 						selectedXY = false;
 						
 					var winkelX = 0, winkelY = 0;
-					
 					
 					
 					function onMouseMove( event ) {
@@ -508,9 +509,10 @@
 									dirVecXY = new THREE.Vector3(canvX, canvY,0);
 								dirVecXY.applyAxisAngle(new THREE.Vector3(0,1,0), winkelX);
 								dirVecXY.normalize();
-								arrowSpinXY = new THREE.ArrowHelper(dirVecXY, new THREE.Vector3(0,0,0),2, 0xff55ff);
+								arrowSpinXY = new THREE.ArrowHelper(dirVecXY, new THREE.Vector3(0,0,0),2, 0x29A3CC,3.5,0.5);
 								scene.add(arrowSpinXY);
 								selectedXY = true;
+								dirVec.set(dirVecXY.getComponent(0),dirVecXY.getComponent(1),dirVecXY.getComponent(2))
 							} else {
 								scene.remove(arrowSpinXZ);
 								scene.remove(arrowSpinXY);
@@ -527,11 +529,18 @@
 								else 
 									dirVecXZ = new THREE.Vector3(-canvX,0, canvY);
 								dirVecXZ.normalize();
-								arrowSpinXZ = new THREE.ArrowHelper(dirVecXZ, new THREE.Vector3(0,0,0),2, 0xff55ff);
+								arrowSpinXZ = new THREE.ArrowHelper(dirVecXZ, new THREE.Vector3(0,0,0),2, 0x29A3CC,3.5,0.5);
+								
 								scene.add(arrowSpinXZ);
 								selectedXZ = true;
+								dirVec.set(dirVecXZ.getComponent(0),dirVecXZ.getComponent(1),dirVecXZ.getComponent(2));
 							}
 						}
+						setMenu(dirVec.getComponent(0),dirVec.getComponent(1),dirVec.getComponent(2));
+						angularVelocity[0]=dirVec.x;
+						angularVelocity[1]=dirVec.y;
+						angularVelocity[2]=dirVec.z;
+						//console.log(dirVec.getComponent(0)+","+dirVec.getComponent(1)+","+dirVec.getComponent(2));
 					}
 					
 					function onMouseDown(event) {
@@ -542,11 +551,11 @@
 					function onMouseUp(event) {
 						isMouseDown = false;
 						
-						if	(dirVecXZ.getComponent(2) < 0 && selectedXZ)
+						if	( selectedXZ&&(dirVecXZ.getComponent(2) < 0))
 							winkelX = dirVecXZ.angleTo(new THREE.Vector3(1,0,0));
 						else if (selectedXZ)
 							winkelX = 2*Math.PI - dirVecXZ.angleTo(new THREE.Vector3(1,0,0));
-						if	(dirVecXY.getComponent(2) > 0 && selectedXY)
+						if	(selectedXY && (dirVecXY.getComponent(2) > 0 ))
 							winkelY = 2*Math.PI - dirVecXY.angleTo(new THREE.Vector3(0,1,0));
 						else if (selectedXY)
 							winkelY = dirVecXY.angleTo(new THREE.Vector3(0,1,0));
@@ -555,7 +564,7 @@
 					//
 
 					this.animate = function() {
-
+						//console.log(dirVec.getComponent(0)+","+dirVec.getComponent(0)+","+dirVec.getComponent(0));
 						render();
 
 					};
@@ -575,30 +584,25 @@
 					  physobjs[0].refpos.x=r[0];
 					  physobjs[0].refpos.y=r[1];
 					  physobjs[0].refpos.z=r[2];
+					  
+					  physobjs[0].eulrot0= new THREE.Euler(0.,-1.5,0.);
+					  physobjs[0].orquat.setFromEuler(physobjs[0].eulrot0);
 					  physobjs[0].updateObject3D();
 					  
 					  scene.add(physobjs[0]);
 				 }
 				 
+				 function gutter(){
+				alert( 'Gutter' );
+				thrown=false;
+				
+				camera1.position.set( 0, 1, 14 );
+				scene.remove(physobjs[0]);
+				drawBall([ballOffset,0.3,10]);
+				}
+				 
 				 function moveCamera(){
-			/*
-				if (physobjs[0].velocity.x>0.0001||physobjs[0].velocity.x<-0.0001) physobjs[0].velocity.x = physobjs[0].velocity.x-dt*a[0]*Math.sin(Math.PI/180.0*angle);
-					else physobjs[0].velocity.x=0;
-				if (physobjs[0].velocity.y>0.0001) physobjs[0].velocity.y = physobjs[0].velocity.y-dt*a[1];
-					else if (physobjs[0].velocity.y<-0.0001)physobjs[0].velocity.y = physobjs[0].velocity.y+dt*a[1];
-					else physobjs[0].velocity.y = 0;
-				if(physobjs[0].velocity.z>0.0001)physobjs[0].velocity.z = physobjs[0].velocity.z-dt*a[2]*Math.cos(Math.PI/180.0*angle);
-					else physobjs[0].velocity.z=0;
-				if(physobjs[0].velocity.z<0){
-					physobjs[0].velocity.x = 0;
-					physobjs[0].velocity.y =0 ;
-					physobjs[0].velocity.z = 0;
-					}	
-					phi=phi+dt*3;
-				if(physobjs[0].velocity.z>0.0001)physobjs[0].orquat.setFromAxisAngle(new THREE.Vector3(1.0/Math.sqrt(2),1.0/Math.sqrt(2),0.),phi);
-				physobjs[0].refpos.z=(physobjs[0].refpos.z-dt*physobjs[0].velocity.z);
-				physobjs[0].refpos.y=(physobjs[0].refpos.y+dt*physobjs[0].velocity.y);
-				physobjs[0].refpos.x=(physobjs[0].refpos.x+dt*physobjs[0].velocity.x);*/
+			
 				if(physobjs[0].refpos.z>-18.0/2 ){
 				camera1.translateZ(dt*physobjs[0].velocity.z);
 				camera1.translateY(-0.05*dt*physobjs[0].velocity.z);

@@ -3,6 +3,12 @@ function setText() {
 						  +"<br/>Angle: "+Math.round(angle*100)/100;
 }
 
+function setMenu(x,y,z) {
+	menu.innerHTML = "x="+Math.round(100*x)/100+
+					 ", y="+Math.round(100*y)/100+
+					 ", z="+Math.round(100*z)/100;
+}
+
 function mouseUp(event) 
 {
 	isMouseDown = false;
@@ -94,11 +100,19 @@ function keyDown(event) {
 			drawBall([ballOffset,0.3,10]);
 			break;
 		case 87: //Key W
-			thrown=true;
+			
 			scene.remove( arrowAngle );
 			physobjs[0].velocity.x=V0*Math.sin(Math.PI/180.0*angle);
 			physobjs[0].velocity.y=0;
 			physobjs[0].velocity.z=-V0*Math.cos(Math.PI/180.0*angle);
+			if(angularVelocity[0]!=0)physobjs[0].anglvel.x=angularVelocity[0]*100;
+			else physobjs[0].anglvel.x=0;
+			if(angularVelocity[1]!=0)physobjs[0].anglvel.y=angularVelocity[1]*100;
+			else physobjs[0].anglvel.y=0;
+			if(angularVelocity[2]!=0)physobjs[0].anglvel.z=angularVelocity[2]*100;
+			else physobjs[0].anglvel.z=0;
+			physobjs[0].updateObject3D();
+			thrown=true;
 			break;
 		case 83: //Key S
 			break;
