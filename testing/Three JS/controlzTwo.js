@@ -52,7 +52,8 @@ function mouseMove(event)
 		
 		arrowAngle = new THREE.ArrowHelper( dirVec, physobjs[0].refpos, 2, 0x00cc00 ); 
 		scene.add( arrowAngle );
-		angle = 180-dirVec.angleTo(new THREE.Vector3(0,0,1))/Math.PI*180;
+		angle = 90-dirVec.angleTo(new THREE.Vector3(1,0,0))/Math.PI*180;
+		
 		setText();
 	}
 
