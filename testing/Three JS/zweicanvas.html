@@ -129,7 +129,7 @@
 				var slide=true;
 				var dt=0.01; //timestep
 				
-				var physobjs = [new BowlBall(new THREE.Vector3(1., 1., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0, 0, 0), new THREE.Vector3(0.,0,0.001)),
+				var physobjs = [new BowlBall(new THREE.Vector3(1., 1., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0, 0, 0), new THREE.Vector3(0.,0,0.001), [false, false, false]),
 							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
 							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0.,0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
 							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
@@ -580,16 +580,9 @@
 				}
 
 				function drawBall(r){
-					//scene.remove(ball);
-					  physobjs[0].refpos.x=r[0];
-					  physobjs[0].refpos.y=r[1];
-					  physobjs[0].refpos.z=r[2];
-					  
-					  physobjs[0].eulrot0= new THREE.Euler(0.,-1.5,0.);
-					  physobjs[0].orquat.setFromEuler(physobjs[0].eulrot0);
-					  physobjs[0].updateObject3D();
-					  
-					  scene.add(physobjs[0]);
+					PhysObj.call(physobjs[0], new THREE.Vector3(r[0],r[1],r[2]), new THREE.Vector3(0,0,0), new THREE.Euler(0,0,0), new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,0.001), [false,false,false], physobjs[0].composG, physobjs[0].intensC, physobjs[0].geometry, physobjs[0].material);
+					physobjs[0].updateObject3D();
+					scene.add(physobjs[0]);
 				 }
 				 
 				 function gutter(){
