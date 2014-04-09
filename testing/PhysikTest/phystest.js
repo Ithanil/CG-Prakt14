@@ -12,6 +12,8 @@ var keyPosAdd = 0.05, keyVelAdd = 0.05, keyQuAddS = 0.99875, keyQuAddV = 0.04997
 var oldanglmom = new THREE.Vector3();
 var oldanglvel = new THREE.Vector3();
 var oldaccs = getAccs(physobjs);
+console.log('oldaccs 0', oldaccs[0][0].x,oldaccs[0][0].y,oldaccs[0][0].z, oldaccs[0][1].x, oldaccs[0][1].y, oldaccs[0][1].z)
+console.log('oldaccs 1', oldaccs[1][0].x,oldaccs[1][0].y,oldaccs[1][0].z, oldaccs[1][1].x, oldaccs[1][1].y, oldaccs[1][1].z)
 var dt = 0.005;
 
 /*
