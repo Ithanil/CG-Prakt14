@@ -3,12 +3,6 @@ function setText() {
 						  +"<br/>Angle: "+Math.round(angle*100)/100;
 }
 
-function setMenu(x,y,z) {
-	menu.innerHTML = "x="+Math.round(100*x)/100+
-					 ", y="+Math.round(100*y)/100+
-					 ", z="+Math.round(100*z)/100;
-}
-
 function mouseUp(event) 
 {
 	isMouseDown = false;
@@ -25,11 +19,11 @@ function mouseDown(event)
 		
 	var vector = new THREE.Vector3(x,y,z);
 	lastX = event.clientX;
-	projector.unprojectVector( vector, camera1);
+	projector.unprojectVector( vector, camera);
 	
 	//console.log("Klick: "+event.clientX+","+event.clientY+", CANVAS: "+x+","+y);
 	
-	var ray = new THREE.Raycaster(camera1.position, vector.sub( camera1.position ).normalize());
+	var ray = new THREE.Raycaster(camera.position, vector.sub( camera.position ).normalize());
 	var	collision = ray.intersectObjects([physobjs[0]]);
 	if (collision.length > 0){
 		isBallSelected = true;
@@ -40,9 +34,7 @@ function mouseDown(event)
 var arrowAngle;
 
 function mouseMove(event) 
-{	
-	if(thrown)return;
-	
+{
 	if (event.shiftKey && !isMouseDown)		// Arrow for angle
 	{
 		scene.remove( arrowAngle);
@@ -51,17 +43,16 @@ function mouseMove(event)
 		
 		var vector = new THREE.Vector3(x,y,0.5);
 	 
-		vector.sub( camera1.position );
+		vector.sub( camera.position );
 		
 		var dirVec = new THREE.Vector3(vector.getComponent(0),0,-0.5); 	
 		// x-component of vector betw. -0.5, 0.5; y = 0 b/c arrow in x-z plane, z is -0.5 b/c of direction and x range => max angle 
 		// mouse range is whole canvas for more precise angle settings
 		dirVec.normalize();
 		
-		arrowAngle = new THREE.ArrowHelper( dirVec, physobjs[0].refpos, 2, 0x00cc00 ,0.5,0.1); 
+		arrowAngle = new THREE.ArrowHelper( dirVec, physobjs[0].refpos, 2, 0x00cc00 ); 
 		scene.add( arrowAngle );
-		angle = 90-dirVec.angleTo(new THREE.Vector3(1,0,0))/Math.PI*180;
-		
+		angle = 180-dirVec.angleTo(new THREE.Vector3(0,0,1))/Math.PI*180;
 		setText();
 	}
 
@@ -84,8 +75,6 @@ function mouseMove(event)
 	setText();
    }	
    
-
-   
 function keyDown(event) {
 	switch(event.keyCode) {
 		case 65: //Key A
@@ -94,44 +83,22 @@ function keyDown(event) {
 			break;
 		case 68: //Key D
 			thrown=false;
-			scene.add( arrowAngle );
-			camera1.position.set( 0, 1, 14 );
+			camera.position.set( 0, 1, 14 );
 			scene.remove(physobjs[0]);
 			drawBall([ballOffset,0.3,10]);
 			break;
 		case 87: //Key W
-			
-			scene.remove( arrowAngle );
+			thrown=true;
 			physobjs[0].velocity.x=V0*Math.sin(Math.PI/180.0*angle);
 			physobjs[0].velocity.y=0;
 			physobjs[0].velocity.z=-V0*Math.cos(Math.PI/180.0*angle);
-			if(angularVelocity[0]!=0)physobjs[0].anglvel.x=angularVelocity[0]*100;
-			else physobjs[0].anglvel.x=0;
-			if(angularVelocity[1]!=0)physobjs[0].anglvel.y=angularVelocity[1]*100;
-			else physobjs[0].anglvel.y=0;
-			if(angularVelocity[2]!=0)physobjs[0].anglvel.z=angularVelocity[2]*100;
-			else physobjs[0].anglvel.z=0;
-			physobjs[0].updateObject3D();
-			thrown=true;
 			break;
 		case 83: //Key S
+			;
 			break;
-		case 79: //Key O
-			if (pressedO == false)
-				pressedO = true;
-				
-			else 
-				pressedO = false;
+		case 37: // Pfeil links
 			break;
-		case 80: //Key P
-			if (pressedP == false)
-				pressedP = true;
-			else 
-				pressedP = false;
-			break;
-		case 37: // Pfeil links  
-			break;
-		case 39: // Pfeil rechts 
+		case 39: // Pfeil rechts
 			break;
 		default:
 			break;
