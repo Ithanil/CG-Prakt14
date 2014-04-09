@@ -34,7 +34,9 @@ function mouseDown(event)
 var arrowAngle;
 
 function mouseMove(event) 
-{
+{	
+	if(thrown)return;
+	
 	if (event.shiftKey && !isMouseDown)		// Arrow for angle
 	{
 		scene.remove( arrowAngle);
