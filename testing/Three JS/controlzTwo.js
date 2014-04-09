@@ -94,9 +94,7 @@ function keyDown(event) {
 			break;
 		case 68: //Key D
 			thrown=false;
-			scene.add( arrowAngle );
 			camera1.position.set( 0, 1, 14 );
-			scene.remove(physobjs[0]);
 			drawBall([ballOffset,0.3,10]);
 			break;
 		case 87: //Key W
