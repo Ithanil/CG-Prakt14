@@ -319,6 +319,8 @@ function putPins(pins,posarr)
 		{
 			scene.remove(pins[i])
 			pins[i].refpos.copy(posarr[i]);
+			pins[i].eulrot0 = new THREE.Euler(0.,0.,0.);
+			pins[i].orquat.setFromEuler(pins[i].eulrot0);
 			pins[i].receiveShadow = true;
 			pins[i].castShadow = true;
 			scene.add(pins[i]);

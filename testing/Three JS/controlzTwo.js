@@ -105,6 +105,7 @@ function keyDown(event) {
 		case 79: //Key O
 			if (pressedO == false)
 				pressedO = true;
+				
 			else 
 				pressedO = false;
 			break;

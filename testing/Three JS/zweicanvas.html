@@ -415,7 +415,7 @@
 				
 				function App2( containerId, fullWidth, fullHeight, viewX, viewY, viewWidth, viewHeight ) {
 
-					var container;
+					var container, menu;
 
 					var camera, scene, renderer;
 
@@ -444,7 +444,18 @@
 							new THREE.MeshPhongMaterial({color: 0xff00ff, transparent: true, opacity: 0.75}) 
 						);
 						scene.add(sphere);
+						
+						// ANZEIGE
 		
+						menu = document.createElement('div');
+						menu.style.position = 'absolute';
+						menu.style.width = 100+'px';
+						menu.style.backgroundColor = "rgba( 1, 0, 0, 0.25 )";
+						menu.innerHTML = "hi";
+						menu.style.top = 5 + 'px';
+	
+						menu.style.left = 5 + 'px';
+						container.appendChild(menu);
 
 						light = new THREE.DirectionalLight( 0xffffff );
 						light.position.set( 0, 1,0 ).normalize();
@@ -461,13 +472,15 @@
 						container.addEventListener( 'mouseup', onMouseUp, false ); 
 					}
 					
-					var arrowSpinXZ, arrowSpinYZ,arrowSpinXY, arrowSpin; 
-					var vecc, vecc2, cross;
-					var dirVecYZ, dirVecXZ, dirVecXY,
+					var arrowSpinXZ, arrowSpinXY; 
+					var dirVecXZ, dirVecXY,
 						dirVec = new THREE.Vector3(0,0,0);
 					var selectedXZ = false,
-						selectedXY = false,
-						selectedYZ = false;
+						selectedXY = false;
+						
+					var winkelX = 0, winkelY = 0;
+					
+					
 					
 					function onMouseMove( event ) {
 						if (isMouseDown)
@@ -480,38 +493,43 @@
 							canvX = mouseX/canvasSize*2-1;
 							canvY = 1-mouseY/canvasSize*2;
 							
-							//console.log("KOORDS:"+canvX+","+canvY);
 							
 							if (pressedO) {
-								scene.remove(arrowSpinYZ);
-								dirVecYZ = new THREE.Vector3(0,canvY, canvX);
-								dirVecYZ.normalize();
-								arrowSpinYZ = new THREE.ArrowHelper(dirVecYZ, new THREE.Vector3(0,0,0),2, 0xff55ff);
-								scene.add(arrowSpinYZ);
-								selectedYZ = true;
-							} else if (pressedP) {
+								if (!selectedXZ) 
+								{
+									dirVecXZ = new THREE.Vector(1,0,0);
+									winkelX = 0;
+								}
 								scene.remove(arrowSpinXY);
-								dirVecXY = new THREE.Vector3(-canvX, canvY, 0);
+								scene.remove(arrowSpinXZ);
+								if (dirVecXZ.getComponent(0) > 0)
+									dirVecXY = new THREE.Vector3(-canvX, canvY,0);
+								else
+									dirVecXY = new THREE.Vector3(canvX, canvY,0);
+								dirVecXY.applyAxisAngle(new THREE.Vector3(0,1,0), winkelX);
 								dirVecXY.normalize();
 								arrowSpinXY = new THREE.ArrowHelper(dirVecXY, new THREE.Vector3(0,0,0),2, 0xff55ff);
 								scene.add(arrowSpinXY);
 								selectedXY = true;
 							} else {
 								scene.remove(arrowSpinXZ);
-								dirVecXZ = new THREE.Vector3(-canvX, 0, canvY);
+								scene.remove(arrowSpinXY);
+								if (selectedXY){
+									var X = -canvX;
+									var Y = dirVecXY.getComponent(1);
+									var Z;
+									if (canvY < 0)
+										Z = Math.sqrt(1-X*X-Y*Y);
+									else
+										Z = -Math.sqrt(1-X*X-Y*Y);
+									dirVecXZ = new THREE.Vector3(X, Y, Z);
+									}
+								else 
+									dirVecXZ = new THREE.Vector3(-canvX,0, canvY);
 								dirVecXZ.normalize();
 								arrowSpinXZ = new THREE.ArrowHelper(dirVecXZ, new THREE.Vector3(0,0,0),2, 0xff55ff);
 								scene.add(arrowSpinXZ);
 								selectedXZ = true;
-							}
-							
-							if (selectedXZ && selectedYZ && selectedXY)
-							{
-								scene.remove(arrowSpin);
-								dirVec.addVectors(dirVecYZ,dirVecXZ).addVectors(dirVecXY,dirVec);
-								dirVec.normalize();
-								arrowSpin = new THREE.ArrowHelper(dirVec, new THREE.Vector3(0,0,0),2, 0x000000);
-								scene.add(arrowSpin);
 							}
 						}
 					}
@@ -522,7 +540,16 @@
 					}
 					
 					function onMouseUp(event) {
-						isMouseDown = false;	
+						isMouseDown = false;
+						
+						if	(dirVecXZ.getComponent(2) < 0 && selectedXZ)
+							winkelX = dirVecXZ.angleTo(new THREE.Vector3(1,0,0));
+						else if (selectedXZ)
+							winkelX = 2*Math.PI - dirVecXZ.angleTo(new THREE.Vector3(1,0,0));
+						if	(dirVecXY.getComponent(2) > 0 && selectedXY)
+							winkelY = 2*Math.PI - dirVecXY.angleTo(new THREE.Vector3(0,1,0));
+						else if (selectedXY)
+							winkelY = dirVecXY.angleTo(new THREE.Vector3(0,1,0));
 					}
 
 					//
