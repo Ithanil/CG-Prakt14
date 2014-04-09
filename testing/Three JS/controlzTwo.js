@@ -89,7 +89,7 @@ function mouseMove(event)
 function keyDown(event) {
 	switch(event.keyCode) {
 		case 65: //Key A
-			putPins(physobjs.slice(1),posarr);
+			
 			//putPins(slices);
 			break;
 		case 68: //Key D
