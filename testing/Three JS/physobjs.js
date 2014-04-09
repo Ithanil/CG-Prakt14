@@ -387,7 +387,7 @@ function BowlBall(pos0, vel0, eulrot0, anglvel0, refposG0, fixdirs0) {
 
 	this.mass = 7.0;
 	var composG = new THREE.Vector3(0., 0., 0.001);
-	var intensC = new THREE.Matrix3(0.031, 0., 0., 0., 0.033, 0., 0., 0., 0.035);
+	var intensC = new THREE.Matrix3(0.033, 0., 0., 0., 0.033, 0., 0., 0., 0.031);
 
 	PhysObj.call(this, pos0, vel0, eulrot0, anglvel0, refposG0, fixdirs0, composG, intensC, geometry, material);
 
