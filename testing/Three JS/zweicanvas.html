@@ -547,11 +547,11 @@
 					function onMouseUp(event) {
 						isMouseDown = false;
 						
-						if	(dirVecXZ.getComponent(2) < 0 && selectedXZ)
+						if	( selectedXZ&&(dirVecXZ.getComponent(2) < 0))
 							winkelX = dirVecXZ.angleTo(new THREE.Vector3(1,0,0));
 						else if (selectedXZ)
 							winkelX = 2*Math.PI - dirVecXZ.angleTo(new THREE.Vector3(1,0,0));
-						if	(dirVecXY.getComponent(2) > 0 && selectedXY)
+						if	(selectedXY && (dirVecXY.getComponent(2) > 0 ))
 							winkelY = 2*Math.PI - dirVecXY.angleTo(new THREE.Vector3(0,1,0));
 						else if (selectedXY)
 							winkelY = dirVecXY.angleTo(new THREE.Vector3(0,1,0));
