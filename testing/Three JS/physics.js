@@ -116,14 +116,14 @@ function getAccs(physobjs)
 	var nobj = physobjs.length;
 	var accs = new Array(nobj);
 	var friccoeff;
-	if (physobjs.refpos.z < -2.0) {
-		friccoeff = 0.2;
-	} else {
-		friccoeff = 0.04;
-	}
 
 	for (var i = 0; i < nobj; i++) 
 	{
+		if (physobjs[i].refpos.z < -2.0) {
+			friccoeff = 0.2;
+		} else {
+			friccoeff = 0.04;
+		}
 		var force  = new THREE.Vector3();
 		var torque = new THREE.Vector3();
 
