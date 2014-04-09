@@ -65,7 +65,7 @@
 			
 			var camera1, camera2, scene, scene2, projector;
 			
-			
+			var menu, varsPanel;
 
 			function init() {
 			
@@ -417,11 +417,9 @@
 				
 				function App2( containerId, fullWidth, fullHeight, viewX, viewY, viewWidth, viewHeight ) {
 
-					var container, menu;
+					var container;
 
 					var camera, scene, renderer;
-
-					var mesh, group1, group2, group3, light;
 
 					var mouseX = 0, mouseY = 0, canvX = 0, canvY = 0, isMouseDown = false;
 					
@@ -449,15 +447,16 @@
 						
 						// ANZEIGE
 		
+						// ANZEIGE
+		
 						menu = document.createElement('div');
 						menu.style.position = 'absolute';
-						menu.style.width = 100+'px';
+						menu.style.width = 200+'px';
 						menu.style.backgroundColor = "rgba( 1, 0, 0, 0.25 )";
-						menu.innerHTML = "hi";
-						menu.style.top = 5 + 'px';
-	
-						menu.style.left = 5 + 'px';
-						container.appendChild(menu);
+						menu.innerHTML = "Choose Spin";
+						menu.style.top = 210 + 'px';
+						menu.style.right = 5 + 'px';
+						document.body.appendChild(menu);
 
 						light = new THREE.DirectionalLight( 0xffffff );
 						light.position.set( 0, 1,0 ).normalize();
@@ -483,7 +482,6 @@
 					var winkelX = 0, winkelY = 0;
 					
 					
-					
 					function onMouseMove( event ) {
 						if (isMouseDown)
 						{
@@ -494,7 +492,7 @@
 							
 							canvX = mouseX/canvasSize*2-1;
 							canvY = 1-mouseY/canvasSize*2;
-							//dirVecXY= new THREE.Vector3(0,0,0);
+							
 							
 							if (pressedO) {
 								if (!selectedXZ) 
@@ -510,9 +508,10 @@
 									dirVecXY = new THREE.Vector3(canvX, canvY,0);
 								dirVecXY.applyAxisAngle(new THREE.Vector3(0,1,0), winkelX);
 								dirVecXY.normalize();
-								arrowSpinXY = new THREE.ArrowHelper(dirVecXY, new THREE.Vector3(0,0,0),2, 0x29A3CC,3.5,0.5);
+								arrowSpinXY = new THREE.ArrowHelper(dirVecXY, new THREE.Vector3(0,0,0),2, 0xff55ff);
 								scene.add(arrowSpinXY);
 								selectedXY = true;
+								dirVec.set(dirVecXY.getComponent(0),dirVecXY.getComponent(1),dirVecXY.getComponent(2))
 							} else {
 								scene.remove(arrowSpinXZ);
 								scene.remove(arrowSpinXY);
@@ -529,13 +528,15 @@
 								else 
 									dirVecXZ = new THREE.Vector3(-canvX,0, canvY);
 								dirVecXZ.normalize();
-								arrowSpinXZ = new THREE.ArrowHelper(dirVecXZ, new THREE.Vector3(0,0,0),2, 0x29A3CC,3.5,0.5);
+								arrowSpinXZ = new THREE.ArrowHelper(dirVecXZ, new THREE.Vector3(0,0,0),2, 0xff55ff);
+								
 								scene.add(arrowSpinXZ);
 								selectedXZ = true;
-				
+								dirVec.set(dirVecXZ.getComponent(0),dirVecXZ.getComponent(1),dirVecXZ.getComponent(2));
 							}
 						}
-						
+						setMenu(dirVec.getComponent(0),dirVec.getComponent(1),dirVec.getComponent(2))
+						//console.log(dirVec.getComponent(0)+","+dirVec.getComponent(1)+","+dirVec.getComponent(2));
 					}
 					
 					function onMouseDown(event) {
@@ -554,13 +555,12 @@
 							winkelY = 2*Math.PI - dirVecXY.angleTo(new THREE.Vector3(0,1,0));
 						else if (selectedXY)
 							winkelY = dirVecXY.angleTo(new THREE.Vector3(0,1,0));
-							
 					}
 
 					//
 
 					this.animate = function() {
-
+						//console.log(dirVec.getComponent(0)+","+dirVec.getComponent(0)+","+dirVec.getComponent(0));
 						render();
 
 					};
