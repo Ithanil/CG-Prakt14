@@ -129,17 +129,17 @@
 				var slide=true;
 				var dt=0.01; //timestep
 				
-				var physobjs = [new BowlBall(new THREE.Vector3(1., 1., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0, 0, 0), new THREE.Vector3(0.,0.001,0.)),
-							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
-							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0.,0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
-							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
-							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
-							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
-							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
-							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
-							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
-							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue"),
-							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.),slices,"blue")];
+				var physobjs = [new BowlBall(new THREE.Vector3(1., 1., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0, 0, 0), new THREE.Vector3(0.,0,0.001), [false, false, false]),
+							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.), [false, false, false],slices,"blue"),
+							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0.,0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.), [false, false, false],slices,"blue"),
+							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.), [false, false, false],slices,"blue"),
+							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.), [false, false, false],slices,"blue"),
+							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.), [false, false, false],slices,"blue"),
+							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.), [false, false, false],slices,"blue"),
+							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.), [false, false, false],slices,"blue"),
+							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.), [false, false, false],slices,"blue"),
+							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.), [false, false, false],slices,"blue"),
+							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.), [false, false, false],slices,"blue")];
 				
 				var oldaccs = getAccs(physobjs);
 				var isMouseDown = false, isBallSelected = false, 
@@ -398,7 +398,7 @@
 							integrate(physobjs,dt, oldaccs);
 							moveCamera();
 						}
-						if(physobjs[0].refpos.x*physobjs[0].refpos.x>0.94/2.0*0.94/2.0 && thrown && physobjs[0].refpos.z >-18.3/2.0) gutter();
+						if(physobjs[0].refpos.x*physobjs[0].refpos.x>1.05/2.0*1.05/2.0 && thrown && physobjs[0].refpos.z >-18.3/2.0) gutter();
 						
 						
 						for (var it=0; it<physobjs.length; it++) {physobjs[it].updateObject3D();}
@@ -580,16 +580,15 @@
 				}
 
 				function drawBall(r){
-					//scene.remove(ball);
-					  physobjs[0].refpos.x=r[0];
-					  physobjs[0].refpos.y=r[1];
-					  physobjs[0].refpos.z=r[2];
-					  
-					  physobjs[0].eulrot0= new THREE.Euler(0.,-1.5,0.);
-					  physobjs[0].orquat.setFromEuler(physobjs[0].eulrot0);
-					  physobjs[0].updateObject3D();
-					  
-					  scene.add(physobjs[0]);
+					scene.remove(physobjs[0]);
+					PhysObj.call(physobjs[0], new THREE.Vector3(r[0],r[1],r[2]), new THREE.Vector3(0,0,0), new THREE.Euler(0,0,0), new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,0.001), [false,false,false], physobjs[0].composG, physobjs[0].intensC, physobjs[0].geometry, physobjs[0].material);
+					physobjs[0].updateObject3D();
+					for (var i = 1; i < 11; i++){ 
+					PhysObj.call(physobjs[i], new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,0), new THREE.Euler(0,0,0), new THREE.Vector3(0,0,0), new THREE.Vector3(0., 0.147558, 0.), [false,false,false], physobjs[i].composG, physobjs[i].intensC, physobjs[i].geometry, physobjs[i].material);
+					physobjs[i].updateObject3D();
+					}
+					putPins(physobjs.slice(1),posarr);
+					scene.add(physobjs[0]);
 				 }
 				 
 				 function gutter(){
