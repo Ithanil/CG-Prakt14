@@ -1,23 +1,24 @@
 
 var renderer, camera, controls, moreLight, directionalLight;
 var time;
+var scene = new THREE.Scene();
+//var physobjs = [new BowlBall([1., 1., -6.], [0., 0., 0.], [0., 0., 0.], [0., 0., 0.], [0.,0.,0.001]), new BowlPin([0., 0., -6.], [0., 0., 0.], [0., 0., 0.], [0., 0., 0.],[0., 0.14755784154951435, 0.],10,"blue")];
+//var physobjs = [new BowlPin([0., 0., -6.], [0., 0., 0.], [0., 0., 0.], [0., 0., 0.],[0., 0.14755784154951435, 0.],10,"blue")];
 
-//var physobjs = [new BowlBall([1., 1., -6.], [0., 0., 0.], [0., 0., 0.], [0., 0., 0.], [0.,0.,0.001]), new BowlPin([0., 0., -6.], [0., 0., 0.], [0., 0., 0.], [0., 0., 0.],[0., 0.147558, 0.],10,"blue")];
-//var physobjs = [new BowlPin([0., 0., -6.], [0., 0., 0.], [0., 0., 0.], [0., 0., 0.],[0., 0.147558, 0.],10,"blue")];
-
-var physobjs = [new BowlBall(new THREE.Vector3(1., 1., -6.), new THREE.Vector3(0., 0., 0), new THREE.Euler(0., 0., 0.), new THREE.Vector3(0., 0., 0.), new THREE.Vector3(0.,0.,0.0)),
-                new BowlPin(new THREE.Vector3(0., 1., -6.), new THREE.Vector3(0., 0., 0), new THREE.Euler(0.5, 0., 0.), new THREE.Vector3(0., 0., 0.), new THREE.Vector3(0., 0., 0.),10,"blue")];
+var physobjs = [new BowlBall(new THREE.Vector3(1., 2., -6.), new THREE.Vector3(0., 0.0, 0), new THREE.Euler(0.3, 0., 0.), new THREE.Vector3(0*0.2*62.83185307179586, 0., 0*0.1*62.83185307179586), new THREE.Vector3(0.,0.,0.0)),
+                new BowlPin(new THREE.Vector3(0., 2., -6.), new THREE.Vector3(0., 0.0, 0), new THREE.Euler(1.5707963267948966, 0., 0.0*1.5707963267948966), new THREE.Vector3(0*0.2*62.83185307179586, 0., 0*0.1*62.83185307179586), new THREE.Vector3(0., 0., 0.),10,"blue")];
 var ifocus = 0; //Index of object which is manipulated by keys (changed by +/-)
 var keyPosAdd = 0.05, keyVelAdd = 0.05, keyQuAddS = 0.99875, keyQuAddV = 0.0499792;
 var oldanglmom = new THREE.Vector3();
 var oldanglvel = new THREE.Vector3();
 var oldaccs = getAccs(physobjs);
-var dt = 0.001;
+var dt = 0.005;
+
 /*
 console.log(physobjs[0].position.x);
 console.log(physobjs[0].position.y);
 console.log(physobjs[0].position.z);
-*/
+ */
 
 init();
 animate();
@@ -47,7 +48,7 @@ function init(){
 	for (var it=0; it<physobjs.length; it++) {scene.add(physobjs[it]);}
 	oldanglmom = physobjs[1].getAnglMom();
 	oldanglvel.copy(physobjs[1].anglvel);
-	
+
 	/*// Plattform
 	var plattform_material = new THREE.MeshPhongMaterial( { color: 0x339933 } ); 
 	var plattform = new THREE.Mesh( new THREE.CylinderGeometry( 15,15,1, 5), plattform_material ); 
@@ -102,27 +103,30 @@ function animate() {
 	time = new Date();
 	var dt = (time.getTime() - oldtime) / 1000.;*/
 
-	requestAnimationFrame( animate );
+	//requestAnimationFrame( animate );
 	//var dt = 0.001;
 
 	integrate(physobjs, dt, oldaccs);
 	for (var it=0; it<physobjs.length; it++) {physobjs[it].updateObject3D()}
 
-	/*for (var it=0; it<physobjs.length; it++) {console.log(physobjs[it].anglvel.x);
-											console.log(physobjs[it].anglvel.y);
-											console.log(physobjs[it].anglvel.z);}*/
-	
+	for (var it=0; it<physobjs.length; it++) {console.log('refpos', physobjs[it].refpos.x, physobjs[it].refpos.y, physobjs[it].refpos.z);
+		console.log('orquat', physobjs[it].orquat.x, physobjs[it].orquat.y, physobjs[it].orquat.z, physobjs[it].orquat.w);
+		console.log('quaternion', physobjs[it].quaternion.x, physobjs[it].quaternion.y, physobjs[it].quaternion.z, physobjs[it].quaternion.w);
+		console.log('velocity', physobjs[it].velocity.x, physobjs[it].velocity.y, physobjs[it].velocity.z);
+	console.log('anglvel', physobjs[it].anglvel.x, physobjs[it].anglvel.y, physobjs[it].anglvel.z);}
+
+
 	for (var it=0; it<physobjs.length; it++) {
 		if (it==1) {
-			
+
 			var anglmom = physobjs[it].getAnglMom();
 			var anglmdiff = new THREE.Vector3(anglmom.x - oldanglmom.x, anglmom.y - oldanglmom.y, anglmom.z - oldanglmom.z );
-			
+
 			//var alltorq = new THREE.Vector3();
 			//alltorq.crossVectors(oldanglmom, oldanglvel);
 			//var torque = new THREE.Vector3(0.0, 0.0, 0.0);
 			//alltorq.add(torque);
-			
+
 			/*console.log(physobjs[it].anglvel.x);
 			console.log(physobjs[it].anglvel.y);
 			console.log(physobjs[it].anglvel.z);
@@ -133,12 +137,12 @@ function animate() {
 			//console.log(alltorq.y);
 			//console.log(alltorq.z);
 			//console.log(anglmom.x*anglmom.x + anglmom.y*anglmom.y + anglmom.y*anglmom.y);
-			
+
 			oldanglmom.copy(anglmom);		
 			oldanglvel.copy(physobjs[it].anglvel);
 		}
 	}
-	
+
 	render();
 	controls.update();
 }
@@ -243,6 +247,7 @@ function keyDown(event) {
 			break;
 		}
 	}
+	animate();
 }	
 
 /*
