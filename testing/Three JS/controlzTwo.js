@@ -94,6 +94,7 @@ function keyDown(event) {
 			drawBall([ballOffset,0.3,10]);
 			break;
 		case 87: //Key W
+			if(thrown)break;
 			thrown=true;
 			scene.remove( arrowAngle );
 			physobjs[0].velocity.x=V0*Math.sin(Math.PI/180.0*angle);
