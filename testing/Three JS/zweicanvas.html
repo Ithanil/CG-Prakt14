@@ -34,7 +34,17 @@
 				right: 5px;
 				top: 5px; 
 			}
+			
+			
+			#controls {
+				z-index: 2;
+				position: absolute;
+				right: 5px;
+				top: 230px;
+				width: 200px;
+			}
 
+			
 			a {
 
 				color: #0080ff;
@@ -47,7 +57,14 @@
 		<div id="container">
 			<div id="container1"></div>
 			<div id="container2"></div>
-		
+			<div id="controls">
+				<form id="spinForm">
+					x = <input type="text" id="xCoord"><br>
+					y = <input type="text" id="yCoord"><br>
+					z = <input type="text" id="zCoord">
+					<input type="button" onclick="setAxis()" value="Set axis" id="formButton">
+				</form>
+			</div>
 		</div>
 		<script src="three.min.js"></script>
 		<script src="three.js"></script> 
@@ -66,6 +83,63 @@
 			var camera1, camera2, scene, scene2, projector;
 			
 			var menu, varsPanel;
+			
+			function setAxis() 
+			{
+				var coords = [];
+				coords.push(document.getElementById('xCoord').value);
+				coords.push(document.getElementById('yCoord').value);
+				coords.push(document.getElementById('zCoord').value);
+				
+				var integers = true;
+				
+				
+				for (var i = 0; i < coords.length; i++) 
+				{
+					var countpoints = 0;
+					for (var j = 0; j < coords[i].length; j++)
+					{
+						var v = coords[i].charCodeAt(j);
+						if (v==46)
+							countpoints += 1;
+						// If char is not a number, not a point, not a minus, if there is more than one point or if the string is empty
+						if ((v > 57 || v < 48) && !(v==46) && !(v==45) || (countpoints > 1) || coords[i].length == 0)
+						{
+							integers = false;
+							menu.innerHTML="Ungültige Eingabe";
+							break;
+						}
+					}
+					if (integers == false)
+						break;
+				}
+			
+				if (integers === true)
+				{
+					var spinVec = new THREE.Vector3(document.getElementById('xCoord').value,
+													document.getElementById('yCoord').value,
+													document.getElementById('zCoord').value)
+					console.log(spinVec.length());
+					if (spinVec.length() === 0)
+					{
+						menu.innerHTML="Ungültige Eingabe";
+					}
+					else 
+					{
+						spinVec.normalize();
+						setMenu(spinVec.getComponent(0), spinVec.getComponent(1), spinVec.getComponent(2));
+						dirVec = spinVec.clone();
+						arrowSpinFromTxt = new THREE.ArrowHelper(dirVecXZ, new THREE.Vector3(0,0,0),2, 0xff55ff);
+					}
+					
+				} else 
+				{
+					menu.innerHTML="Ungültige Eingabe";
+					document.getElementById('xCoord').value = '';
+					document.getElementById('yCoord').value = '';
+					document.getElementById('zCoord').value = '';
+				}
+			}
 
 			function init() {
 			
