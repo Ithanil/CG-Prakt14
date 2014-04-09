@@ -29,8 +29,7 @@ function PhysObj(pos0, vel0, eulrot0, anglvel0, refposG0, composG, intensC, geom
 	//  intensC		-	Inertia Tensor in Center of Mass system
 
 	THREE.Mesh.call(this, geometry, material);
-	this.useQuaternion = true;
-	
+
 	this.velocity = new THREE.Vector3();
 	if (typeof vel0 != 'undefined') {this.velocity.copy(vel0)};
 
@@ -40,7 +39,7 @@ function PhysObj(pos0, vel0, eulrot0, anglvel0, refposG0, composG, intensC, geom
 	if (typeof eulrot0 != 'undefined') {this.eulrot0.copy(eulrot0)};
 	this.orquat = new THREE.Quaternion();
 	this.orquat.setFromEuler(this.eulrot0);
-	
+
 	this.anglvel = new THREE.Vector3();
 	if (typeof anglvel0 != 'undefined') {
 		this.anglvel.copy(anglvel0);
@@ -66,7 +65,9 @@ function PhysObj(pos0, vel0, eulrot0, anglvel0, refposG0, composG, intensC, geom
 	this.intensR = new THREE.Matrix3(0.,0.,0.,0.,0.,0.,0.,0.,0.);
 	SvSteiner(this.intensC, this.mass, this.refposC, this.intensR);
 
-
+	this.fixdirs = [0,1,0];
+	this.fixforce = new THREE.Vector3(0., 0., 0.);
+	
 //	this.quaternion.copy(this.orquat);
 
 //	this.setRotationFromQuaternion(this.orquat);
@@ -109,16 +110,26 @@ PhysObj.method('updateObject3D', function() {
 	this.quaternion.copy(this.orquat);
 });
 
-/*
-PhysObj.method('updateObjPos', function(newPosR) {
-	var poshelp = new THREE.Vector3(-this.refposG.x, -this.refposG.y, -this.refposG.z);
-	poshelp.applyQuaternion(this.quaternion);
-	this.position.x = newPosR.x + poshelp.x;	//position is from THREE.Object3D and is not necessarily
-	this.position.y = newPosR.y + poshelp.y;  // either the reference nor center of mass position !!
-	this.position.z = newPosR.z + poshelp.z;
 
+PhysObj.method('newRefPos', function(newrefposG) {
+	var rpdiff = new THREE.Vector3(newrefposG.x - this.refposG.x, newrefposG.y - this.refposG.y, newrefposG.z - this.refposG.z);
+	var veldiff = new THREE.Vector3();
+	var newpos = new THREE.Vector3();
+	var newvel = new THREE.Vector3();
+	var neweulrot = new THREE.Euler();
+	
+	neweulrot.setFromQuaternion(this.orquat, 'XYZ')
+	
+	rpdiff.applyQuaternion(this.orquat);
+	veldiff.crossVectors(this.anglvel, rpdiff);
+	
+	newpos.addVectors(this.refpos, rpdiff);
+	newvel.addVectors(this.velocity, veldiff);
+	
+	PhysObj.call(this, newpos, newvel, neweulrot, this.anglvel, newrefposG, this.composG, this.intensC, this.geometry, this.material)
+	
 	return this;
-});*/
+});
 
 PhysObj.method('getAnglMom', function() {
 	var intensarr = this.getRotIntensArr();
@@ -128,44 +139,62 @@ PhysObj.method('getAnglMom', function() {
 PhysObj.method('getRotIntensArr', function() {
 	var me = this.intensR.toArray();
 	var rotintens1 = new THREE.Matrix4(me[0], me[3], me[6], 0., me[1], me[4], me[7], 0., me[2], me[5], me[8], 0., 0., 0., 0., 1.);
-	console.log('rotintens1',me[0], me[3], me[6], 0., me[1], me[4], me[7], 0., me[2], me[5], me[8], 0., 0., 0., 0., 1.);
+	if (debug==1) {
+		console.log('rotintens1',me[0], me[3], me[6], 0., me[1], me[4], me[7], 0., me[2], me[5], me[8], 0., 0., 0., 0., 1.);
+	}
 	var rotintens2 = new THREE.Matrix4();
 	var rotmat = new THREE.Matrix4();
 	var rotmati = new THREE.Matrix4();
-	
+
 	rotmat.makeRotationFromQuaternion(this.orquat);
 	rotmati.getInverse(rotmat);
 	rotintens1.multiply(rotmat);
 	rotintens2.multiplyMatrices(rotmati, rotintens1);
-	
+
 	me = rotintens2.toArray();
-	
+
 	return [me[0], me[1], me[2], me[4], me[5], me[6], me[8], me[9], me[10]]; 
 });
 
 PhysObj.method('getRotCPos', function() {
 	var rotcpos = new THREE.Vector3(this.composR.x, this.composR.y, this.composR.z);
 	rotcpos.applyQuaternion(this.orquat);
-	
+
 	return rotcpos;
-	
+
 });
 
-PhysObj.method('fixdirs', function(dirs) {
-	//expects array of length 3, with 1 or 0 as entry to stop or not stop movement in a certain direction
-	if (dirs[0]==1) {
+PhysObj.method('makefixed', function(acc) {
+	var veldiff = new THREE.Vector3();
+	if (debug==1) {
+		console.log('acc',acc.x,acc.y,acc.z);
+	}
+	if (this.fixdirs[0]==1) {
+		veldiff.x = -this.velocity.x;
 		this.velocity.x = 0.0;
+		//this.fixforce.x = this.mass * (-acc.x + veldiff.x / dt);
+		this.fixforce.x = 2. * this.mass * veldiff.x / dt;
 	}
-	if (dirs[1]==1) {
+	if (this.fixdirs[1]==1) {
+		veldiff.y = -this.velocity.y;
 		this.velocity.y = 0.0;
+		//this.fixforce.y = this.mass * (-acc.y + veldiff.y / dt);
+		this.fixforce.y = 2. * this.mass * veldiff.y / dt;
 	}
-	if (dirs[2]==1) {
+	if (this.fixdirs[2]==1) {
+		veldiff.z = -this.velocity.z;
 		this.velocity.z = 0.0;
+		//this.fixforce.z = this.mass * (-acc.z + veldiff.z / dt);
+		this.fixforce.z = 2. * this.mass * veldiff.z / dt;
+	}
+	
+	if (debug==1) {
+		console.log('fixforce',this.fixforce.x,this.fixforce.y,this.fixforce.z);
 	}
 	
 	return this;
 });
-	
+
 
 /*PhysObj.method('updateRefPosG', function(newRefPosG) {
 	var poshelp = new THREE.Vector3(-this.refposG.x, -this.refposG.y, -this.refposG.z);
@@ -185,7 +214,7 @@ PhysObj.method('newRefSys', function(newRefPos) {
 
 /* ------- 				BowlPin 			---------- */
 function BowlPin(pos0, vel0, eulrot0, anglvel0, refposG0, slices,color) {
-
+	
 	/* Preparation for THREE.Mesh */
 
 	this.slices = slices;
@@ -233,13 +262,14 @@ function BowlPin(pos0, vel0, eulrot0, anglvel0, refposG0, slices,color) {
 	geometry.computeFaceNormals();
 
 	var material = new THREE.MeshPhongMaterial({color: 0xffffff, vertexColors: THREE.FaceColors});
-		
+
 	generatePinColor(geometry, slices, 7);
-	
+
 	/* Initialize extensions to THREE.Mesh */
 
 	this.mass = 1.5875733;
 	var composG = new THREE.Vector3(0., 0.14755784154951435, 0.);	// with respect to the origin of geometry (bottom center for pin, center for ball)
+	this.radius = 0.14755784154951435;
 	//var intensC = new THREE.Matrix3(0.0134109, 0, 0, 0, 0.0019401, 0, 0, 0, 0.0134109);
 	var intensC = new THREE.Matrix3(0.0134109103558499, 0, 0, 0, 0.0019401759369374264, 0, 0, 0, 0.0134109103558499);
 
@@ -295,20 +325,20 @@ function createPins()
 	return pins;
 }
 function generatePinColor(pin_geometry, slices, ring)
-			{
-				for ( var i = 0; i < pin_geometry.faces.length; i++) {
-					var face = pin_geometry.faces[i];
-					var lowerbot = 2*slices + (ring-1) * (2*slices + 2);
-					var upperbot = 2*slices + ring * (2*slices + 2)-1;
-					var lowertop = 2*slices + (ring+1) * (2*slices + 2);
-					var uppertop = 2*slices + (ring+2) * (2*slices + 2)-1;
-					if ((i >=lowerbot && i <=upperbot)||(i >=lowertop && i <=uppertop))
-						face.color.setRGB(1,0,0); 
-					else
-						face.color.setRGB(0.8,0.8,0.8);
-				}
-			}
-			
+{
+	for ( var i = 0; i < pin_geometry.faces.length; i++) {
+		var face = pin_geometry.faces[i];
+		var lowerbot = 2*slices + (ring-1) * (2*slices + 2);
+		var upperbot = 2*slices + ring * (2*slices + 2)-1;
+		var lowertop = 2*slices + (ring+1) * (2*slices + 2);
+		var uppertop = 2*slices + (ring+2) * (2*slices + 2)-1;
+		if ((i >=lowerbot && i <=upperbot)||(i >=lowertop && i <=uppertop))
+			face.color.setRGB(1,0,0); 
+		else
+			face.color.setRGB(0.8,0.8,0.8);
+	}
+}
+
 
 function putPins(pins,posarr)
 {
