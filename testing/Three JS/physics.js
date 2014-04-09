@@ -130,7 +130,7 @@ function getAccs(physobjs)
 					physobjs[i].refpos.y = physobjs[i].refposG.y;
 					if (physobjs[i].velocity.y < velmin) {
 						physobjs[i].velocity.y = 0.0;
-						physobjs[i].fixdirs[1] = 0.0;
+						physobjs[i].fixdirs[1] = 1;
 						//physobjs[i].newRefPos(new THREE.Vector3(0.,0.,0.))
 					}
 				}
@@ -141,7 +141,7 @@ function getAccs(physobjs)
 					physobjs[i].refpos.y = physobjs[i].radius;
 					if (physobjs[i].velocity.y < velmin) {
 						physobjs[i].velocity.y = 0.0;
-						physobjs[i].fixdirs[1] = 0.0;
+						physobjs[i].fixdirs[1] = 1;
 						physobjs[i].newRefPos(new THREE.Vector3(0., 0., 0.));
 					}
 				}

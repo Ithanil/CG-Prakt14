@@ -65,7 +65,7 @@ function PhysObj(pos0, vel0, eulrot0, anglvel0, refposG0, composG, intensC, geom
 	this.intensR = new THREE.Matrix3(0.,0.,0.,0.,0.,0.,0.,0.,0.);
 	SvSteiner(this.intensC, this.mass, this.refposC, this.intensR);
 
-	this.fixdirs = [0,0,0];
+	this.fixdirs = [0,1,0];
 	this.fixforce = new THREE.Vector3(0., 0., 0.);
 	
 //	this.quaternion.copy(this.orquat);
