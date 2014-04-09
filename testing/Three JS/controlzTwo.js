@@ -3,6 +3,12 @@ function setText() {
 						  +"<br/>Angle: "+Math.round(angle*100)/100;
 }
 
+function setMenu(x,y,z) {
+	menu.innerHTML = "x="+Math.round(100*x)/100+
+					 ", y="+Math.round(100*y)/100+
+					 ", z="+Math.round(100*z)/100;
+}
+
 function mouseUp(event) 
 {
 	isMouseDown = false;
@@ -34,7 +40,9 @@ function mouseDown(event)
 var arrowAngle;
 
 function mouseMove(event) 
-{
+{	
+	if(thrown)return;
+	
 	if (event.shiftKey && !isMouseDown)		// Arrow for angle
 	{
 		scene.remove( arrowAngle);
@@ -50,9 +58,10 @@ function mouseMove(event)
 		// mouse range is whole canvas for more precise angle settings
 		dirVec.normalize();
 		
-		arrowAngle = new THREE.ArrowHelper( dirVec, physobjs[0].refpos, 2, 0x00cc00 ); 
+		arrowAngle = new THREE.ArrowHelper( dirVec, physobjs[0].refpos, 2, 0x00cc00 ,0.5,0.1); 
 		scene.add( arrowAngle );
-		angle = 180-dirVec.angleTo(new THREE.Vector3(0,0,1))/Math.PI*180;
+		angle = 90-dirVec.angleTo(new THREE.Vector3(1,0,0))/Math.PI*180;
+		
 		setText();
 	}
 
@@ -85,21 +94,32 @@ function keyDown(event) {
 			break;
 		case 68: //Key D
 			thrown=false;
+			scene.add( arrowAngle );
 			camera1.position.set( 0, 1, 14 );
 			scene.remove(physobjs[0]);
 			drawBall([ballOffset,0.3,10]);
 			break;
 		case 87: //Key W
-			thrown=true;
+			
+			scene.remove( arrowAngle );
 			physobjs[0].velocity.x=V0*Math.sin(Math.PI/180.0*angle);
 			physobjs[0].velocity.y=0;
 			physobjs[0].velocity.z=-V0*Math.cos(Math.PI/180.0*angle);
+			if(angularVelocity[0]!=0)physobjs[0].anglvel.x=angularVelocity[0]*100;
+			else physobjs[0].anglvel.x=0;
+			if(angularVelocity[1]!=0)physobjs[0].anglvel.y=angularVelocity[1]*100;
+			else physobjs[0].anglvel.y=0;
+			if(angularVelocity[2]!=0)physobjs[0].anglvel.z=angularVelocity[2]*100;
+			else physobjs[0].anglvel.z=0;
+			physobjs[0].updateObject3D();
+			thrown=true;
 			break;
 		case 83: //Key S
 			break;
 		case 79: //Key O
 			if (pressedO == false)
 				pressedO = true;
+				
 			else 
 				pressedO = false;
 			break;

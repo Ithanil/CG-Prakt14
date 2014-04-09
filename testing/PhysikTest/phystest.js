@@ -5,20 +5,21 @@ var scene = new THREE.Scene();
 //var physobjs = [new BowlBall([1., 1., -6.], [0., 0., 0.], [0., 0., 0.], [0., 0., 0.], [0.,0.,0.001]), new BowlPin([0., 0., -6.], [0., 0., 0.], [0., 0., 0.], [0., 0., 0.],[0., 0.14755784154951435, 0.],10,"blue")];
 //var physobjs = [new BowlPin([0., 0., -6.], [0., 0., 0.], [0., 0., 0.], [0., 0., 0.],[0., 0.14755784154951435, 0.],10,"blue")];
 
-var physobjs = [new BowlBall(new THREE.Vector3(1., 2., -6.), new THREE.Vector3(0., 0.0, 0), new THREE.Euler(0.3, 0., 0.), new THREE.Vector3(0*0.2*62.83185307179586, 0., 0*0.1*62.83185307179586), new THREE.Vector3(0.,0.,0.0)),
-                new BowlPin(new THREE.Vector3(0., 2., -6.), new THREE.Vector3(0., 0.0, 0), new THREE.Euler(1.5707963267948966, 0., 0.0*1.5707963267948966), new THREE.Vector3(0*0.2*62.83185307179586, 0., 0*0.1*62.83185307179586), new THREE.Vector3(0., 0., 0.),10,"blue")];
+var physobjs = [new BowlBall(new THREE.Vector3(1., 0.5, -6.), new THREE.Vector3(0., 0.0, 2.), new THREE.Euler(0.0, 0., 0.0), new THREE.Vector3(0.0, 0., 25.), new THREE.Vector3(0.,0.,0.00), [false, false, false]),
+                new BowlPin(new THREE.Vector3(0., 0.5, -6.), new THREE.Vector3(0., 0.0, 0), new THREE.Euler(0., 0., 0.0), new THREE.Vector3(0*0.2*62.83185307179586, 0., 0*0.1*62.83185307179586), new THREE.Vector3(0., 0.14755784154951435, 0.), [false, false, false],10,"blue")];
 var ifocus = 0; //Index of object which is manipulated by keys (changed by +/-)
 var keyPosAdd = 0.05, keyVelAdd = 0.05, keyQuAddS = 0.99875, keyQuAddV = 0.0499792;
 var oldanglmom = new THREE.Vector3();
 var oldanglvel = new THREE.Vector3();
-var oldaccs = getAccs(physobjs);
+var saveaccs = getAccs(physobjs);
+
+if (debug==1) {
+	console.log('saveaccs 0', saveaccs[0][0].x,saveaccs[0][0].y,saveaccs[0][0].z, saveaccs[0][1].x, saveaccs[0][1].y, saveaccs[0][1].z)
+	console.log('saveaccs 1', saveaccs[1][0].x,saveaccs[1][0].y,saveaccs[1][0].z, saveaccs[1][1].x, saveaccs[1][1].y, saveaccs[1][1].z)
+}
 var dt = 0.005;
 
-/*
-console.log(physobjs[0].position.x);
-console.log(physobjs[0].position.y);
-console.log(physobjs[0].position.z);
- */
+var debug = 1;
 
 init();
 animate();
@@ -46,8 +47,8 @@ function init(){
 	document.body.appendChild( renderer.domElement );
 
 	for (var it=0; it<physobjs.length; it++) {scene.add(physobjs[it]);}
-	oldanglmom = physobjs[1].getAnglMom();
-	oldanglvel.copy(physobjs[1].anglvel);
+	//oldanglmom = physobjs[1].getAnglMom();
+	//oldanglvel.copy(physobjs[1].anglvel);
 
 	/*// Plattform
 	var plattform_material = new THREE.MeshPhongMaterial( { color: 0x339933 } ); 
@@ -103,24 +104,25 @@ function animate() {
 	time = new Date();
 	var dt = (time.getTime() - oldtime) / 1000.;*/
 
-	//requestAnimationFrame( animate );
+	requestAnimationFrame( animate );
 	//var dt = 0.001;
 
-	integrate(physobjs, dt, oldaccs);
+	integrate(physobjs, dt, saveaccs);
 	for (var it=0; it<physobjs.length; it++) {physobjs[it].updateObject3D()}
 
-	for (var it=0; it<physobjs.length; it++) {console.log('refpos', physobjs[it].refpos.x, physobjs[it].refpos.y, physobjs[it].refpos.z);
+	if (debug==1) {
+		for (var it=0; it<physobjs.length; it++) {console.log('refpos', physobjs[it].refpos.x, physobjs[it].refpos.y, physobjs[it].refpos.z);
 		console.log('orquat', physobjs[it].orquat.x, physobjs[it].orquat.y, physobjs[it].orquat.z, physobjs[it].orquat.w);
 		console.log('quaternion', physobjs[it].quaternion.x, physobjs[it].quaternion.y, physobjs[it].quaternion.z, physobjs[it].quaternion.w);
 		console.log('velocity', physobjs[it].velocity.x, physobjs[it].velocity.y, physobjs[it].velocity.z);
-	console.log('anglvel', physobjs[it].anglvel.x, physobjs[it].anglvel.y, physobjs[it].anglvel.z);}
+		console.log('anglvel', physobjs[it].anglvel.x, physobjs[it].anglvel.y, physobjs[it].anglvel.z);}
+	}
 
+	//for (var it=0; it<physobjs.length; it++) {
+	//	if (it==1) {
 
-	for (var it=0; it<physobjs.length; it++) {
-		if (it==1) {
-
-			var anglmom = physobjs[it].getAnglMom();
-			var anglmdiff = new THREE.Vector3(anglmom.x - oldanglmom.x, anglmom.y - oldanglmom.y, anglmom.z - oldanglmom.z );
+	//		var anglmom = physobjs[it].getAnglMom();
+	//		var anglmdiff = new THREE.Vector3(anglmom.x - oldanglmom.x, anglmom.y - oldanglmom.y, anglmom.z - oldanglmom.z );
 
 			//var alltorq = new THREE.Vector3();
 			//alltorq.crossVectors(oldanglmom, oldanglvel);
@@ -138,10 +140,10 @@ function animate() {
 			//console.log(alltorq.z);
 			//console.log(anglmom.x*anglmom.x + anglmom.y*anglmom.y + anglmom.y*anglmom.y);
 
-			oldanglmom.copy(anglmom);		
-			oldanglvel.copy(physobjs[it].anglvel);
-		}
-	}
+		//	oldanglmom.copy(anglmom);		
+		//	oldanglvel.copy(physobjs[it].anglvel);
+		//}
+	//}
 
 	render();
 	controls.update();
@@ -232,7 +234,8 @@ function keyDown(event) {
 		case 50:///Key 2
 			if (physobjs.length > 1) {
 				ifocus = (physobjs.length + ifocus + 1) % (physobjs.length);
-				console.log(ifocus);
+				if (debug==1) {
+					console.log(ifocus);}
 			}
 			break;
 		case 49:///Key 1
