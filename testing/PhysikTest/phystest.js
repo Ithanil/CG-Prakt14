@@ -19,7 +19,7 @@ if (debug==1) {
 }
 var dt = 0.005;
 
-var debug = 1;
+var debug = 0;
 
 init();
 animate();

@@ -115,7 +115,12 @@ function getAccs(physobjs)
 {
 	var nobj = physobjs.length;
 	var accs = new Array(nobj);
-	var friccoeff = 0.25;
+	var friccoeff;
+	if (physobjs.refpos.z < -2.0) {
+		friccoeff = 0.2;
+	} else {
+		friccoeff = 0.04;
+	}
 
 	for (var i = 0; i < nobj; i++) 
 	{
@@ -140,7 +145,7 @@ function getAccs(physobjs)
 					physobjs[i].velocity.y = -0.1*physobjs[i].velocity.y;
 					physobjs[i].refpos.y = physobjs[i].radius;
 					if (physobjs[i].velocity.y < velmin) {
-						
+
 						physobjs[i].fixdirs[1] = true;
 						physobjs[i].makefixed();
 						physobjs[i].newRefPos(new THREE.Vector3(0., 0., 0.));
