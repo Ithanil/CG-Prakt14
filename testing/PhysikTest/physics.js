@@ -82,7 +82,7 @@ function integrate(physobjs, dt, oldaccs)
 		calcVelHelpers(physobjs[i], oldaccs[i], hdt, accdt1,accdt2);
 
 		physobjs[i].velocity.add(accdt1);
-		physobjs[i].makefixed(oldaccs[i][0]);
+		physobjs[i].makefixed();
 
 		physobjs[i].anglvel.add(accdt2);
 
@@ -103,7 +103,7 @@ function integrate(physobjs, dt, oldaccs)
 		calcVelHelpers(physobjs[i], oldaccs[i], hdt, accdt1,accdt2);
 
 		physobjs[i].velocity.add(accdt1);
-		physobjs[i].makefixed(oldaccs[i][0]);
+		physobjs[i].makefixed();
 
 		physobjs[i].anglvel.add(accdt2);
 
@@ -129,8 +129,8 @@ function getAccs(physobjs)
 					physobjs[i].velocity.y = -0.25*physobjs[i].velocity.y;
 					physobjs[i].refpos.y = physobjs[i].refposG.y;
 					if (physobjs[i].velocity.y < velmin) {
-						physobjs[i].velocity.y = 0.0;
-						physobjs[i].fixdirs[1] = 0.0;
+						physobjs[i].fixdirs[1] = true;
+						physobjs[i].makefixed();
 						//physobjs[i].newRefPos(new THREE.Vector3(0.,0.,0.))
 					}
 				}
@@ -140,8 +140,9 @@ function getAccs(physobjs)
 					physobjs[i].velocity.y = -0.1*physobjs[i].velocity.y;
 					physobjs[i].refpos.y = physobjs[i].radius;
 					if (physobjs[i].velocity.y < velmin) {
-						physobjs[i].velocity.y = 0.0;
-						physobjs[i].fixdirs[1] = 0.0;
+						
+						physobjs[i].fixdirs[1] = true;
+						physobjs[i].makefixed();
 						physobjs[i].newRefPos(new THREE.Vector3(0., 0., 0.));
 					}
 				}

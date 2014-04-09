@@ -5,8 +5,8 @@ var scene = new THREE.Scene();
 //var physobjs = [new BowlBall([1., 1., -6.], [0., 0., 0.], [0., 0., 0.], [0., 0., 0.], [0.,0.,0.001]), new BowlPin([0., 0., -6.], [0., 0., 0.], [0., 0., 0.], [0., 0., 0.],[0., 0.14755784154951435, 0.],10,"blue")];
 //var physobjs = [new BowlPin([0., 0., -6.], [0., 0., 0.], [0., 0., 0.], [0., 0., 0.],[0., 0.14755784154951435, 0.],10,"blue")];
 
-var physobjs = [new BowlBall(new THREE.Vector3(1., 0.5, -6.), new THREE.Vector3(0., 0.0, 2.), new THREE.Euler(0.0, 0., 0.), new THREE.Vector3(0.0, 0., 25.), new THREE.Vector3(0.,0.,0.00)),
-                new BowlPin(new THREE.Vector3(0., 0.5, -6.), new THREE.Vector3(0., 0.0, 0), new THREE.Euler(0.25*1.5707963267948966, 0., 0.0), new THREE.Vector3(0*0.2*62.83185307179586, 0., 0*0.1*62.83185307179586), new THREE.Vector3(0., 0.14755784154951435, 0.),10,"blue")];
+var physobjs = [new BowlBall(new THREE.Vector3(1., 0.5, -6.), new THREE.Vector3(0., 0.0, 2.), new THREE.Euler(0.0, 0., 0.0), new THREE.Vector3(0.0, 0., 25.), new THREE.Vector3(0.,0.,0.00), [false, false, false]),
+                new BowlPin(new THREE.Vector3(0., 0.5, -6.), new THREE.Vector3(0., 0.0, 0), new THREE.Euler(0., 0., 0.0), new THREE.Vector3(0*0.2*62.83185307179586, 0., 0*0.1*62.83185307179586), new THREE.Vector3(0., 0.14755784154951435, 0.), [false, false, false],10,"blue")];
 var ifocus = 0; //Index of object which is manipulated by keys (changed by +/-)
 var keyPosAdd = 0.05, keyVelAdd = 0.05, keyQuAddS = 0.99875, keyQuAddV = 0.0499792;
 var oldanglmom = new THREE.Vector3();
@@ -19,7 +19,7 @@ if (debug==1) {
 }
 var dt = 0.005;
 
-var debug = 0;
+var debug = 1;
 
 init();
 animate();
@@ -47,8 +47,8 @@ function init(){
 	document.body.appendChild( renderer.domElement );
 
 	for (var it=0; it<physobjs.length; it++) {scene.add(physobjs[it]);}
-	oldanglmom = physobjs[1].getAnglMom();
-	oldanglvel.copy(physobjs[1].anglvel);
+	//oldanglmom = physobjs[1].getAnglMom();
+	//oldanglvel.copy(physobjs[1].anglvel);
 
 	/*// Plattform
 	var plattform_material = new THREE.MeshPhongMaterial( { color: 0x339933 } ); 
@@ -118,11 +118,11 @@ function animate() {
 		console.log('anglvel', physobjs[it].anglvel.x, physobjs[it].anglvel.y, physobjs[it].anglvel.z);}
 	}
 
-	for (var it=0; it<physobjs.length; it++) {
-		if (it==1) {
+	//for (var it=0; it<physobjs.length; it++) {
+	//	if (it==1) {
 
-			var anglmom = physobjs[it].getAnglMom();
-			var anglmdiff = new THREE.Vector3(anglmom.x - oldanglmom.x, anglmom.y - oldanglmom.y, anglmom.z - oldanglmom.z );
+	//		var anglmom = physobjs[it].getAnglMom();
+	//		var anglmdiff = new THREE.Vector3(anglmom.x - oldanglmom.x, anglmom.y - oldanglmom.y, anglmom.z - oldanglmom.z );
 
 			//var alltorq = new THREE.Vector3();
 			//alltorq.crossVectors(oldanglmom, oldanglvel);
@@ -140,10 +140,10 @@ function animate() {
 			//console.log(alltorq.z);
 			//console.log(anglmom.x*anglmom.x + anglmom.y*anglmom.y + anglmom.y*anglmom.y);
 
-			oldanglmom.copy(anglmom);		
-			oldanglvel.copy(physobjs[it].anglvel);
-		}
-	}
+		//	oldanglmom.copy(anglmom);		
+		//	oldanglvel.copy(physobjs[it].anglvel);
+		//}
+	//}
 
 	render();
 	controls.update();

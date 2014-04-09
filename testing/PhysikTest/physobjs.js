@@ -8,7 +8,7 @@ function SvSteiner(intens0, mass, avec, dest) {
 
 /* 	------------		PhysObj		-----------------*/
 
-function PhysObj(pos0, vel0, eulrot0, anglvel0, refposG0, composG, intensC, geometry, material) {
+function PhysObj(pos0, vel0, eulrot0, anglvel0, refposG0, fixdirs0, composG, intensC, geometry, material) {
 
 
 //	We have to look at three different coordinate systems, which should all have axis parallel to 
@@ -64,8 +64,9 @@ function PhysObj(pos0, vel0, eulrot0, anglvel0, refposG0, composG, intensC, geom
 
 	this.intensR = new THREE.Matrix3(0.,0.,0.,0.,0.,0.,0.,0.,0.);
 	SvSteiner(this.intensC, this.mass, this.refposC, this.intensR);
-
-	this.fixdirs = [0,1,0];
+	
+	this.fixdirs = [false, false, false];
+	if (typeof fixdirs0 != 'undefined') {this.fixdirs = [fixdirs0[0], fixdirs0[1], fixdirs0[2]]};
 	this.fixforce = new THREE.Vector3(0., 0., 0.);
 	
 //	this.quaternion.copy(this.orquat);
@@ -126,7 +127,7 @@ PhysObj.method('newRefPos', function(newrefposG) {
 	newpos.addVectors(this.refpos, rpdiff);
 	newvel.addVectors(this.velocity, veldiff);
 	
-	PhysObj.call(this, newpos, newvel, neweulrot, this.anglvel, newrefposG, this.composG, this.intensC, this.geometry, this.material)
+	PhysObj.call(this, newpos, newvel, neweulrot, this.anglvel, newrefposG, this.fixdirs, this.composG, this.intensC, this.geometry, this.material)
 	
 	return this;
 });
@@ -164,24 +165,22 @@ PhysObj.method('getRotCPos', function() {
 
 });
 
-PhysObj.method('makefixed', function(acc) {
+PhysObj.method('makefixed', function() {
 	var veldiff = new THREE.Vector3();
-	if (debug==1) {
-		console.log('acc',acc.x,acc.y,acc.z);
-	}
-	if (this.fixdirs[0]==1) {
+	
+	if (this.fixdirs[0]) {
 		veldiff.x = -this.velocity.x;
 		this.velocity.x = 0.0;
 		//this.fixforce.x = this.mass * (-acc.x + veldiff.x / dt);
 		this.fixforce.x = 2. * this.mass * veldiff.x / dt;
 	}
-	if (this.fixdirs[1]==1) {
+	if (this.fixdirs[1]) {
 		veldiff.y = -this.velocity.y;
 		this.velocity.y = 0.0;
 		//this.fixforce.y = this.mass * (-acc.y + veldiff.y / dt);
 		this.fixforce.y = 2. * this.mass * veldiff.y / dt;
 	}
-	if (this.fixdirs[2]==1) {
+	if (this.fixdirs[2]) {
 		veldiff.z = -this.velocity.z;
 		this.velocity.z = 0.0;
 		//this.fixforce.z = this.mass * (-acc.z + veldiff.z / dt);
@@ -213,7 +212,7 @@ PhysObj.method('newRefSys', function(newRefPos) {
 
 
 /* ------- 				BowlPin 			---------- */
-function BowlPin(pos0, vel0, eulrot0, anglvel0, refposG0, slices,color) {
+function BowlPin(pos0, vel0, eulrot0, anglvel0, refposG0, fixdirs0, slices,color) {
 	
 	/* Preparation for THREE.Mesh */
 
@@ -273,7 +272,7 @@ function BowlPin(pos0, vel0, eulrot0, anglvel0, refposG0, slices,color) {
 	//var intensC = new THREE.Matrix3(0.0134109, 0, 0, 0, 0.0019401, 0, 0, 0, 0.0134109);
 	var intensC = new THREE.Matrix3(0.0134109103558499, 0, 0, 0, 0.0019401759369374264, 0, 0, 0, 0.0134109103558499);
 
-	PhysObj.call(this, pos0, vel0, eulrot0, anglvel0, refposG0, composG, intensC, geometry, material);
+	PhysObj.call(this, pos0, vel0, eulrot0, anglvel0, refposG0, fixdirs0, composG, intensC, geometry, material);
 }
 
 BowlPin.inherits(PhysObj, BowlPin);
@@ -320,7 +319,7 @@ function createPins()
 	var pins = [];
 	for (var i = 0; i < 10; i++) 
 	{
-		pins.push(new BowlPin(new THREE.Vector3(0., 0.147558, 0.), new THREE.Vector3(0,0,0), new THREE.Euler(0,0,0), new THREE.Vector3(0,0,0), new THREE.Vector3(0., 0.147558, 0.), 10,"blue"));
+		pins.push(new BowlPin(new THREE.Vector3(0., 0.147558, 0.), new THREE.Vector3(0,0,0), new THREE.Euler(0,0,0), new THREE.Vector3(0,0,0), new THREE.Vector3(0., 0.147558, 0.), [false, false, false], 10,"blue"));
 	}
 	return pins;
 }
@@ -359,7 +358,7 @@ function putPins(pins,posarr)
 
 
 /* ------- 			BowlBall 			---------- */
-function BowlBall(pos0, vel0, eulrot0, anglvel0, refposG0) {
+function BowlBall(pos0, vel0, eulrot0, anglvel0, refposG0, fixdirs0) {
 
 	/* Preparation for THREE.Mesh */
 
@@ -390,7 +389,7 @@ function BowlBall(pos0, vel0, eulrot0, anglvel0, refposG0) {
 	var composG = new THREE.Vector3(0., 0., 0.001);
 	var intensC = new THREE.Matrix3(0.031, 0., 0., 0., 0.033, 0., 0., 0., 0.035);
 
-	PhysObj.call(this, pos0, vel0, eulrot0, anglvel0, refposG0, composG, intensC, geometry, material);
+	PhysObj.call(this, pos0, vel0, eulrot0, anglvel0, refposG0, fixdirs0, composG, intensC, geometry, material);
 
 }
 
