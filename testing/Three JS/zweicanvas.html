@@ -63,7 +63,10 @@
 					y = <input type="text" id="yCoord"><br>
 					z = <input type="text" id="zCoord">
 					<input type="button" onclick="setAxis()" value="Set axis" id="formButton">
-				</form>
+				</form><br>
+				Choose speed: <br>
+				<input type="range" min="0" max="10" step="0.25" name="slider" id="slider" onchange="getValue('slider')">
+				<br>[0,10]
 			</div>
 		</div>
 		<script src="three.min.js"></script>
@@ -78,11 +81,22 @@
 		<script type="text/javascript" src="userInterface.js"></script>
 
 		<script>
+			
+			
 			var app1, app2, debug=0;
 			
 			var camera1, camera2, scene, scene2, projector;
 			
 			var menu, varsPanel;
+			
+			var velocity = 0;
+			
+			function getValue(id) 
+			{
+				var velocityChanged = document.getElementById(id).value;
+				velocity = velocityChanged; 
+				console.log(velocity);
+			}
 			
 			function setAxis() 
 			{
@@ -610,7 +624,8 @@
 								dirVec.set(dirVecXZ.getComponent(0),dirVecXZ.getComponent(1),dirVecXZ.getComponent(2));
 							}
 						}
-						setMenu(dirVec.getComponent(0),dirVec.getComponent(1),dirVec.getComponent(2));
+						if (selectedXY || selectedXZ)
+							setMenu(dirVec.getComponent(0),dirVec.getComponent(1),dirVec.getComponent(2));
 						angularVelocity[0]=dirVec.x;
 						angularVelocity[1]=dirVec.y;
 						angularVelocity[2]=dirVec.z;
