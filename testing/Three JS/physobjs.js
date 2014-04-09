@@ -232,8 +232,10 @@ function BowlPin(pos0, vel0, eulrot0, anglvel0, refposG0, slices,color) {
 	}
 	geometry.computeFaceNormals();
 
-	var material = new THREE.MeshPhongMaterial({color: color });
-
+	var material = new THREE.MeshPhongMaterial({color: 0xffffff, vertexColors: THREE.FaceColors});
+		
+	generatePinColor(geometry, slices, 7);
+	
 	/* Initialize extensions to THREE.Mesh */
 
 	this.mass = 1.5875733;
@@ -282,6 +284,21 @@ function generatePinSegment(a, b, slices){
 
 	return pinVertices;
 }					
+
+function generatePinColor(pin_geometry, slices, ring)
+			{
+				for ( var i = 0; i < pin_geometry.faces.length; i++) {
+					var face = pin_geometry.faces[i];
+					var lowerbot = 2*slices + (ring-1) * (2*slices + 2);
+					var upperbot = 2*slices + ring * (2*slices + 2)-1;
+					var lowertop = 2*slices + (ring+1) * (2*slices + 2);
+					var uppertop = 2*slices + (ring+2) * (2*slices + 2)-1;
+					if ((i >=lowerbot && i <=upperbot)||(i >=lowertop && i <=uppertop))
+						face.color.setRGB(1,0,0); 
+					else
+						face.color.setRGB(0.8,0.8,0.8);
+				}
+			}
 
 function createPins()
 {

@@ -50,7 +50,7 @@ function mouseMove(event)
 		// mouse range is whole canvas for more precise angle settings
 		dirVec.normalize();
 		
-		arrowAngle = new THREE.ArrowHelper( dirVec, physobjs[0].refpos, 2, 0x00cc00 ); 
+		arrowAngle = new THREE.ArrowHelper( dirVec, physobjs[0].refpos, 2, 0x00cc00 ,0.5,0.1); 
 		scene.add( arrowAngle );
 		angle = 90-dirVec.angleTo(new THREE.Vector3(1,0,0))/Math.PI*180;
 		
@@ -86,12 +86,14 @@ function keyDown(event) {
 			break;
 		case 68: //Key D
 			thrown=false;
+			scene.add( arrowAngle );
 			camera1.position.set( 0, 1, 14 );
 			scene.remove(physobjs[0]);
 			drawBall([ballOffset,0.3,10]);
 			break;
 		case 87: //Key W
 			thrown=true;
+			scene.remove( arrowAngle );
 			physobjs[0].velocity.x=V0*Math.sin(Math.PI/180.0*angle);
 			physobjs[0].velocity.y=0;
 			physobjs[0].velocity.z=-V0*Math.cos(Math.PI/180.0*angle);
