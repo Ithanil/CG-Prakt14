@@ -128,37 +128,6 @@ function getAccs(physobjs)
 		var torque = new THREE.Vector3();
 
 		var velmin = 10.*dt;
-
-		var gutterradius = 1;
-/*
-		if (physobjs[i].velocity.y < 0.0) {
-			if (physobjs[i] instanceof BowlPin) {
-				if (physobjs[i].refpos.y < physobjs[i].refposG.y) {
-					physobjs[i].velocity.y = -0.25*physobjs[i].velocity.y;
-					physobjs[i].refpos.y = physobjs[i].refposG.y;
-					if (physobjs[i].velocity.y < velmin) {
-						physobjs[i].fixdirs[1] = true;
-						physobjs[i].makefixed();
-						//physobjs[i].newRefPos(new THREE.Vector3(0.,0.,0.))
-					}
-				}
-			}
-			if (physobjs[i] instanceof BowlBall) {
-				if ((physobjs[i].refpos.y-gutterradius)*(physobjs[i].refpos.y-gutterradius)+
-					(physobjs[i].refpos.x)*(physobjs[i].refpos.x)>(gutterradius-physobjs[i].radius)*(gutterradius-physobjs[i].radius)) {
-					physobjs[i].velocity.y = -0.1*physobjs[i].velocity.y;
-//					physobjs[i].refpos.y = physobjs[i].radius;
-					if (physobjs[i].velocity.y < velmin) {
-
-						physobjs[i].fixdirs[1] = true;
-						physobjs[i].makefixed();
-						physobjs[i].newRefPos(new THREE.Vector3(0., 0., 0.));
-					}
-				}
-			}
-		}		
-	*/	
-		
 		if (physobjs[i].velocity.y < 0.0) {
 			if (physobjs[i] instanceof BowlPin) {
 				if (physobjs[i].refpos.y < physobjs[i].refposG.y) {
