@@ -103,6 +103,7 @@ function keyDown(event) {
 			break;
 			
 		case 81: // Key Q
+			// drawLine(trajectory);
 			break;
 		case 83: //Key S
 		if(thrown)break;
