@@ -194,6 +194,26 @@ PhysObj.method('makefixed', function() {
 	return this;
 });
 
+PhysObj.method('allEnergy', function() {
+			   var Energ=[0,0];
+			   var transEn;
+			   var rotEn;
+			   var invQuat = new THREE.Quaternion();
+			   var angularV= new THREE.Vector3();
+			   
+			   angularV.copy(this.anglvel);
+			   invQuat.copy(this.orquat);
+			   invQuat.inverse();
+			   angularV.applyQuaternion(invQuat);
+			   transEn=0.5*this.mass*(this.velocity.x*this.velocity.x+this.velocity.y*this.velocity.y+this.velocity.z*this.velocity.z);
+			   rotEn=0.5*(angularV.x*this.intensR.elements[0]*angularV.x+angularV.y*this.intensR.elements[4]*angularV.y+angularV.z*this.intensR.elements[8]*angularV.z);
+			   
+			   Energ[0]=rotEn;
+			   Energ[1]=transEn;
+			   
+			   return Energ;
+});
+
 
 /*PhysObj.method('updateRefPosG', function(newRefPosG) {
 	var poshelp = new THREE.Vector3(-this.refposG.x, -this.refposG.y, -this.refposG.z);
