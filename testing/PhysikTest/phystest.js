@@ -50,11 +50,11 @@ function init(){
 	//oldanglmom = physobjs[1].getAnglMom();
 	//oldanglvel.copy(physobjs[1].anglvel);
 
-	/*// Plattform
+	// Plattform
 	var plattform_material = new THREE.MeshPhongMaterial( { color: 0x339933 } ); 
 	var plattform = new THREE.Mesh( new THREE.CylinderGeometry( 15,15,1, 5), plattform_material ); 
 	plattform.translateY(-0.5-0.1);
-	scene.add( plattform ); */
+	scene.add( plattform );
 
 	// Position oder Kamera
 	//camera.position.set( 4, 4, 21 );
@@ -142,7 +142,7 @@ function animate() {
 		}
 	}
 	*/
-	getCollisionForqTorq();
+	getCollisionForcTorq(physobjs, [scene.children[1]]);
 	integrate(physobjs, dt, saveaccs);
 	for (var it=0; it<physobjs.length; it++) {physobjs[it].updateObject3D()}
 

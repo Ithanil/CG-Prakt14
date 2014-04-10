@@ -126,7 +126,8 @@ function getAccs(physobjs)
 		}
 		var force  = new THREE.Vector3();
 		var torque = new THREE.Vector3();
-
+		
+		/*
 		var velmin = 10.*dt;
 		if (physobjs[i].velocity.y < 0.0) {
 			if (physobjs[i] instanceof BowlPin) {
@@ -153,7 +154,8 @@ function getAccs(physobjs)
 				}
 			}
 		}
-
+		*/
+		
 		//var intensarr = physobjs[i].getRotIntensArr();
 		var comvec = physobjs[i].getRotCPos();
 
@@ -248,6 +250,7 @@ function getCollisionForcTorq(physobjs, sceneobjs) {
 	var originPoint, localVertex, globalVertex, directionVector;
 	var collidableMeshList, ray, collisionResults, vertexIndex;
 	var it1,it2;
+	var collaccs;
 
 	for (it1 = 0; it1 < physobjs.length-1; it1++) {
 		if (physobjs[it1].velocity.x !=0 || physobjs[it1].velocity.y !=0 || physobjs[it1].velocity.z !=0) {
@@ -300,7 +303,7 @@ function newtonCollision(rad1, vel1, anglvel1, mass1, intens1, rad2, vel2, anglv
 	var massi1 = 1./mass1, massi2 = 1./mass2;
 	var intensi1 = new THREE.Matrix3(), intensi2 = new THREE.Matrix3();
 	var hvec1 = new THREE.Vector3(), hvec2 = new THREE.Vector3(), hvec3 = new THREE.Vector3(), hvec4 = new THREE.Vector3();
-	var normcopy1 = new THREE.Vector3(normvec.x, normvec.y, normvec.z), var normcopy2 = new THREE.Vector3(normvec.x, normvec.y, normvec.z);;
+	var normcopy1 = new THREE.Vector3(normvec.x, normvec.y, normvec.z), normcopy2 = new THREE.Vector3(normvec.x, normvec.y, normvec.z);;
 
 	var numerator, denominator;
 	var pdiff;
