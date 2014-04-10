@@ -154,15 +154,15 @@ function getAccs(physobjs)
 			}
 		}
 
-		var intensarr = physobjs[i].getRotIntensArr();
+		//var intensarr = physobjs[i].getRotIntensArr();
 		var comvec = physobjs[i].getRotCPos();
 
 		if (debug==1){
-			console.log('--- intensarr ---');
+			/*console.log('--- intensarr ---');
 			for (var it = 0; it < 3; it++) {
 				console.log(intensarr[it],intensarr[it+3],intensarr[it+6]);
 			}
-			console.log('-----------------');
+			console.log('-----------------');*/
 			console.log('comvec',comvec.x, comvec.y, comvec.z)
 		}
 
@@ -200,11 +200,19 @@ function getAccs(physobjs)
 		}
 
 		var massi = 1./physobjs[i].mass;
+		var intensarr = physobjs[i].intensR.toArray();
+		var orquati = new THREE.Quaternion(-physobjs[i].orquat.x, -physobjs[i].orquat.y, -physobjs[i].orquat.z, physobjs[i].orquat.w);
+		var rottorq = new THREE.Vector3(torque.x, torque.y, torque.z);
+		var rotanglvel = new THREE.Vector3(physobjs[i].anglvel.x, physobjs[i].anglvel.y, physobjs[i].anglvel.z);
+		rottorq.applyQuaternion(orquati);
+		rotanglvel.applyQuaternion(orquati);
+		 
 		var anglacc = new THREE.Vector3(
-				(torque.x - (intensarr[8]-intensarr[4]) * physobjs[i].anglvel.y * physobjs[i].anglvel.z)/intensarr[0],
-				(torque.y - (intensarr[0]-intensarr[8]) * physobjs[i].anglvel.x * physobjs[i].anglvel.z)/intensarr[4], 
-				(torque.z - (intensarr[4]-intensarr[0]) * physobjs[i].anglvel.y * physobjs[i].anglvel.x)/intensarr[8]);
-
+				(rottorq.x - (intensarr[8]-intensarr[4]) * rotanglvel.y * rotanglvel.z)/intensarr[0],
+				(rottorq.y - (intensarr[0]-intensarr[8]) * rotanglvel.x * rotanglvel.z)/intensarr[4], 
+				(rottorq.z - (intensarr[4]-intensarr[0]) * rotanglvel.y * rotanglvel.x)/intensarr[8]);
+		anglacc.applyQuaternion(physobjs[i].orquat);
+		
 		var linacc = new THREE.Vector3(force.x, force.y, force.z);
 		var vechelp1 = new THREE.Vector3();
 		var vechelp2 = new THREE.Vector3();
@@ -240,16 +248,42 @@ function collideWithScene() {
 }
 
 function newtonCollision(rad1,vel1,anglvel1,mass1,intens1, rad2,vel2,anglvel2,mass2,intens2, normvec, ecoeff ) {
+	var massi1 = 1./mass1, massi2 = 1./mass2;
+	var intensi1 = new THREE.Matrix3(), intensi2 = new THREE.Matrix3();
+	var hvec1 = new THREE.Vector3(), hvec2 = new THREE.Vector3(), hvec3 = new THREE.Vector3(), hvec4 = new THREE.Vector3();
+
+	var numerator, denominator;
 	var pdiff;
 	
-	var massi1 = 1./mass1, massi2 = 1./mass2;
-	var hvec1 = new THREE.Vector3();
-	var hvec1 = new THREE.Vector3();
-	var intensi1 = new THREE.Matrix3();
-	var intensi2 = new THREE.Matrix3();
+	// numerator calculation
+	hvec1.crossVectors(anglvel1, rad1);
+	hvec1.add(vel1);
 	
+	hvec2.crossVectors(anglvel2, rad2);
+	hvec2.add(vel2);
+	
+	hvec1.sub(hvec2);
+	numerator = (1+ecoeff)*hvec1.dot(normvec);
+	// numerator finished
+	
+	// denominator calculation
+	intensi1.getInverse(intens1);
+	intensi2.getInverse(intens2);
+	
+	hvec1.crossVectors(rad1,normvec);
+	hvec2.copy(hvec1);
+	hvec2.applyMatrix3(intensi1);
+	
+	hvec3.crossVectors(rad2,normvec);
+	hvec4.copy(hvec3);
+	hvec3.applyMatrix3(intensi2);
+	
+	denominator = massi1 + massi2 + hvec1.dot(hvec2) + hvec3.dot(hvec4);
+	
+	pdiff = numerator / denominator;
 	
 	return pdiff;
+	
 }
 
 /*
