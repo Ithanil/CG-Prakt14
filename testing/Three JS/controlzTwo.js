@@ -1,8 +1,8 @@
 function setText() {		
-	varsPanel.innerHTML = "Offset: "+Math.round(physobjs[0].refpos.x*100)/100
-						  +"<br/>Angle: "+Math.round(angle*100)/100
-						  +"<br/>Translation Energy: "+Math.round(comEnergy[1]*100)/100
-						  +"<br/>Rotation Energy: "+Math.round(comEnergy[0]*100)/100;
+	varsPanel.innerHTML = "Offset: "+Math.round(physobjs[0].refpos.x*100)/100 +" m"
+						  +"<br/>Angle: "+Math.round(angle*100)/100	+" °"
+						  +"<br/>Translation Energy: "+Math.round(comEnergy[1]*100)/100 +" J"
+						  +"<br/>Rotation Energy: "+Math.round(comEnergy[0]*100)/100 +" J";
 }
 
 function setMenu(x,y,z) {
@@ -94,7 +94,7 @@ function keyDown(event) {
 		case 68: //Key D
 			thrown=false;
 			camera1.position.set( 0, 1, 14 );
-			drawBall([ballOffset,0.3,10]);
+			drawBall([ballOffset,0.3,10.5]);
 			break;
 		case 87: //Key W
 			
