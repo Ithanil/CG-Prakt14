@@ -455,6 +455,10 @@
 						directionalLight.castShadow = true;
 						scene.add(directionalLight);
 							
+					thrown=false;
+					camera1.position.set( 0, 1, 14 );
+					drawBall([ballOffset,0.3,10.5]);
+					
 					}
 
 					function onDocumentMouseMove( event ) {

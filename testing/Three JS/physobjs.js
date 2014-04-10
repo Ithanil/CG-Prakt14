@@ -293,7 +293,7 @@ function BowlPin(pos0, vel0, eulrot0, anglvel0, refposG0, fixdirs0, slices,color
 	}
 	geometry.computeFaceNormals();
 
-	var material = new THREE.MeshPhongMaterial({color: 0xffffff, vertexColors: THREE.FaceColors});
+	var material = new THREE.MeshPhongMaterial({shininess: 1000,color: 0xffffff, vertexColors: THREE.FaceColors});
 
 	generatePinColor(geometry, slices, 7);
 
