@@ -136,7 +136,8 @@ PhysObj.method('changeTexture', function(count) {
 	var material1 =[new THREE.MeshPhongMaterial({shininess: 1000 , map: THREE.ImageUtils.loadTexture("textures/smiley.png") }),
 					new THREE.MeshPhongMaterial({shininess: 1000 , map: THREE.ImageUtils.loadTexture("textures/smiley.jpg") }),
 					new THREE.MeshPhongMaterial({shininess: 1000 , map: THREE.ImageUtils.loadTexture("textures/smiley2.jpg") }),
-					new THREE.MeshPhongMaterial({shininess: 1000 , map: THREE.ImageUtils.loadTexture("textures/smiley3.jpg") })];
+					new THREE.MeshPhongMaterial({shininess: 1000 , map: THREE.ImageUtils.loadTexture("textures/smiley3.jpg") }),
+					new THREE.MeshPhongMaterial({shininess: 1000 , map: THREE.ImageUtils.loadTexture("textures/smiley6.jpg") }),];
 	count=Math.abs(count)%material1.length;
 	PhysObj.call(this, this.refpos, this.velocity, this.eulrot0, this.anglvel, this.refposG, this.fixdirs, this.composG, this.intensC, this.geometry, material1[count]);
 	
