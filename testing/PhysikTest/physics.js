@@ -206,13 +206,13 @@ function getAccs(physobjs)
 		var rotanglvel = new THREE.Vector3(physobjs[i].anglvel.x, physobjs[i].anglvel.y, physobjs[i].anglvel.z);
 		rottorq.applyQuaternion(orquati);
 		rotanglvel.applyQuaternion(orquati);
-		 
+
 		var anglacc = new THREE.Vector3(
 				(rottorq.x - (intensarr[8]-intensarr[4]) * rotanglvel.y * rotanglvel.z)/intensarr[0],
 				(rottorq.y - (intensarr[0]-intensarr[8]) * rotanglvel.x * rotanglvel.z)/intensarr[4], 
 				(rottorq.z - (intensarr[4]-intensarr[0]) * rotanglvel.y * rotanglvel.x)/intensarr[8]);
 		anglacc.applyQuaternion(physobjs[i].orquat);
-		
+
 		var linacc = new THREE.Vector3(force.x, force.y, force.z);
 		var vechelp1 = new THREE.Vector3();
 		var vechelp2 = new THREE.Vector3();
@@ -243,47 +243,105 @@ function getAccs(physobjs)
 	return accs;
 }
 
-function collideWithScene() {
-	
+function getCollisionForcTorq(physobjs, sceneobjs) {
+
+	var originPoint, localVertex, globalVertex, directionVector;
+	var collidableMeshList, ray, collisionResults, vertexIndex;
+	var it1,it2;
+
+	for (it1 = 0; it1 < physobjs.length-1; it1++) {
+		if (physobjs[it1].velocity.x !=0 || physobjs[it1].velocity.y !=0 || physobjs[it1].velocity.z !=0) {
+			if (physobjs[it1].anglvel.x !=0 || physobjs[it1].anglvel.y !=0 || physobjs[it1].anglvel.z !=0 ) {
+
+
+				//console.log('it1',it1);
+				collidableMeshList = [];
+				for (it2 = it1 + 1; it2 < physobjs.length; it2++) {
+					//console.log('it2',it2);
+					if (physobjs[it2].velocity.x !=0 || physobjs[it2].velocity.y !=0 || physobjs[it2].velocity.z !=0) {
+						if (physobjs[it2].anglvel.x !=0 || physobjs[it2].anglvel.y !=0 || physobjs[it2].anglvel.z !=0 ) {
+							collidableMeshList.push(physobjs[it2]); 
+						}
+					}
+				}
+				for (it2 = 0; it2 < sceneobjs.length; it2++) {
+					collidableMeshList.push(sceneobjs[it2]);
+				}
+
+				originPoint = physobjs[it1].refpos.clone();
+
+				for (vertexIndex = 0; vertexIndex < physobjs[it1].geometry.vertices.length; vertexIndex++)
+				{		
+					localVertex = physobjs[it1].geometry.vertices[vertexIndex].clone();
+					//globalVertex = localVertex.applyQuaternion( physobjs[it1].orquat );
+					directionVector = localVertex.sub( physobjs[it1].refposG );
+					directionVector.applyQuaternion(physobjs[it1].orquat);
+
+					ray = new THREE.Raycaster( originPoint, directionVector.clone().normalize() );
+					collisionResults = ray.intersectObjects( collidableMeshList );
+
+					//console.log(collisionResults.length);
+					//console.log(directionVector.length());
+					if ( collisionResults.length > 0) {
+						//console.log(collisionResults[0].distance);
+						if (collisionResults[0].distance < directionVector.length()) {
+							alert(" Hit ");
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return collaccs;
 }
 
-function newtonCollision(rad1,vel1,anglvel1,mass1,intens1, rad2,vel2,anglvel2,mass2,intens2, normvec, ecoeff ) {
+function newtonCollision(rad1, vel1, anglvel1, mass1, intens1, rad2, vel2, anglvel2, mass2, intens2, normvec, ecoeff, dt) {
 	var massi1 = 1./mass1, massi2 = 1./mass2;
 	var intensi1 = new THREE.Matrix3(), intensi2 = new THREE.Matrix3();
 	var hvec1 = new THREE.Vector3(), hvec2 = new THREE.Vector3(), hvec3 = new THREE.Vector3(), hvec4 = new THREE.Vector3();
+	var normcopy1 = new THREE.Vector3(normvec.x, normvec.y, normvec.z), var normcopy2 = new THREE.Vector3(normvec.x, normvec.y, normvec.z);;
 
 	var numerator, denominator;
 	var pdiff;
-	
+
 	// numerator calculation
 	hvec1.crossVectors(anglvel1, rad1);
 	hvec1.add(vel1);
-	
+
 	hvec2.crossVectors(anglvel2, rad2);
 	hvec2.add(vel2);
-	
+
 	hvec1.sub(hvec2);
 	numerator = (1+ecoeff)*hvec1.dot(normvec);
 	// numerator finished
-	
+
 	// denominator calculation
 	intensi1.getInverse(intens1);
 	intensi2.getInverse(intens2);
-	
+
 	hvec1.crossVectors(rad1,normvec);
 	hvec2.copy(hvec1);
 	hvec2.applyMatrix3(intensi1);
-	
+
 	hvec3.crossVectors(rad2,normvec);
 	hvec4.copy(hvec3);
-	hvec3.applyMatrix3(intensi2);
-	
+	hvec4.applyMatrix3(intensi2);
+
 	denominator = massi1 + massi2 + hvec1.dot(hvec2) + hvec3.dot(hvec4);
-	
+	//denominator finished
+
+	// momentum transfer
 	pdiff = numerator / denominator;
-	
-	return pdiff;
-	
+
+	// convert to force / torque
+	hvec1.multiplyScalar(-pdiff/dt);
+	hvec3.multiplyScalar(pdiff/dt);
+	normcopy1.multiplyScalar(-pdiff/dt);
+	normcopy2.multiplyScalar(pdiff/dt);
+
+	return [[normcopy1, hvec1], [normcopy2, hvec3]];
+
 }
 
 /*

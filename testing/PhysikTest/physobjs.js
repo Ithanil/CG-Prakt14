@@ -237,7 +237,8 @@ function BowlPin(pos0, vel0, eulrot0, anglvel0, refposG0, fixdirs0, slices,color
 	/* Preparation for THREE.Mesh */
 
 	this.slices = slices;
-	this.shapeline = [[0.0257937, 0., 0],
+	this.shapeline = [[0.0001, -0.00001, 0.],
+	                  [0.0257937, 0., 0],
 	                  [0.0359156, 0.01905, 0],
 	                  [0.0496062, 0.05715, 0],
 	                  [0.057277, 0.085725, 0],
@@ -347,10 +348,10 @@ function generatePinColor(pin_geometry, slices, ring)
 {
 	for ( var i = 0; i < pin_geometry.faces.length; i++) {
 		var face = pin_geometry.faces[i];
-		var lowerbot = 2*slices + (ring-1) * (2*slices + 2);
-		var upperbot = 2*slices + ring * (2*slices + 2)-1;
-		var lowertop = 2*slices + (ring+1) * (2*slices + 2);
-		var uppertop = 2*slices + (ring+2) * (2*slices + 2)-1;
+		var lowerbot = 2*slices + ring * (2*slices + 2);
+		var upperbot = 2*slices + (ring+1) * (2*slices + 2)-1;
+		var lowertop = 2*slices + (ring+2) * (2*slices + 2);
+		var uppertop = 2*slices + (ring+3) * (2*slices + 2)-1;
 		if ((i >=lowerbot && i <=upperbot)||(i >=lowertop && i <=uppertop))
 			face.color.setRGB(1,0,0); 
 		else
