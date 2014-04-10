@@ -235,6 +235,23 @@ function getAccs(physobjs)
 	return accs;
 }
 
+function collideWithScene() {
+	
+}
+
+function newtonCollision(rad1,vel1,anglvel1,mass1,intens1, rad2,vel2,anglvel2,mass2,intens2, normvec, ecoeff ) {
+	var pdiff;
+	
+	var massi1 = 1./mass1, massi2 = 1./mass2;
+	var hvec1 = new THREE.Vector3();
+	var hvec1 = new THREE.Vector3();
+	var intensi1 = new THREE.Matrix3();
+	var intensi2 = new THREE.Matrix3();
+	
+	
+	return pdiff;
+}
+
 /*
 for (var vertexIndex = 0; vertexIndex < MovingCube.geometry.vertices.length; vertexIndex++)
 {		
