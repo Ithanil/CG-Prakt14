@@ -511,15 +511,15 @@
 						
 						// Ambient Directional light Test
 						directionalLight = new THREE.DirectionalLight(0xffffff);
-						//directionalLight.position.set(1,1.5,1).normalize();
+						directionalLight.position.set(0,1.5,12.5);
 						directionalLight.target.position.set(0,0,-18.29/2);
 						directionalLight.shadowCameraNear = 2;
-						directionalLight.shadowCameraFar = 15;
+						directionalLight.shadowCameraFar = 25;
 						directionalLight.shadowCameraLeft = -1.5;
 						directionalLight.shadowCameraRight = 1.5;
 						directionalLight.shadowCameraTop = 1.5;
 						directionalLight.shadowCameraBottom = -1.5;
-						directionalLight.shadowCameraVisible = false;
+						directionalLight.shadowCameraVisible = true;
 						directionalLight.castShadow = true;
 						scene.add(directionalLight);
 							
@@ -539,7 +539,10 @@
 							moveCamera();
 							
 						}
-						if(physobjs[0].refpos.x*physobjs[0].refpos.x>1.05/2.0*1.05/2.0 && thrown && physobjs[0].refpos.z >-18.3/2.0) gutter();
+						if(physobjs[0].refpos.x*physobjs[0].refpos.x>1.05/2.0*1.05/2.0 && thrown && physobjs[0].refpos.z >-18.3/2.0) 
+							gutter();
+						physobjs[0].receiveShadow = true;
+						physobjs[0].castShadow = true;
 						
 						setText();
 						comEnergy=physobjs[0].allEnergy();
@@ -552,6 +555,11 @@
 					};
 
 					function render() {
+						renderer.shadowMapEnabled = true;
+						renderer.shadowMapBias = 0.0039;
+						renderer.shadowMapDarkness = 0.5;
+						renderer.shadowMapWidth = 1024;
+						renderer.shadowMapHeight = 1024; 
 						renderer.render( scene, camera1 );
 
 					}
@@ -742,12 +750,15 @@
 				function drawBall(r){
 					scene.remove(physobjs[0]);
 					PhysObj.call(physobjs[0], new THREE.Vector3(r[0],r[1],r[2]), new THREE.Vector3(0,0,0), new THREE.Euler(0,0,0), new THREE.Vector3(0,0,0), new THREE.Vector3(-0.001,0,0.), [false,false,false], physobjs[0].composG, physobjs[0].intensC, physobjs[0].geometry, physobjs[0].material);
+					physobjs[0].receiveShadow = true;
+					physobjs[0].castShadow = true;
 					physobjs[0].updateObject3D();
 					for (var i = 1; i < 11; i++){ 
-					PhysObj.call(physobjs[i], new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,0), new THREE.Euler(0,0,0), new THREE.Vector3(0,0,0), new THREE.Vector3(0., 0.147558, 0.), [false,false,false], physobjs[i].composG, physobjs[i].intensC, physobjs[i].geometry, physobjs[i].material);
-					physobjs[i].updateObject3D();
+						PhysObj.call(physobjs[i], new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,0), new THREE.Euler(0,0,0), new THREE.Vector3(0,0,0), new THREE.Vector3(0., 0.147558, 0.), [false,false,false], physobjs[i].composG, physobjs[i].intensC, physobjs[i].geometry, physobjs[i].material);
+						physobjs[i].updateObject3D();
 					}
 					putPins(physobjs.slice(1),posarr);
+					
 					scene.add(physobjs[0]);
 				 }
 				 
