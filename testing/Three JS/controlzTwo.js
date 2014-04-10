@@ -96,11 +96,13 @@ function mouseMove(event)
 function keyDown(event) {
 	switch(event.keyCode) {
 		case 65: //Key A
+		if(thrown)break;
 			count3--;
 			physobjs[0].changeTexture(count3);
 			
 			break;
 		case 83: //Key S
+		if(thrown)break;
 			count3++;
 			physobjs[0].changeTexture(count3);
 			break;
