@@ -127,7 +127,17 @@ PhysObj.method('newRefPos', function(newrefposG) {
 	newpos.addVectors(this.refpos, rpdiff);
 	newvel.addVectors(this.velocity, veldiff);
 	
-	PhysObj.call(this, newpos, newvel, neweulrot, this.anglvel, newrefposG, this.fixdirs, this.composG, this.intensC, this.geometry, this.material)
+	PhysObj.call(this, newpos, newvel, neweulrot, this.anglvel, newrefposG, this.fixdirs, this.composG, this.intensC, this.geometry, this.material);
+	
+	return this;
+});
+
+PhysObj.method('changeTexture', function(count) {
+	var material1 =//[new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture("textures/smiley.png") }),
+					new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture("textures/smiley.jpg") });
+	if(count>material1.length)count=material1.length;
+	if(count<0)count=0;
+	PhysObj.call(this, this.refpos, this.velocity, this.eulrot0, this.anglvel, this.refposG, this.fixdirs, this.composG, this.intensC, this.geometry, material[count]);
 	
 	return this;
 });

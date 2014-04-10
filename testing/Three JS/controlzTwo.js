@@ -96,9 +96,11 @@ function mouseMove(event)
 function keyDown(event) {
 	switch(event.keyCode) {
 		case 65: //Key A
-			
+			//count3--;
+			//physobjs[0].changeTexture(count3);
 			//putPins(slices);
 			break;
+		
 		case 68: //Key D
 			thrown=false;
 			camera1.position.set( 0, 1, 14 );
@@ -122,6 +124,8 @@ function keyDown(event) {
 			thrown=true;
 			break;
 		case 83: //Key S
+			//count3++;
+			//physobjs[0].changeTexture(count3);
 			break;
 		case 72:
 			if (pressedH == false)
