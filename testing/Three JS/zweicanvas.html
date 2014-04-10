@@ -94,7 +94,7 @@
 			
 			var camera1, camera2, scene, scene2, projector;
 			
-			var menu, varsPanel;
+			var menu, varsPanel, comEnergy=[0,0];
 			
 			var velocity = 0, angularVelocity = 0;
 			
@@ -512,7 +512,9 @@
 						}
 						if(physobjs[0].refpos.x*physobjs[0].refpos.x>1.05/2.0*1.05/2.0 && thrown && physobjs[0].refpos.z >-18.3/2.0) gutter();
 						
+						comEnergy=physobjs[0].allEnergy();
 						
+
 						for (var it=0; it<physobjs.length; it++) {physobjs[it].updateObject3D();}
 		
 						render();
