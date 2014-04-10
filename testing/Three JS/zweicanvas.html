@@ -279,7 +279,7 @@
 						var laneTexture = new THREE.ImageUtils.loadTexture("textures/wood.jpg");
 						laneTexture.wrapS = laneTexture.wrapT = THREE.RepeatWrapping;
 						laneTexture.repeat.set( 3,25 );
-						var lane_material = new THREE.MeshPhongMaterial( {  map:laneTexture, side:THREE.DoubleSide } ); 
+						var lane_material = new THREE.MeshPhongMaterial( {shininess:1000,  map:laneTexture, side:THREE.DoubleSide } ); 
 						lane = new THREE.Mesh( new THREE.CubeGeometry(1.05,0.1,18.29+2), lane_material ); 
 						lane.translateY(-0.05);
 						lane.translateZ(-1);
@@ -292,14 +292,14 @@
 						var apprTexture = new THREE.ImageUtils.loadTexture("textures/wood.jpg");
 						apprTexture.wrapS = apprTexture.wrapT = THREE.RepeatWrapping;
 						apprTexture.repeat.set( 5,3 );
-						var appr_material = new THREE.MeshPhongMaterial( {  map:apprTexture, side:THREE.DoubleSide } ); 
+						var appr_material = new THREE.MeshPhongMaterial( {shininess:1000,  map:apprTexture, side:THREE.DoubleSide } ); 
 						approach = new THREE.Mesh( appr_geometry, appr_material ); 
 						approach.translateZ(18.29/2.0+2.0/2+0.02);
 						approach.translateY(-0.05);
 						approach.receiveShadow = true;
 						scene.add( approach ); 
 						
-						var appr_line = new THREE.Mesh(new THREE.CubeGeometry(1.05+2*0.2359,0.1,0.02),new THREE.MeshPhongMaterial( { color: 0x999999 } ));
+						var appr_line = new THREE.Mesh(new THREE.CubeGeometry(1.05+2*0.2359,0.1,0.02),new THREE.MeshPhongMaterial( {shininess:1000, color: 0x999999 } ));
 						appr_line.translateY(-0.05);
 						appr_line.translateZ(18.29/2.0+0.02/2);
 						appr_line.receiveShadow = true;
@@ -406,14 +406,14 @@
 						
 						rinneGeometry.computeFaceNormals();
 						
-						var rinneL = new THREE.Mesh(rinneGeometry, new THREE.MeshPhongMaterial({color: 0x999999})); 
+						var rinneL = new THREE.Mesh(rinneGeometry, new THREE.MeshPhongMaterial({shininess:1000,color: 0x999999})); 
 						rinneL.translateX(-1.05/2-0.2359/2);
 						rinneL.translateY(-0.1);
 						rinneL.translateZ(-18.29/2-2);
 						rinneL.receiveShadow = true;
 						scene.add(rinneL);
 						
-						var rinneR = new THREE.Mesh(rinneGeometry, new THREE.MeshPhongMaterial({color: 0x999999})); 
+						var rinneR = new THREE.Mesh(rinneGeometry, new THREE.MeshPhongMaterial({shininess:1000,color: 0x999999})); 
 						rinneR.translateX(1.05/2+0.2359/2);
 						rinneR.translateY(-0.1);
 						rinneR.translateZ(-18.29/2-2);
@@ -683,7 +683,7 @@
 					PhysObj.call(physobjs[0], new THREE.Vector3(r[0],r[1],r[2]), new THREE.Vector3(0,0,0), new THREE.Euler(0,0,0), new THREE.Vector3(0,0,0), new THREE.Vector3(-0.001,0,0.), [false,false,false], physobjs[0].composG, physobjs[0].intensC, physobjs[0].geometry, physobjs[0].material);
 					physobjs[0].receiveShadow = true;
 					physobjs[0].castShadow = true;
-					physobjs[0].changeTexture(0);
+					physobjs[0].changeTexture(count3);
 					physobjs[0].updateObject3D();
 					for (var i = 1; i < 11; i++){ 
 						PhysObj.call(physobjs[i], new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,0), new THREE.Euler(0,0,0), new THREE.Vector3(0,0,0), new THREE.Vector3(0., 0.147558, 0.), [false,false,false], physobjs[i].composG, physobjs[i].intensC, physobjs[i].geometry, physobjs[i].material);
