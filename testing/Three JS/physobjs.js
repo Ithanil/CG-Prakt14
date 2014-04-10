@@ -400,7 +400,7 @@ function BowlBall(pos0, vel0, eulrot0, anglvel0, refposG0, fixdirs0) {
 	geometry.computeFaceNormals();
 	 */
 
-	var material = new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture("textures/smiley.png") });
+	var material = new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture("textures/smiley.jpg") });
 
 
 	/* Initialize extensions to THREE.Mesh */
