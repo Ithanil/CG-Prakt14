@@ -59,14 +59,21 @@
 			<div id="container2"></div>
 			<div id="controls">
 				<form id="spinForm">
+				Set rotation axis:<br>
 					x = <input type="text" id="xCoord"><br>
 					y = <input type="text" id="yCoord"><br>
 					z = <input type="text" id="zCoord">
 					<input type="button" onclick="setAxis()" value="Set axis" id="formButton">
 				</form><br>
+				Choose angular velocity: <br>
+				<input type="range" min="0" max="30" step="0.25" name="sliderAngular" id="sliderAngular" onchange="getValue('sliderAngular')">
+				<br>[0,30]<div id="angSpeedScreen">15</div><br>
+				
 				Choose speed: <br>
-				<input type="range" min="0" max="10" step="0.25" name="slider" id="slider" onchange="getValue('slider')">
-				<br>[0,10]
+				<input type="range" min="3" max="10" step="0.5" name="slider" id="slider" onchange="getValue('slider')" >
+				<br>[3,10]<div id="speedScreen">6.5</div><br>
+				
+
 			</div>
 		</div>
 		<script src="three.min.js"></script>
@@ -89,15 +96,32 @@
 			
 			var menu, varsPanel;
 			
-			var velocity = 0;
+			var velocity = 0, angularVelocity = 0;
+			
+			function setInitialValues() 
+			{
+				velocity = document.getElementById('slider').value;
+				angularVelocity = document.getElementById('sliderAngular').value;
+				document.getElementById('speedScreen').innerHTML = velocity;
+				document.getElementById('angSpeedScreen').innerHTML = angularVelocity;
+			}
+			
+			setInitialValues();
 			
 			function getValue(id) 
 			{
-				var velocityChanged = document.getElementById(id).value;
-				velocity = velocityChanged; 
-				//console.log(velocity);
-				
-				return;
+				var velocityChanged, angularVelocityChanged;
+				if (id == 'slider')
+				{
+					velocityChanged = document.getElementById(id).value;
+					velocity = velocityChanged; 
+					document.getElementById('speedScreen').innerHTML = velocity;
+				} else if (id == 'sliderAngular')
+				{
+					angularVelocityChanged = document.getElementById(id).value;
+					angularVelocity = angularVelocityChanged; 
+					document.getElementById('angSpeedScreen').innerHTML = angularVelocity;
+				}
 			}
 			
 			function setAxis() 
@@ -542,7 +566,7 @@
 						menu.style.position = 'absolute';
 						menu.style.width = 200+'px';
 						menu.style.backgroundColor = "rgba( 1, 0, 0, 0.25 )";
-						menu.innerHTML = "Choose Spin";
+						menu.innerHTML = "Rotation axis";
 						menu.style.top = 210 + 'px';
 						menu.style.right = 5 + 'px';
 						document.body.appendChild(menu);
