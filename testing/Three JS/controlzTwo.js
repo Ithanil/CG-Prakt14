@@ -65,7 +65,6 @@ function mouseMove(event)
 		setText();
 	}
 
-
 	if (!isMouseDown || !isBallSelected) return;
 
 	var d = Math.min(window.innerWidth,window.innerHeight);
@@ -83,9 +82,7 @@ function mouseMove(event)
 		}
 	setText();
    }	
-   
 
-   
 function keyDown(event) {
 	switch(event.keyCode) {
 		case 65: //Key A

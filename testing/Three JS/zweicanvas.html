@@ -169,7 +169,7 @@
 						spinVec.normalize();
 						setMenu(spinVec.getComponent(0), spinVec.getComponent(1), spinVec.getComponent(2));
 						dirVec = spinVec.clone();
-						
+						app2.updateAxisArrow(dirVec);
 					}
 					
 				} else 
@@ -586,7 +586,7 @@
 						container.addEventListener( 'mouseup', onMouseUp, false ); 
 					}
 					
-					var arrowSpinXZ, arrowSpinXY; 
+					var arrowSpinXZ, arrowSpinXY, arrowFromForm; 
 					var dirVecXZ, dirVecXY,
 						dirVec = new THREE.Vector3(angularVelocity[0],angularVelocity[1],angularVelocity[2]);
 					var selectedXZ = false,
@@ -594,6 +594,20 @@
 						
 					var winkelX = 0, winkelY = 0;
 					
+					function removeArrows()
+					{
+						scene.remove(arrowFromForm);
+						scene.remove(arrowSpinXY);
+						scene.remove(arrowSpinXZ);
+					}
+					
+					this.updateAxisArrow = function(direction)
+					{
+						removeArrows()
+						dirVec = direction.clone();
+						arrowFromForm = new THREE.ArrowHelper(dirVec, new THREE.Vector3(0,0,0), 2,0x29A3cc, 3.5,0.5);
+						scene.add(arrowFromForm);
+					}
 					
 					function onMouseMove( event ) {
 						if (isMouseDown)
@@ -613,8 +627,7 @@
 									dirVecXZ = new THREE.Vector(1,0,0);
 									winkelX = 0;
 								}
-								scene.remove(arrowSpinXY);
-								scene.remove(arrowSpinXZ);
+								removeArrows();
 								if (dirVecXZ.getComponent(0) > 0)
 									dirVecXY = new THREE.Vector3(-canvX, canvY,0);
 								else
@@ -626,8 +639,7 @@
 								selectedXY = true;
 								dirVec.set(dirVecXY.getComponent(0),dirVecXY.getComponent(1),dirVecXY.getComponent(2))
 							} else {
-								scene.remove(arrowSpinXZ);
-								scene.remove(arrowSpinXY);
+								removeArrows();
 								if (selectedXY){
 									var X = -canvX;
 									var Y = dirVecXY.getComponent(1);
