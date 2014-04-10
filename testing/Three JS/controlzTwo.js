@@ -1,6 +1,6 @@
 function setText() {		
 	varsPanel.innerHTML = "Offset: "+Math.round(physobjs[0].refpos.x*100)/100 +" m"
-						  +"<br/>Angle: "+Math.round(angle*100)/100	+" °"
+						  +"<br/>Angle: "+Math.round(angle*100)/100	+"°"
 						  +"<br/>Translation Energy: "+Math.round(comEnergy[1]*100)/100 +" J"
 						  +"<br/>Rotation Energy: "+Math.round(comEnergy[0]*100)/100 +" J";
 }
@@ -96,16 +96,22 @@ function mouseMove(event)
 function keyDown(event) {
 	switch(event.keyCode) {
 		case 65: //Key A
+			count3--;
+			physobjs[0].changeTexture(count3);
 			
-			//putPins(slices);
 			break;
+		case 83: //Key S
+			count3++;
+			physobjs[0].changeTexture(count3);
+			break;
+		
 		case 68: //Key D
 			thrown=false;
 			camera1.position.set( 0, 1, 14 );
 			drawBall([ballOffset,0.3,10.5]);
 			break;
 		case 87: //Key W
-			
+			if(thrown)break;
 			scene.remove( arrowAngle );
 			//getValue('slider');
 			V0=velocity;
@@ -121,8 +127,7 @@ function keyDown(event) {
 			physobjs[0].updateObject3D();
 			thrown=true;
 			break;
-		case 83: //Key S
-			break;
+		
 		case 72:
 			if (pressedH == false)
 			{
