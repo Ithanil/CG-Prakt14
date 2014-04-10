@@ -1,6 +1,8 @@
 function setText() {		
 	varsPanel.innerHTML = "Offset: "+Math.round(physobjs[0].refpos.x*100)/100
-						  +"<br/>Angle: "+Math.round(angle*100)/100;
+						  +"<br/>Angle: "+Math.round(angle*100)/100
+						  +"<br/>Translation Energy: "+Math.round(comEnergy[1]*100)/100
+						  +"<br/>Rotation Energy: "+Math.round(comEnergy[0]*100)/100;
 }
 
 function setMenu(x,y,z) {
