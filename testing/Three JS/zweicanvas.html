@@ -510,16 +510,16 @@
 						scene.add(light);
 						
 						// Ambient Directional light Test
-						directionalLight = new THREE.DirectionalLight(0xffffff);
-						directionalLight.position.set(0,1.5,12.5);
+						directionalLight = new THREE.DirectionalLight(0xffffff,1 );
+						directionalLight.position.set(2,2,12.5);
 						directionalLight.target.position.set(0,0,-18.29/2);
 						directionalLight.shadowCameraNear = 2;
-						directionalLight.shadowCameraFar = 25;
-						directionalLight.shadowCameraLeft = -1.5;
-						directionalLight.shadowCameraRight = 1.5;
-						directionalLight.shadowCameraTop = 1.5;
-						directionalLight.shadowCameraBottom = -1.5;
-						directionalLight.shadowCameraVisible = true;
+						directionalLight.shadowCameraFar = 24;
+						directionalLight.shadowCameraLeft = -2.5;
+						directionalLight.shadowCameraRight = 1.0;
+						directionalLight.shadowCameraTop = 2;
+						directionalLight.shadowCameraBottom = -2;
+						directionalLight.shadowCameraVisible = false;
 						directionalLight.castShadow = true;
 						scene.add(directionalLight);
 							
