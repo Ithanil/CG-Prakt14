@@ -120,14 +120,14 @@
 			
 			var menu, varsPanel, comEnergy=[0,0];
 			
-			var velocity = 0, angularVelocity = 0;
+			var velocity = 0, angVelocity = 0;
 			
 			function setInitialValues() 
 			{
 				velocity = document.getElementById('slider').value;
-				angularVelocity = document.getElementById('sliderAngular').value;
+				angVelocity = document.getElementById('sliderAngular').value;
 				document.getElementById('speedScreen').innerHTML = velocity;
-				document.getElementById('angSpeedScreen').innerHTML = angularVelocity;
+				document.getElementById('angSpeedScreen').innerHTML = angVelocity;
 			}
 			
 			setInitialValues();
@@ -143,8 +143,8 @@
 				} else if (id == 'sliderAngular')
 				{
 					angularVelocityChanged = document.getElementById(id).value;
-					angularVelocity = angularVelocityChanged; 
-					document.getElementById('angSpeedScreen').innerHTML = angularVelocity;
+					angVelocity = angularVelocityChanged; 
+					document.getElementById('angSpeedScreen').innerHTML = angVelocity;
 				}
 			}
 			
