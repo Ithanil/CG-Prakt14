@@ -40,8 +40,10 @@
 				z-index: 2;
 				position: absolute;
 				right: 5px;
-				top: 230px;
+				top: 210px;
 				width: 200px;
+				color: #9c9c9c;
+				background: rgba(0,0,0,0.4);
 			}
 
 			
@@ -72,8 +74,6 @@
 				Choose speed: <br>
 				<input type="range" min="3" max="10" step="0.5" name="slider" id="slider" onchange="getValue('slider')" >
 				<br>[3,10]<div id="speedScreen">6.5</div><br>
-				
-
 			</div>
 		</div>
 		<script src="three.min.js"></script>
@@ -143,7 +143,7 @@
 						if (v==46)
 							countpoints += 1;
 						// If char is not a number, not a point, not a minus, if there is more than one point or if the string is empty
-						if ((v > 57 || v < 48) && !(v==46) && !(v==45) || (countpoints > 1) || coords[i].length == 0)
+						if ((v > 57 || v < 48) && !(v==46) && !(v==45) || (countpoints > 1) || coords[i].length == 0 || (v == 45 && j != 0))
 						{
 							integers = false;
 							menu.innerHTML="Ungültige Eingabe";
@@ -564,12 +564,12 @@
 		
 						menu = document.createElement('div');
 						menu.style.position = 'absolute';
-						menu.style.width = 200+'px';
+						menu.style.width = 190+'px';
 						menu.style.backgroundColor = "rgba( 1, 0, 0, 0.25 )";
 						menu.innerHTML = "Rotation axis";
-						menu.style.top = 210 + 'px';
+						menu.style.top = 5 + 'px';
 						menu.style.right = 5 + 'px';
-						document.body.appendChild(menu);
+						container.appendChild(menu);
 
 						light = new THREE.DirectionalLight( 0xffffff );
 						light.position.set( 0, 1,0 ).normalize();
