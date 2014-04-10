@@ -73,16 +73,13 @@
 			
 			function getValue(id) 
 			{
-				var velocityChanged, angularVelocityChanged;
 				if (id == 'slider')
 				{
-					velocityChanged = document.getElementById(id).value;
-					velocity = velocityChanged; 
+					velocity = document.getElementById(id).value; 
 					document.getElementById('speedScreen').innerHTML = velocity;
 				} else if (id == 'sliderAngular')
 				{
-					angularVelocityChanged = document.getElementById(id).value;
-					angVelocity = angularVelocityChanged; 
+					angVelocity = document.getElementById(id).value; 
 					document.getElementById('angSpeedScreen').innerHTML = angVelocity;
 				}
 			}
