@@ -683,6 +683,7 @@
 					PhysObj.call(physobjs[0], new THREE.Vector3(r[0],r[1],r[2]), new THREE.Vector3(0,0,0), new THREE.Euler(0,0,0), new THREE.Vector3(0,0,0), new THREE.Vector3(-0.001,0,0.), [false,false,false], physobjs[0].composG, physobjs[0].intensC, physobjs[0].geometry, physobjs[0].material);
 					physobjs[0].receiveShadow = true;
 					physobjs[0].castShadow = true;
+					physobjs[0].changeTexture(0);
 					physobjs[0].updateObject3D();
 					for (var i = 1; i < 11; i++){ 
 						PhysObj.call(physobjs[i], new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,0), new THREE.Euler(0,0,0), new THREE.Vector3(0,0,0), new THREE.Vector3(0., 0.147558, 0.), [false,false,false], physobjs[i].composG, physobjs[i].intensC, physobjs[i].geometry, physobjs[i].material);
