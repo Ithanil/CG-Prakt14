@@ -363,11 +363,13 @@
 						approach = new THREE.Mesh( appr_geometry, appr_material ); 
 						approach.translateZ(18.29/2.0+2.0/2+0.02);
 						approach.translateY(-0.05);
+						approach.receiveShadow = true;
 						scene.add( approach ); 
 						
 						var appr_line = new THREE.Mesh(new THREE.CubeGeometry(1.05+2*0.2359,0.1,0.02),new THREE.MeshPhongMaterial( { color: 0x999999 } ));
 						appr_line.translateY(-0.05);
 						appr_line.translateZ(18.29/2.0+0.02/2);
+						appr_line.receiveShadow = true;
 						scene.add(appr_line);
 						
 						// Plattform
@@ -481,12 +483,14 @@
 						rinneL.translateX(-1.05/2-0.2359/2);
 						rinneL.translateY(-0.1);
 						rinneL.translateZ(-18.29/2-2);
+						rinneL.receiveShadow = true;
 						scene.add(rinneL);
 						
 						var rinneR = new THREE.Mesh(rinneGeometry, new THREE.MeshPhongMaterial({color: 0x999999})); 
 						rinneR.translateX(1.05/2+0.2359/2);
 						rinneR.translateY(-0.1);
 						rinneR.translateZ(-18.29/2-2);
+						rinneR.receiveShadow = true;
 						scene.add(rinneR);
 						
 						// SKYBOX
