@@ -45,6 +45,21 @@
 				color: #9c9c9c;
 				background: rgba(0,0,0,0.4);
 			}
+			
+			#helper {
+				position: absolute;
+				z-index: 2;
+				top: 5px;
+				left: 50%;
+				width: 400px;
+				margin-left: -200px;
+				color: #e6e6e6;
+				background: rgba(0,0,0,0.4);
+			}
+			
+			h1 {
+				font-size:120%;
+			}
 
 			
 			a {
@@ -74,6 +89,15 @@
 				Choose speed: <br>
 				<input type="range" min="3" max="10" step="0.5" name="slider" id="slider" onchange="getValue('slider')" >
 				<br>[3,10]<div id="speedScreen">6.5</div><br>
+			</div>
+			<div id="helper">
+				<h1>Helper! ^_^</h1>
+				Press [D] to set the ball and pins. <br>
+				Press and hold [Shift] to set the angle (The maximum angle you want to choose is 1.48deg in order to stay on the lane, if your ball is centered).<br>
+				Hold the ball with the cursor and drag it to another position.<br>
+				Click and move the mouse on the smaller canvas to adjust the direction of the rotation axis on the X-Z-plane.<br>
+				Press [O] to adjust it on the X-Y-plane. <br>
+				Press [W] to throw the ball.
 			</div>
 		</div>
 		<script src="three.min.js"></script>
@@ -592,7 +616,8 @@
 					var dirVecXZ, dirVecXY,
 						dirVec = new THREE.Vector3(angularVelocity[0],angularVelocity[1],angularVelocity[2]);
 					var selectedXZ = false,
-						selectedXY = false;
+						selectedXY = false,
+						selectedForm = false;
 						
 					var winkelX = 0, winkelY = 0;
 					
@@ -609,6 +634,7 @@
 						dirVec = direction.clone();
 						arrowFromForm = new THREE.ArrowHelper(dirVec, new THREE.Vector3(0,0,0), 2,0x29A3cc, 3.5,0.5);
 						scene.add(arrowFromForm);
+						selectedForm = true;
 					}
 					
 					function onMouseMove( event ) {
@@ -662,7 +688,7 @@
 								dirVec.set(dirVecXZ.getComponent(0),dirVecXZ.getComponent(1),dirVecXZ.getComponent(2));
 							}
 						}
-						if (selectedXY || selectedXZ)
+						if (selectedXY || selectedXZ || selectedForm)
 							setMenu(dirVec.getComponent(0),dirVec.getComponent(1),dirVec.getComponent(2));
 						angularVelocity[0]=dirVec.x;
 						angularVelocity[1]=dirVec.y;

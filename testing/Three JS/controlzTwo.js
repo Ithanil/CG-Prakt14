@@ -113,6 +113,13 @@ function keyDown(event) {
 			break;
 		case 83: //Key S
 			break;
+		case 72:
+			if (pressedH == false)
+				pressedH = true;
+				
+			else 
+				pressedH = false;
+			break;
 		case 79: //Key O
 			if (pressedO == false)
 				pressedO = true;
