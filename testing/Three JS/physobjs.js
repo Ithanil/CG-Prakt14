@@ -133,11 +133,11 @@ PhysObj.method('newRefPos', function(newrefposG) {
 });
 
 PhysObj.method('changeTexture', function(count) {
-	var material1 =//[new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture("textures/smiley.png") }),
-					new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture("textures/smiley.jpg") });
-	if(count>material1.length)count=material1.length;
-	if(count<0)count=0;
-	PhysObj.call(this, this.refpos, this.velocity, this.eulrot0, this.anglvel, this.refposG, this.fixdirs, this.composG, this.intensC, this.geometry, material[count]);
+	var material1 =[new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture("textures/smiley.png") }),
+					new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture("textures/smiley.jpg") }),
+					new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture("textures/smiley2.jpg") })];
+	count=Math.abs(count)%material1.length;
+	PhysObj.call(this, this.refpos, this.velocity, this.eulrot0, this.anglvel, this.refposG, this.fixdirs, this.composG, this.intensC, this.geometry, material1[count]);
 	
 	return this;
 });
