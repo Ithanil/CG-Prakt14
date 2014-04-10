@@ -276,6 +276,9 @@
 						varsPanel.style.left = 5 + 'px';
 						document.body.appendChild(varsPanel);
 						
+						// LINIE 
+						
+					
 						// Bahn
 						var laneTexture = new THREE.ImageUtils.loadTexture("textures/wood.jpg");
 						laneTexture.wrapS = laneTexture.wrapT = THREE.RepeatWrapping;
@@ -466,6 +469,18 @@
 						mouseX = ( event.clientX - windowHalfX );
 						mouseY = ( event.clientY - windowHalfY );
 
+					}
+					
+					this.drawLine = function(trajectory) {
+						scene.remove(line);
+						var material = new THREE.LineBasicMaterial({ color: 0x0000ff }); 
+						var geometry = new THREE.Geometry(); 
+						for (var i = 0; i < trajectory.length; i++)
+						{
+							geometry.vertices.push(trajectory[i]); 
+						}
+						var line = new THREE.Line( geometry, material ); 
+						scene.add( line );
 					}
 
 					this.animate = function() {

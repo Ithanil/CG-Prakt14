@@ -101,6 +101,9 @@ function keyDown(event) {
 			physobjs[0].changeTexture(count3);
 			
 			break;
+			
+		case 81: // Key Q
+			break;
 		case 83: //Key S
 		if(thrown)break;
 			count3++;
