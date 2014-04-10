@@ -5,8 +5,8 @@ var scene = new THREE.Scene();
 //var physobjs = [new BowlBall([1., 1., -6.], [0., 0., 0.], [0., 0., 0.], [0., 0., 0.], [0.,0.,0.001]), new BowlPin([0., 0., -6.], [0., 0., 0.], [0., 0., 0.], [0., 0., 0.],[0., 0.14755784154951435, 0.],10,"blue")];
 //var physobjs = [new BowlPin([0., 0., -6.], [0., 0., 0.], [0., 0., 0.], [0., 0., 0.],[0., 0.14755784154951435, 0.],10,"blue")];
 
-var physobjs = [new BowlBall(new THREE.Vector3(1., 0.5, -6.), new THREE.Vector3(0., 0.0, 2.), new THREE.Euler(0.0, 0., 0.0), new THREE.Vector3(0.0, 0., 25.), new THREE.Vector3(0.,0.,0.00), [false, false, false]),
-                new BowlPin(new THREE.Vector3(0., 0.5, -6.), new THREE.Vector3(0., 0.0, 0), new THREE.Euler(0., 0., 0.0), new THREE.Vector3(0*0.2*62.83185307179586, 0., 0*0.1*62.83185307179586), new THREE.Vector3(0., 0.14755784154951435, 0.), [false, false, false],10,"blue")];
+var physobjs = [new BowlBall(new THREE.Vector3(1., 1.0, -6.), new THREE.Vector3(-1., 0.0, 0.), new THREE.Euler(0.0, 0., 0.0), new THREE.Vector3(0.0, 0., 0*25.), new THREE.Vector3(0.,0.,0.001), [false, false, false]),
+                new BowlPin(new THREE.Vector3(0., 1.0, -6.), new THREE.Vector3(1., 0.0, 0), new THREE.Euler(0., 0., 0.0), new THREE.Vector3(0*0.2*62.83185307179586, 0., 0*0.1*62.83185307179586), new THREE.Vector3(0., 0.14755784154951435, 0.), [false, false, false],10,"blue")];
 var ifocus = 0; //Index of object which is manipulated by keys (changed by +/-)
 var keyPosAdd = 0.05, keyVelAdd = 0.05, keyQuAddS = 0.99875, keyQuAddV = 0.0499792;
 var oldanglmom = new THREE.Vector3();
@@ -104,8 +104,43 @@ function animate() {
 	time = new Date();
 	var dt = (time.getTime() - oldtime) / 1000.;*/
 
-	requestAnimationFrame( animate );
+	//requestAnimationFrame( animate );
 	//var dt = 0.001;
+
+	var originPoint, localVertex, globalVertex, directionVector;
+	var collidableMeshList, ray, collisionResults, vertexIndex;
+	var it1,it2;
+
+	for (it1 = 0; it1 < physobjs.length-1; it1++) {
+		//console.log('it1',it1);
+		collidableMeshList = [];
+		for (it2 = it1 + 1; it2 < physobjs.length; it2++) {
+			//console.log('it2',it2);
+			collidableMeshList.push(physobjs[it2]); 
+		}
+		originPoint = physobjs[it1].refpos.clone();
+
+		for (vertexIndex = 0; vertexIndex < physobjs[it1].geometry.vertices.length; vertexIndex++)
+		{		
+			localVertex = physobjs[it1].geometry.vertices[vertexIndex].clone();
+			//globalVertex = localVertex.applyQuaternion( physobjs[it1].orquat );
+			directionVector = localVertex.sub( physobjs[it1].refposG );
+			directionVector.applyQuaternion(physobjs[it1].orquat);
+
+			ray = new THREE.Raycaster( originPoint, directionVector.clone().normalize() );
+			collisionResults = ray.intersectObjects( collidableMeshList );
+			
+			//console.log(collisionResults.length);
+			//console.log(directionVector.length());
+			if ( collisionResults.length > 0) {
+				//console.log(collisionResults[0].distance);
+				if (collisionResults[0].distance < directionVector.length()) {
+					alert(" Hit ");
+				}
+			}
+		}
+	}
+
 
 	integrate(physobjs, dt, saveaccs);
 	for (var it=0; it<physobjs.length; it++) {physobjs[it].updateObject3D()}
@@ -124,25 +159,25 @@ function animate() {
 	//		var anglmom = physobjs[it].getAnglMom();
 	//		var anglmdiff = new THREE.Vector3(anglmom.x - oldanglmom.x, anglmom.y - oldanglmom.y, anglmom.z - oldanglmom.z );
 
-			//var alltorq = new THREE.Vector3();
-			//alltorq.crossVectors(oldanglmom, oldanglvel);
-			//var torque = new THREE.Vector3(0.0, 0.0, 0.0);
-			//alltorq.add(torque);
+	//var alltorq = new THREE.Vector3();
+	//alltorq.crossVectors(oldanglmom, oldanglvel);
+	//var torque = new THREE.Vector3(0.0, 0.0, 0.0);
+	//alltorq.add(torque);
 
-			/*console.log(physobjs[it].anglvel.x);
+	/*console.log(physobjs[it].anglvel.x);
 			console.log(physobjs[it].anglvel.y);
 			console.log(physobjs[it].anglvel.z);
 			console.log(anglmdiff.x/dt);
 			console.log(anglmdiff.y/dt);
 			console.log(anglmdiff.z/dt);*/
-			//console.log(alltorq.x);
-			//console.log(alltorq.y);
-			//console.log(alltorq.z);
-			//console.log(anglmom.x*anglmom.x + anglmom.y*anglmom.y + anglmom.y*anglmom.y);
+	//console.log(alltorq.x);
+	//console.log(alltorq.y);
+	//console.log(alltorq.z);
+	//console.log(anglmom.x*anglmom.x + anglmom.y*anglmom.y + anglmom.y*anglmom.y);
 
-		//	oldanglmom.copy(anglmom);		
-		//	oldanglvel.copy(physobjs[it].anglvel);
-		//}
+	//	oldanglmom.copy(anglmom);		
+	//	oldanglvel.copy(physobjs[it].anglvel);
+	//}
 	//}
 
 	render();
