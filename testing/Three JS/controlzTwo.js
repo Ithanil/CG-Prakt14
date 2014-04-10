@@ -100,6 +100,8 @@ function keyDown(event) {
 		case 87: //Key W
 			
 			scene.remove( arrowAngle );
+			getValue('slider');
+			V0=velocity;
 			physobjs[0].velocity.x=V0*Math.sin(Math.PI/180.0*angle);
 			physobjs[0].velocity.y=0;
 			physobjs[0].velocity.z=-V0*Math.cos(Math.PI/180.0*angle);
