@@ -55,6 +55,7 @@
 				margin-left: -200px;
 				color: #e6e6e6;
 				background: rgba(0,0,0,0.4);
+				display: none; 
 			}
 			
 			h1 {
@@ -89,6 +90,7 @@
 				Choose speed: <br>
 				<input type="range" min="0" max="10" step="0.5" name="slider" id="slider" onchange="getValue('slider')" >
 				<br>[0,10]<div id="speedScreen">5</div><br>
+				Press [H] for instructions.
 			</div>
 			<div id="helper">
 				<h1>Helper! ^_^</h1>
@@ -555,6 +557,7 @@
 				}
 				
 				var pressedO = false,
+					pressedH = false,
 					pressedP = false;
 				
 				function App2( containerId, fullWidth, fullHeight, viewX, viewY, viewWidth, viewHeight ) {

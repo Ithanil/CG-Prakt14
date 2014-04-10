@@ -11,6 +11,14 @@ function setMenu(x,y,z) {
 					 ", z="+Math.round(100*z)/100;
 }
 
+function switchHelper() {
+	if (pressedH) {
+		document.getElementById('helper').style.display = "inline";
+	} else {
+		document.getElementById('helper').style.display = "none";
+	}
+}
+
 function mouseUp(event) 
 {
 	isMouseDown = false;
@@ -117,10 +125,15 @@ function keyDown(event) {
 			break;
 		case 72:
 			if (pressedH == false)
+			{
 				pressedH = true;
-				
+				switchHelper();
+			}	
 			else 
+			{
 				pressedH = false;
+				switchHelper();
+			}
 			break;
 		case 79: //Key O
 			if (pressedO == false)
