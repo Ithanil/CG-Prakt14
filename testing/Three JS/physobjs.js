@@ -195,24 +195,26 @@ PhysObj.method('makefixed', function() {
 });
 
 PhysObj.method('allEnergy', function() {
-	var Energ=[0,0];
-	var transEn;
-	var rotEn;
-	var invQuat = new THREE.Quaternion();
-	var angularV= new THREE.Vector3();
-	
-	angularV.copy(this.anglvel);
-	invQuat.copy(this.orquat);
-	invQuat.inverse();
-	angularV.applyQuaternion(invQuat);
-	transEn=0.5*this.mass*(this.velocity.x*this.velocity.x+this.velocity.y*this.velocity.y+this.velocity.z*this.velocity.z);
-	rotEn=0.5*(angularV.x*this.intensR.elements[0]*angularV.x+angularV.y*this.intensR.elements[4]*angularV.y+angularV.z*this.intensR.elements[8]*angularV.z);
-	
-	Energ[0]=rotEn;
-	Energ[1]=transEn;
-	
-	return Energ;
+			   var Energ=[0,0];
+			   var transEn;
+			   var rotEn;
+			   var invQuat = new THREE.Quaternion();
+			   var angularV= new THREE.Vector3();
+			   
+			   angularV.copy(this.anglvel);
+			   invQuat.copy(this.orquat);
+			   invQuat.inverse();
+			   angularV.applyQuaternion(invQuat);
+			   transEn=0.5*this.mass*(this.velocity.x*this.velocity.x+this.velocity.y*this.velocity.y+this.velocity.z*this.velocity.z);
+			   rotEn=0.5*(angularV.x*this.intensR.elements[0]*angularV.x+angularV.y*this.intensR.elements[4]*angularV.y+angularV.z*this.intensR.elements[8]*angularV.z);
+			   
+			   Energ[0]=rotEn;
+			   Energ[1]=transEn;
+			   
+			   return Energ;
 });
+
+
 /*PhysObj.method('updateRefPosG', function(newRefPosG) {
 	var poshelp = new THREE.Vector3(-this.refposG.x, -this.refposG.y, -this.refposG.z);
 	poshelp.applyQuaternion(this.quaternion);
@@ -398,14 +400,14 @@ function BowlBall(pos0, vel0, eulrot0, anglvel0, refposG0, fixdirs0) {
 	geometry.computeFaceNormals();
 	 */
 
-	var material = new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture("textures/smiley.png") });
+	var material = new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture("textures/smiley.jpg") });
 
 
 	/* Initialize extensions to THREE.Mesh */
 
 	this.mass = 7.0;
-	var composG = new THREE.Vector3(0., 0., 0.001);
-	var intensC = new THREE.Matrix3(0.033, 0., 0., 0., 0.033, 0., 0., 0., 0.031);
+	var composG = new THREE.Vector3(-0.001, 0., 0.0);
+	var intensC = new THREE.Matrix3(0.031, 0., 0., 0., 0.033, 0., 0., 0., 0.033);
 
 	PhysObj.call(this, pos0, vel0, eulrot0, anglvel0, refposG0, fixdirs0, composG, intensC, geometry, material);
 

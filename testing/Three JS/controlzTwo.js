@@ -1,14 +1,22 @@
 function setText() {		
-	varsPanel.innerHTML = "Offset: "+Math.round(physobjs[0].refpos.x*100)/100
-						  +"<br/>Angle: "+Math.round(angle*100)/100
-						  +"<br/>Translation Energy: "+Math.round(comEnergy[1]*100)/100
-						  +"<br/>Rotation Energy: "+Math.round(comEnergy[0]*100)/100;
+	varsPanel.innerHTML = "Offset: "+Math.round(physobjs[0].refpos.x*100)/100 +" m"
+						  +"<br/>Angle: "+Math.round(angle*100)/100	+" °"
+						  +"<br/>Translation Energy: "+Math.round(comEnergy[1]*100)/100 +" J"
+						  +"<br/>Rotation Energy: "+Math.round(comEnergy[0]*100)/100 +" J";
 }
 
 function setMenu(x,y,z) {
 	menu.innerHTML = "x="+Math.round(100*x)/100+
 					 ", y="+Math.round(100*y)/100+
 					 ", z="+Math.round(100*z)/100;
+}
+
+function switchHelper() {
+	if (pressedH) {
+		document.getElementById('helper').style.display = "inline";
+	} else {
+		document.getElementById('helper').style.display = "none";
+	}
 }
 
 function mouseUp(event) 
@@ -94,7 +102,7 @@ function keyDown(event) {
 		case 68: //Key D
 			thrown=false;
 			camera1.position.set( 0, 1, 14 );
-			drawBall([ballOffset,0.3,10]);
+			drawBall([ballOffset,0.3,10.5]);
 			break;
 		case 87: //Key W
 			
@@ -117,10 +125,15 @@ function keyDown(event) {
 			break;
 		case 72:
 			if (pressedH == false)
+			{
 				pressedH = true;
-				
+				switchHelper();
+			}	
 			else 
+			{
 				pressedH = false;
+				switchHelper();
+			}
 			break;
 		case 79: //Key O
 			if (pressedO == false)
