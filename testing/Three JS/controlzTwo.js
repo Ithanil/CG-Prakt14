@@ -100,16 +100,16 @@ function keyDown(event) {
 		case 87: //Key W
 			
 			scene.remove( arrowAngle );
-			getValue('slider');
+			//getValue('slider');
 			V0=velocity;
 			physobjs[0].velocity.x=V0*Math.sin(Math.PI/180.0*angle);
 			physobjs[0].velocity.y=0;
 			physobjs[0].velocity.z=-V0*Math.cos(Math.PI/180.0*angle);
-			if(angularVelocity[0]!=0)physobjs[0].anglvel.x=angularVelocity[0]*10;
+			if(angularVelocity[0]!=0)physobjs[0].anglvel.x=-angularVelocity[0]*30;
 			else physobjs[0].anglvel.x=0;
-			if(angularVelocity[1]!=0)physobjs[0].anglvel.y=angularVelocity[1]*10;
+			if(angularVelocity[1]!=0)physobjs[0].anglvel.y=-angularVelocity[1]*30;
 			else physobjs[0].anglvel.y=0;
-			if(angularVelocity[2]!=0)physobjs[0].anglvel.z=angularVelocity[2]*10;
+			if(angularVelocity[2]!=0)physobjs[0].anglvel.z=-angularVelocity[2]*30;
 			else physobjs[0].anglvel.z=0;
 			physobjs[0].updateObject3D();
 			thrown=true;
