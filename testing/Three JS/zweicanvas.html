@@ -40,8 +40,10 @@
 				z-index: 2;
 				position: absolute;
 				right: 5px;
-				top: 230px;
+				top: 210px;
 				width: 200px;
+				color: #9c9c9c;
+				background: rgba(0,0,0,0.4);
 			}
 
 			
@@ -59,14 +61,19 @@
 			<div id="container2"></div>
 			<div id="controls">
 				<form id="spinForm">
+				Set rotation axis:<br>
 					x = <input type="text" id="xCoord"><br>
 					y = <input type="text" id="yCoord"><br>
 					z = <input type="text" id="zCoord">
 					<input type="button" onclick="setAxis()" value="Set axis" id="formButton">
 				</form><br>
+				Choose angular velocity: <br>
+				<input type="range" min="0" max="30" step="0.25" name="sliderAngular" id="sliderAngular" onchange="getValue('sliderAngular')">
+				<br>[0,30]<div id="angSpeedScreen">15</div><br>
+				
 				Choose speed: <br>
-				<input type="range" min="0" max="10" step="0.25" name="slider" id="slider" onchange="getValue('slider')">
-				<br>[0,10]
+				<input type="range" min="3" max="10" step="0.5" name="slider" id="slider" onchange="getValue('slider')" >
+				<br>[3,10]<div id="speedScreen">6.5</div><br>
 			</div>
 		</div>
 		<script src="three.min.js"></script>
@@ -89,13 +96,32 @@
 			
 			var menu, varsPanel;
 			
-			var velocity = 5;
+			var velocity = 0, angularVelocity = 0;
+			
+			function setInitialValues() 
+			{
+				velocity = document.getElementById('slider').value;
+				angularVelocity = document.getElementById('sliderAngular').value;
+				document.getElementById('speedScreen').innerHTML = velocity;
+				document.getElementById('angSpeedScreen').innerHTML = angularVelocity;
+			}
+			
+			setInitialValues();
 			
 			function getValue(id) 
 			{
-				var velocityChanged = document.getElementById(id).value;
-				velocity = velocityChanged; 
-				console.log(velocity);
+				var velocityChanged, angularVelocityChanged;
+				if (id == 'slider')
+				{
+					velocityChanged = document.getElementById(id).value;
+					velocity = velocityChanged; 
+					document.getElementById('speedScreen').innerHTML = velocity;
+				} else if (id == 'sliderAngular')
+				{
+					angularVelocityChanged = document.getElementById(id).value;
+					angularVelocity = angularVelocityChanged; 
+					document.getElementById('angSpeedScreen').innerHTML = angularVelocity;
+				}
 			}
 			
 			function setAxis() 
@@ -117,7 +143,7 @@
 						if (v==46)
 							countpoints += 1;
 						// If char is not a number, not a point, not a minus, if there is more than one point or if the string is empty
-						if ((v > 57 || v < 48) && !(v==46) && !(v==45) || (countpoints > 1) || coords[i].length == 0)
+						if ((v > 57 || v < 48) && !(v==46) && !(v==45) || (countpoints > 1) || coords[i].length == 0 || (v == 45 && j != 0))
 						{
 							integers = false;
 							menu.innerHTML="Ungültige Eingabe";
@@ -143,7 +169,7 @@
 						spinVec.normalize();
 						setMenu(spinVec.getComponent(0), spinVec.getComponent(1), spinVec.getComponent(2));
 						dirVec = spinVec.clone();
-						
+						app2.updateAxisArrow(dirVec);
 					}
 					
 				} else 
@@ -298,9 +324,7 @@
 						lane.receiveShadow = true;
 						scene.add( lane );  
 						
-						//generate ball and pins
-						ball= new BowlBall([0,0,0],[0,0,0]);
-						pins = createPins();
+						
 						
 						// Approach
 						var appr_geometry = new THREE.CubeGeometry(1.05+2*0.2359,0.1,2.0); 
@@ -540,12 +564,12 @@
 		
 						menu = document.createElement('div');
 						menu.style.position = 'absolute';
-						menu.style.width = 200+'px';
+						menu.style.width = 190+'px';
 						menu.style.backgroundColor = "rgba( 1, 0, 0, 0.25 )";
-						menu.innerHTML = "Choose Spin";
-						menu.style.top = 210 + 'px';
+						menu.innerHTML = "Rotation axis";
+						menu.style.top = 5 + 'px';
 						menu.style.right = 5 + 'px';
-						document.body.appendChild(menu);
+						container.appendChild(menu);
 
 						light = new THREE.DirectionalLight( 0xffffff );
 						light.position.set( 0, 1,0 ).normalize();
@@ -562,7 +586,7 @@
 						container.addEventListener( 'mouseup', onMouseUp, false ); 
 					}
 					
-					var arrowSpinXZ, arrowSpinXY; 
+					var arrowSpinXZ, arrowSpinXY, arrowFromForm; 
 					var dirVecXZ, dirVecXY,
 						dirVec = new THREE.Vector3(angularVelocity[0],angularVelocity[1],angularVelocity[2]);
 					var selectedXZ = false,
@@ -570,6 +594,20 @@
 						
 					var winkelX = 0, winkelY = 0;
 					
+					function removeArrows()
+					{
+						scene.remove(arrowFromForm);
+						scene.remove(arrowSpinXY);
+						scene.remove(arrowSpinXZ);
+					}
+					
+					this.updateAxisArrow = function(direction)
+					{
+						removeArrows()
+						dirVec = direction.clone();
+						arrowFromForm = new THREE.ArrowHelper(dirVec, new THREE.Vector3(0,0,0), 2,0x29A3cc, 3.5,0.5);
+						scene.add(arrowFromForm);
+					}
 					
 					function onMouseMove( event ) {
 						if (isMouseDown)
@@ -589,8 +627,7 @@
 									dirVecXZ = new THREE.Vector(1,0,0);
 									winkelX = 0;
 								}
-								scene.remove(arrowSpinXY);
-								scene.remove(arrowSpinXZ);
+								removeArrows();
 								if (dirVecXZ.getComponent(0) > 0)
 									dirVecXY = new THREE.Vector3(-canvX, canvY,0);
 								else
@@ -602,8 +639,7 @@
 								selectedXY = true;
 								dirVec.set(dirVecXY.getComponent(0),dirVecXY.getComponent(1),dirVecXY.getComponent(2))
 							} else {
-								scene.remove(arrowSpinXZ);
-								scene.remove(arrowSpinXY);
+								removeArrows();
 								if (selectedXY){
 									var X = -canvX;
 									var Y = dirVecXY.getComponent(1);
