@@ -318,29 +318,23 @@
 						scene.add( plattform ); 
 						
 						var boxTexture = new THREE.ImageUtils.loadTexture("textures/box.jpg");
+						var boxTextureVert = new THREE.ImageUtils.loadTexture("textures/boxVert.jpg");
+						var pandaTexture = new THREE.ImageUtils.loadTexture("textures/panda.jpg");
 						var box_material = new THREE.MeshPhongMaterial( {  map:boxTexture, side:THREE.DoubleSide } ); 
 						var boxUp_material = [
 							
-							new THREE.MeshPhongMaterial({color: 0x339933}),
-							new THREE.MeshPhongMaterial({color: 0x339933}),
-							new THREE.MeshPhongMaterial({  map:boxTexture }),
-							new THREE.MeshPhongMaterial({  map:boxTexture }),
-							new THREE.MeshPhongMaterial({  map:boxTexture }),
-							new THREE.MeshPhongMaterial({color: 0x339933})
+							new THREE.MeshPhongMaterial({  map:boxTextureVert }),
+							new THREE.MeshPhongMaterial({  map:boxTextureVert }),
+							new THREE.MeshPhongMaterial({  map:boxTextureVert }),
+							new THREE.MeshPhongMaterial({  map:boxTextureVert }),
+							new THREE.MeshPhongMaterial({  map:pandaTexture }),
+							new THREE.MeshPhongMaterial({  map:boxTextureVert }),
 						]
 						
-						var boxBack_material = [
-							new THREE.MeshPhongMaterial({  map:boxTexture }),
-							new THREE.MeshPhongMaterial({  map:boxTexture }),
-							new THREE.MeshPhongMaterial({  map:boxTexture }),
-							new THREE.MeshPhongMaterial({  map:boxTexture }),
-							new THREE.MeshPhongMaterial({  map:boxTexture }),
-							new THREE.MeshPhongMaterial({  map:boxTexture })
-						]
 						
 						var boxBack = new THREE.Mesh(
 							new THREE.CubeGeometry(1.05+2*0.2359+0.5*2,1.25,0.25),
-							new THREE.MeshFaceMaterial(boxBack_material)
+							new THREE.MeshPhongMaterial({  map:boxTextureVert })
 						);
 						boxBack.translateY(1.25/2-0.1);
 						boxBack.translateZ(-18.29/2-1.3-0.25-0.5);
