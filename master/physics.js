@@ -94,20 +94,25 @@ function integrate()
 	for (var i = 0; i < nobj; i++) 
 	{
 		if (physobjs[i] instanceof BowlBall) {
-			if (physobjs[i].gpos().y < physobjs[i].radius) {
+			if (physobjs[i].gpos().y < (physobjs[i].radius)) {
+				if (physobjs[i].velocity.y < 0.0) {
+					physobjs[i].velocity.y *= -0.2;
+				}
 				if (physobjs[i].velocity.y < velmin) {
-					physobjs[i].fixdirs[1] = true;
-					physobjs[i].makefixed();
-					physobjs[i].newRefPos(new THREE.Vector3(0.,0.,0.))
+					if (!physobjs[i].fixdirs[1]) {
+						physobjs[i].fixdirs[1] = true;
+						physobjs[i].makefixed();
+						physobjs[i].newRefPos(new THREE.Vector3(0.,0.,0.))
+					}
 				}
 
 			}
 		}
 		if (physobjs[i] instanceof BowlPin) {
-			if (physobjs[i].refpos.y < physobjs[i].radius) {		
+			if (physobjs[i].refpos.y < physobjs[i].composG.y) {
 				if (physobjs[i].velocity.y < velmin) {
 					physobjs[i].velocity.y = 0.0;
-					physobjs[i].refpos.y = physobjs[i].radius;
+					physobjs[i].refpos.y = physobjs[i].composG.y;
 				}
 			}
 
@@ -123,7 +128,6 @@ function integrate()
 		calcVelHelpers(physobjs[i], oldaccs[i], hdt, accdt1,accdt2);
 
 		physobjs[i].velocity.add(accdt1);
-		physobjs[i].makefixed();
 
 		physobjs[i].anglvel.add(accdt2);
 
@@ -139,11 +143,13 @@ function getAccs(){
 
 	for (var i = 0; i < nobj; i++) 
 	{
-		if (physobjs[i].refpos.z < -2.0) {
+		if (physobjs[0].refpos.z < -2.0) {
 			friccoeff = 0.2;
 		} else {
 			friccoeff = 0.04;
 		}
+		if (physobjs[0].refpos.z < -9.0) sceneobjs = fullsceneobjs.slice(0,fullsceneobjs.length);
+		
 		var force  = new THREE.Vector3(collforqtorq[i][0].x, collforqtorq[i][0].y, collforqtorq[i][0].z);
 		var torque = new THREE.Vector3(collforqtorq[i][1].x, collforqtorq[i][1].y, collforqtorq[i][1].z);
 
@@ -386,7 +392,7 @@ function getCollisionForcTorq() {
 
 					intens1.fromArray(physobjs[it1].getRotIntensArr());
 
-					collforqtorqh = newtonCollision(rvec1, physobjs[it1].velocity, physobjs[it1].anglvel, physobjs[it1].mass, intens1, new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3(), 0.0, new THREE.Matrix3(), normvec, 0.25);  
+					collforqtorqh = newtonCollision(rvec1, physobjs[it1].velocity, physobjs[it1].anglvel, physobjs[it1].mass, intens1, new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3(), 0.0, new THREE.Matrix3(), normvec, 0.2);
 					if (!(collforqtorqh === false)) {
 						findhit = true;
 						collforqtorq[it1][0].add(collforqtorqh[0][0]);

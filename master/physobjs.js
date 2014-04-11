@@ -176,22 +176,22 @@ PhysObj.method('makefixed', function() {
 		veldiff.x = -this.velocity.x;
 		this.velocity.x = 0.0;
 		//this.fixforce.x = this.mass * (-acc.x + veldiff.x / dt);
-		this.fixforce.x = 2 * this.mass * veldiff.x / dt;
-		console.log('fix x', this.fixforce.x);
+		this.fixforce.x = this.mass * veldiff.x / dt;
+		//console.log('fix x', this.fixforce.x);
 	}
 	if (this.fixdirs[1]) {
 		veldiff.y = -this.velocity.y;
 		this.velocity.y = 0.0;
 		//this.fixforce.y = this.mass * (-acc.y + veldiff.y / dt);
-		this.fixforce.y = 2 * this.mass * veldiff.y / dt;
-		console.log('fix y', this.fixforce.y);
+		this.fixforce.y = this.mass * veldiff.y / dt;
+		//console.log('fix y', this.fixforce.y);
 	}
 	if (this.fixdirs[2]) {
 		veldiff.z = -this.velocity.z;
 		this.velocity.z = 0.0;
 		//this.fixforce.z = this.mass * (-acc.z + veldiff.z / dt);
-		this.fixforce.z = 2 * this.mass * veldiff.z / dt;
-		console.log('fix z', this.fixforce.z);
+		this.fixforce.z = this.mass * veldiff.z / dt;
+		//console.log('fix z', this.fixforce.z);
 	}
 	
 	if (!this.fixdirs[0]) {
@@ -254,7 +254,7 @@ function BowlPin(pos0, vel0, eulrot0, anglvel0, refposG0, fixdirs0, slices,color
 	/* Preparation for THREE.Mesh */
 	
 	this.slices = slices;
-	this.shapeline = [[0.0001, 0.0001, 0.],
+	this.shapeline = [[0.0001, 0.01, 0.],
 	                  [0.0257937, 0., 0],
 	                  [0.0359156, 0.01905, 0],
 	                  [0.0496062, 0.05715, 0],
@@ -305,7 +305,7 @@ function BowlPin(pos0, vel0, eulrot0, anglvel0, refposG0, fixdirs0, slices,color
 	/* Initialize extensions to THREE.Mesh */
 
 	this.mass = 1.5875733;
-	var composG = new THREE.Vector3(0., 0.14755784154951435, 0.);	// with respect to the origin of geometry (bottom center for pin, center for ball)
+	var composG = new THREE.Vector3(0., 0.1475578415495, 0.);	// with respect to the origin of geometry (bottom center for pin, center for ball)
 	this.radius = 0.0579501;
 	this.collrad = 0.235;
 	//var intensC = new THREE.Matrix3(0.0134109, 0, 0, 0, 0.0019401, 0, 0, 0, 0.0134109);

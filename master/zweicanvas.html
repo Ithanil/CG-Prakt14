@@ -62,7 +62,7 @@
 			var velocity = 0, angVelocity = 0;
 			
 			var fps = 50, slowmofac = 0.5, dt=slowmofac*1.0/fps; //timestep;
-			var physobjs, sceneobjs = [], oldaccs;
+			var physobjs, sceneobjs = [], fullsceneobjs = [], oldaccs;
 			
 			function setInitialValues() 
 			{
@@ -185,7 +185,7 @@
 				boxUpHeight = 0.5,		 
 				boxHeight = 1.25,
 				distFromPins = 1.3,			// Distance from box to first pin
-				cmPin = 0.147558,			// center of mass pin
+				cmPin = 0.1475578415495,			// center of mass pin
 				xDistPin = 0.3048,			// x-distance of the pins
 				zDistPin = 0.264;			// z-distance of the pins
 				
@@ -213,16 +213,16 @@
 				
 				
 				var physobjs = [new BowlBall(new THREE.Vector3(1., 1., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0, 0, 0), new THREE.Vector3(-0.001,0,0.), [false, false, false]),
-							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.), [false, false, false],slices,"blue"),
-							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0.,0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.), [false, false, false],slices,"blue"),
-							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.), [false, false, false],slices,"blue"),
-							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.), [false, false, false],slices,"blue"),
-							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.), [false, false, false],slices,"blue"),
-							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.), [false, false, false],slices,"blue"),
-							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.), [false, false, false],slices,"blue"),
-							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.), [false, false, false],slices,"blue"),
-							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.), [false, false, false],slices,"blue"),
-							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.), [false, false, false],slices,"blue")];
+							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.1475578415495, 0.), [false, false, false],slices,"blue"),
+							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0.,0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.1475578415495, 0.), [false, false, false],slices,"blue"),
+							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.1475578415495, 0.), [false, false, false],slices,"blue"),
+							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.1475578415495, 0.), [false, false, false],slices,"blue"),
+							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.1475578415495, 0.), [false, false, false],slices,"blue"),
+							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.1475578415495, 0.), [false, false, false],slices,"blue"),
+							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.1475578415495, 0.), [false, false, false],slices,"blue"),
+							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.1475578415495, 0.), [false, false, false],slices,"blue"),
+							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.1475578415495, 0.), [false, false, false],slices,"blue"),
+							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.1475578415495, 0.), [false, false, false],slices,"blue")];
 				
 				var oldaccs = getAccs();
 				var isMouseDown = false, isBallSelected = false, 
@@ -291,7 +291,8 @@
 						lane.translateY(-0.05);
 						lane.translateZ(-1);
 						lane.receiveShadow = true;
-						scene.add( lane );  
+						scene.add( lane );
+						fullsceneobjs.push(lane);
 						
 						
 						// Approach
@@ -323,7 +324,7 @@
 						plattform.translateY(-0.5-0.1);
 						plattform.receiveShadow=true;
 						scene.add( plattform );
-						sceneobjs.push(plattform);
+						//fullsceneobjs.push(plattform);
 						
 						var boxTexture = new THREE.ImageUtils.loadTexture("textures/box.jpg");
 						var box_material = new THREE.MeshPhongMaterial( {  map:boxTexture, side:THREE.DoubleSide } ); 
@@ -356,14 +357,14 @@
 						boxBack.castShadow = true;
 						boxBack.receiveShadow = true;
 						scene.add(boxBack);
-						sceneobjs.push(boxBack);
+						//fullsceneobjs.push(boxBack);
 						var boxLR = new THREE.CubeGeometry(0.5,1.25,0.75);
 						var boxL = new THREE.Mesh(boxLR, box_material);
 						boxL.translateX(1.05/2+0.2359+0.5/2);
 						boxL.translateY(1.25/2-0.1);
 						boxL.translateZ(-18.29/2-1.3+0.5-0.25-0.5);
 						scene.add(boxL);
-						sceneobjs.push(boxLR);
+						//fullsceneobjs.push(boxLR);
 						var boxR = new THREE.Mesh(boxLR, box_material);
 						boxR.translateX(-1.05/2-0.2359-0.5/2);
 						boxR.translateY(1.25/2-0.1);
@@ -376,7 +377,7 @@
 						boxUp.translateY(-0.1+1);
 						boxUp.translateZ(-18.29/2-1.3+0.5-0.25-0.5);
 						scene.add(boxUp);
-						sceneobjs.push(boxUp);
+						//fullsceneobjs.push(boxUp);
 						
 						// Außen
 		
@@ -430,7 +431,7 @@
 						rinneL.translateZ(-18.29/2-2);
 						rinneL.receiveShadow = true;
 						scene.add(rinneL);
-						sceneobjs.push(rinneL);
+						//fullsceneobjs.push(rinneL);
 						
 						var rinneR = new THREE.Mesh(rinneGeometry, new THREE.MeshPhongMaterial({color: 0x999999})); 
 						rinneR.translateX(1.05/2+0.2359/2);
@@ -438,7 +439,7 @@
 						rinneR.translateZ(-18.29/2-2);
 						rinneR.receiveShadow = true;
 						scene.add(rinneR);
-						sceneobjs.push(rinneR);
+						//fullsceneobjs.push(rinneR);
 						
 						// SKYBOX
 						var sky_geometry = new THREE.CubeGeometry( 10000, 10000, 10000 );    
@@ -705,7 +706,7 @@
 					physobjs[0].castShadow = true;
 					physobjs[0].updateObject3D();
 					for (var i = 1; i < 11; i++){ 
-						PhysObj.call(physobjs[i], new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,0), new THREE.Euler(0,0,0), new THREE.Vector3(0,0,0), new THREE.Vector3(0., 0.147558, 0.), [false,false,false], physobjs[i].composG, physobjs[i].intensC, physobjs[i].geometry, physobjs[i].material);
+						PhysObj.call(physobjs[i], new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,0), new THREE.Euler(0,0,0), new THREE.Vector3(0,0,0), new THREE.Vector3(0., 0.1475578415495, 0.), [false,false,false], physobjs[i].composG, physobjs[i].intensC, physobjs[i].geometry, physobjs[i].material);
 						physobjs[i].updateObject3D();
 					}
 					putPins(physobjs.slice(1),posarr);
