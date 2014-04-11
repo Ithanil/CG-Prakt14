@@ -176,21 +176,21 @@ PhysObj.method('makefixed', function() {
 		veldiff.x = -this.velocity.x;
 		this.velocity.x = 0.0;
 		//this.fixforce.x = this.mass * (-acc.x + veldiff.x / dt);
-		this.fixforce.x = this.mass * veldiff.x / dt;
+		this.fixforce.x = 2 * this.mass * veldiff.x / dt;
 		console.log('fix x', this.fixforce.x);
 	}
 	if (this.fixdirs[1]) {
 		veldiff.y = -this.velocity.y;
 		this.velocity.y = 0.0;
 		//this.fixforce.y = this.mass * (-acc.y + veldiff.y / dt);
-		this.fixforce.y = this.mass * veldiff.y / dt;
+		this.fixforce.y = 2 * this.mass * veldiff.y / dt;
 		console.log('fix y', this.fixforce.y);
 	}
 	if (this.fixdirs[2]) {
 		veldiff.z = -this.velocity.z;
 		this.velocity.z = 0.0;
 		//this.fixforce.z = this.mass * (-acc.z + veldiff.z / dt);
-		this.fixforce.z = this.mass * veldiff.z / dt;
+		this.fixforce.z = 2 * this.mass * veldiff.z / dt;
 		console.log('fix z', this.fixforce.z);
 	}
 	

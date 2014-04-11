@@ -123,6 +123,7 @@ function integrate()
 		calcVelHelpers(physobjs[i], oldaccs[i], hdt, accdt1,accdt2);
 
 		physobjs[i].velocity.add(accdt1);
+		physobjs[i].makefixed();
 
 		physobjs[i].anglvel.add(accdt2);
 
