@@ -129,10 +129,10 @@ function axisScreen( containerId) {
 		}
 		if (selectedXY || selectedXZ || selectedForm)
 			setMenu(dirVec.getComponent(0),dirVec.getComponent(1),dirVec.getComponent(2));
-		angularVelocity[0]=dirVec.x;
-		angularVelocity[1]=dirVec.y;
-		angularVelocity[2]=dirVec.z;
-		//console.log(dirVec.getComponent(0)+","+dirVec.getComponent(1)+","+dirVec.getComponent(2));
+			angularVelocity[0]=dirVec.x;
+			angularVelocity[1]=dirVec.y;
+			angularVelocity[2]=dirVec.z;
+			//console.log(dirVec.getComponent(0)+","+dirVec.getComponent(1)+","+dirVec.getComponent(2));
 	}
 	
 	function onMouseDown(event) {
@@ -154,11 +154,18 @@ function axisScreen( containerId) {
 	
 	this.updateAxisArrow = function(direction)
 	{
-		removeArrows()
+		removeArrows();
 		dirVec = direction.clone();
 		arrowFromForm = new THREE.ArrowHelper(dirVec, new THREE.Vector3(0,0,0), 2,0x29A3cc, 3.5,0.5);
 		scene.add(arrowFromForm);
 		selectedForm = true;
+	}
+	
+	this.resetAxis = function()
+	{
+		removeArrows();
+		dirVec = new THREE.Vector3(0,0,0);
+		setMenu("Rotation axis");
 	}
 
 	this.animate = function() {

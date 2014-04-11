@@ -121,6 +121,9 @@ function keyDown(event) {
 			}
 			break;
 			
+		case 82: // Key R
+			axisScreen.resetAxis();
+			break;
 		case 83: //Key S
 		if(thrown)
 			break;
