@@ -96,9 +96,11 @@ function integrate()
 		if (physobjs[i] instanceof BowlBall) {
 			if (physobjs[i].gpos().y < physobjs[i].radius) {
 				if (physobjs[i].velocity.y < velmin) {
-					physobjs[i].fixdirs[1] = true;
-					physobjs[i].makefixed();
-					physobjs[i].newRefPos(new THREE.Vector3(0.,0.,0.))
+					if (!physobjs[i].fixdirs[1]) {
+						physobjs[i].fixdirs[1] = true;
+						physobjs[i].makefixed();
+						physobjs[i].newRefPos(new THREE.Vector3(0.,0.,0.))
+					}
 				}
 
 			}
