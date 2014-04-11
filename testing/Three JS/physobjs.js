@@ -133,9 +133,12 @@ PhysObj.method('newRefPos', function(newrefposG) {
 });
 
 PhysObj.method('changeTexture', function(count) {
-	var material1 =[new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture("textures/smiley.png") }),
-					new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture("textures/smiley.jpg") }),
-					new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture("textures/smiley2.jpg") })];
+	var material1 =[new THREE.MeshPhongMaterial({shininess: 1000 , map: THREE.ImageUtils.loadTexture("textures/smiley.png") }),
+					new THREE.MeshPhongMaterial({shininess: 1000 , map: THREE.ImageUtils.loadTexture("textures/smiley.jpg") }),
+					new THREE.MeshPhongMaterial({shininess: 1000 , map: THREE.ImageUtils.loadTexture("textures/smiley2.jpg") }),
+					new THREE.MeshPhongMaterial({shininess: 1000 , map: THREE.ImageUtils.loadTexture("textures/smiley3.jpg") }),
+					new THREE.MeshPhongMaterial({shininess: 1000 , map: THREE.ImageUtils.loadTexture("textures/smiley6.jpg") }),
+					new THREE.MeshPhongMaterial({shininess: 1000 , map: THREE.ImageUtils.loadTexture("textures/smiley7.jpg") })];
 	count=Math.abs(count)%material1.length;
 	PhysObj.call(this, this.refpos, this.velocity, this.eulrot0, this.anglvel, this.refposG, this.fixdirs, this.composG, this.intensC, this.geometry, material1[count]);
 	
@@ -290,7 +293,7 @@ function BowlPin(pos0, vel0, eulrot0, anglvel0, refposG0, fixdirs0, slices,color
 	}
 	geometry.computeFaceNormals();
 
-	var material = new THREE.MeshPhongMaterial({color: 0xffffff, vertexColors: THREE.FaceColors});
+	var material = new THREE.MeshPhongMaterial({shininess: 1000,color: 0xffffff, vertexColors: THREE.FaceColors});
 
 	generatePinColor(geometry, slices, 7);
 

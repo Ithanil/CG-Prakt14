@@ -96,11 +96,42 @@ function mouseMove(event)
 function keyDown(event) {
 	switch(event.keyCode) {
 		case 65: //Key A
+		if(thrown)break;
 			count3--;
 			physobjs[0].changeTexture(count3);
 			
 			break;
+			
+		case 81: // Key Q
+			/*var pos = new THREE.Vector3(physobjs[0].refpos.x,physobjs[0].refpos.y,physobjs[0].refpos.z);
+			
+			V0=velocity;
+			physobjs[0].velocity.x=V0*Math.sin(Math.PI/180.0*angle);
+			physobjs[0].velocity.y=0;
+			physobjs[0].velocity.z=-V0*Math.cos(Math.PI/180.0*angle);
+			if(angularVelocity[0]!=0)
+				physobjs[0].anglvel.x=-angularVelocity[0]*angVelocity;
+			else
+				physobjs[0].anglvel.x=0;
+			if(angularVelocity[1]!=0)physobjs[0].anglvel.y=-angularVelocity[1]*angVelocity;
+			else physobjs[0].anglvel.y=0;
+			if(angularVelocity[2]!=0)physobjs[0].anglvel.z=-angularVelocity[2]*angVelocity;
+			else physobjs[0].anglvel.z=0;
+			
+			var trajectory = [];
+			for (var i = 0; i < 500; i++)
+			{
+				if (physobjs[0].refpos.z < -12)
+					break;
+				integrate(physobjs, dt, oldaccs);
+				console.log(physobjs[0].refpos.x+","+physobjs[0].refpos.y +","+ physobjs[0].refpos.z);
+				trajectory.push(new THREE.Vector3(physobjs[0].refpos.x, physobjs[0].refpos.y, physobjs[0].refpos.z));
+			}
+			drawBall([pos.getComponent(0),0.3,10.5]);
+			app1.drawLine(trajectory);*/
+			break;
 		case 83: //Key S
+		if(thrown)break;
 			count3++;
 			physobjs[0].changeTexture(count3);
 			break;
