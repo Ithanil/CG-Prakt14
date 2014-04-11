@@ -238,6 +238,12 @@ function viewScreen( containerId ) {
 		directionalLight.shadowCameraVisible = false;
 		directionalLight.castShadow = true;
 		scene.add(directionalLight);
+		
+		// Line
+		
+		lineMaterial = new THREE.LineBasicMaterial({ color: 0x0000ff }); 
+		lineGeometry = new THREE.Geometry(); 
+		line = new THREE.Line( lineGeometry, lineMaterial ); 
 			
 		thrown = false;
 		camera1.position.set( 0, 1, 14 );
@@ -245,14 +251,12 @@ function viewScreen( containerId ) {
 	}
 	
 	this.drawLine = function(trajectory) {
-		scene.remove(line);
-		lineMaterial = new THREE.LineBasicMaterial({ color: 0x0000ff }); 
-		lineGeometry = new THREE.Geometry(); 
+		
 		for (var i = 0; i < trajectory.length; i++)
 		{
 			lineGeometry.vertices.push(trajectory[i]); 
 		}
-		line = new THREE.Line( lineGeometry, lineMaterial ); 
+		scene.remove(line);
 		scene.add( line );
 	}
 

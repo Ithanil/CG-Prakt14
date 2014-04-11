@@ -94,7 +94,7 @@ function keyDown(event) {
 				if (physobjs[0].refpos.z < -12)
 					break;
 				integrate(physobjs, dt, oldaccs);
-				console.log(physobjs[0].refpos.x+","+physobjs[0].refpos.y +","+ physobjs[0].refpos.z);
+				//console.log(physobjs[0].refpos.x+","+physobjs[0].refpos.y +","+ physobjs[0].refpos.z);
 				trajectory.push(new THREE.Vector3(physobjs[0].refpos.x, physobjs[0].refpos.y, physobjs[0].refpos.z));
 			}
 			drawBall([pos.getComponent(0),0.3,10.5]);
