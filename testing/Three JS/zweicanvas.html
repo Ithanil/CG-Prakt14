@@ -7,7 +7,19 @@
 		<link rel="stylesheet" href="stylesheet.css" type="text/css">
 	</head>
 	<body>
-
+		<script src="three.min.js"></script>
+		<script src="three.js"></script> 
+		<script type="text/javascript" src="inherit.js"></script>
+		<script type="text/javascript" src="gl-matrix.js"></script>
+		<script type="text/javascript" src="physics.js"></script>
+		<script type="text/javascript" src="controlzTwo.js"></script>
+		<script type="text/javascript" src="screen.js"></script>
+		<script type="text/javascript" src="axisScreen.js"></script>
+		<script type="text/javascript" src="physobjs.js"></script>
+		
+		
+		<!-- HTML - Teil -->
+	
 		<div id="container">
 			<div id="container1"></div>
 			<div id="container2"></div>
@@ -22,48 +34,145 @@
 				Choose angular velocity: <br>
 				<input type="range" min="0" max="30" step="0.25" name="sliderAngular" id="sliderAngular" onchange="getValue('sliderAngular')">
 				<br>[0,30]<div id="angSpeedScreen">15</div><br>
-				
 				Choose speed: <br>
 				<input type="range" min="0" max="10" step="0.5" name="slider" id="slider" onchange="getValue('slider')" >
 				<br>[0,10]<div id="speedScreen">5</div><br>
 				Press [H] for instructions.
 			</div>
 			<div id="helper">
-				<h1>Helper! ^_^</h1>
+				<h1>Instructions and controls! ^_^</h1>
 				Press [D] to set the ball and pins. <br>
 				Press and hold [Shift] to set the angle (The maximum angle you want to choose is 1.48deg in order to stay on the lane, if your ball is centered).<br>
 				Hold the ball with the cursor and drag it to another position.<br>
 				Click and move the mouse on the smaller canvas to adjust the direction of the rotation axis on the X-Z-plane.<br>
 				Press [O] to adjust it on the X-Y-plane. <br>
 				Press [A], [S] to change between ball textures.<br>
+				Press [Q] to display the trajectory.<br>
 				Press [W] to throw the ball.
 				<h1>Have fun!</h1>
 			</div>
 		</div>
-		<script src="three.min.js"></script>
-		<script src="three.js"></script> 
-		<script type="text/javascript" src="inherit.js"></script>
-		<script type="text/javascript" src="gl-matrix.js"></script>
-		<script type="text/javascript" src="dat.gui.js"></script>
-		<script type="text/javascript" src="physics.js"></script>
-		<script type="text/javascript" src="controlzTwo.js"></script>
-		<script type="text/javascript" src="physobjs.js"></script>
-		<script type="text/javascript" src="HemisphereLight.js"></script>
-		<script type="text/javascript" src="userInterface.js"></script>
-
+		
 		<script>
-			
-			
-			var app1, app2, debug=0;
-			
+			var viewScreen, axisScreen, debug=0;		
 			var camera1, camera2, scene, scene2, projector;
+			var menu, varsPanel;
+			var comEnergy=[0,0], count3=0; // variable where the translation and rotation Energy ist saved , counter for the balltexture
+			var velocity = 0, angVelocity = 0; //Velocity and angular velocity of the ball, absolute value only
+			var angularVelocity=[0,0,0]; //angular velocity direction only
+			var ballOffset=0; //offset of the ball at the beginning
+			var fps = 30, slowmofac = 1;
 			
-			var menu, varsPanel, comEnergy=[0,0], count3=0;
 			
-			var velocity = 0, angVelocity = 0;
+			var angle=0; 		//throwing angle 
+			 
+			var thrown=false;	//boolean to keep check if the ball is moving or not
+			var dt=slowmofac*1.0/fps; //timestep
+
+			var pressedO = false, //keyboard input check
+				pressedH = false,
+				pressedP = false;
+				
+			var isMouseDown = false, isBallSelected = false, 
+				lastX, lastY;
+				
+			var arrowAngle;		// direction angle
+			var trajectory = [];
+				
+			// Dimension variables for the big screen
+			var laneLevel = 0.1,			// Height of the lane surface
+				laneWidth = 1.05,			
+				laneLength = 18.29,
+				gutterWidth = 0.2359,
+				apprLength = 2.0,			// Approach Length
+				apprLineLength = 0.02,		// Grey line
+				boxBackLength = 0.25,		// Parts of the box at the back
+				boxLRWidth = 0.5,		 
+				boxLRLength = 1.75,			
+				boxUpHeight = 0.5,		 
+				boxHeight = 1.25,
+				distFromPins = 1.3,			// Distance from box to first pin
+				cmPin = 0.147558,			// center of mass pin
+				xDistPin = 0.3048,			// x-distance of the pins
+				zDistPin = 0.264;			// z-distance of the pins
+				var slices = 30; 		// Pin slices
+				
+				//array for pin positioning
+			var posarr = [new THREE.Vector3(0.0,cmPin,-laneLength/2),
+				new THREE.Vector3(xDistPin/2,cmPin,-laneLength/2-zDistPin),
+				new THREE.Vector3(-xDistPin/2,cmPin,-laneLength/2-zDistPin),
+				new THREE.Vector3(xDistPin,cmPin,-laneLength/2-zDistPin*2),
+				new THREE.Vector3(0.0,cmPin,-laneLength/2-zDistPin*2),
+				new THREE.Vector3(-xDistPin,cmPin,-laneLength/2-zDistPin*2),
+				new THREE.Vector3(xDistPin*3/2,cmPin,-laneLength/2-zDistPin*3),
+				new THREE.Vector3(xDistPin/2,cmPin,-laneLength/2-zDistPin*3),
+				new THREE.Vector3(-xDistPin/2,cmPin,-laneLength/2-zDistPin*3),
+				new THREE.Vector3(-xDistPin*3/2,cmPin,-laneLength/2-zDistPin*3)];
+				
+				//array where the ball, the pin, and all their starting values are defined, like this:
+				//
+				//			which object    starting position				starting velocity					euler rotation			starting angular velocity	center of mass point		if one direction is fixed	  	 how many slices for	mesh material
+				//							(needed for constructing)																								in body coordinates											rotationbody pin only
+			var physobjs = [new BowlBall(new THREE.Vector3(1., 1., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0, 0, 0), new THREE.Vector3(-0.001,0,0.), [false, false, false]),
+							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.), [false, false, false],		slices,					"blue"),
+							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0.,0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.), [false, false, false],		slices,					"blue"),
+							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.), [false, false, false],		slices,					"blue"),
+							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.), [false, false, false],		slices,					"blue"),
+							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.), [false, false, false],		slices,					"blue"),
+							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.), [false, false, false],		slices,					"blue"),
+							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.), [false, false, false],		slices,					"blue"),
+							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.), [false, false, false],		slices,					"blue"),
+							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.), [false, false, false],		slices,					"blue"),
+							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.), [false, false, false],		slices,					"blue")];
+				
+
+			var oldaccs = getAccs(physobjs); //get the first acceleration of the ball and the pins from the starting values given, should be 0 but is needed for the object
+
+			var testobject = [new BowlBall(new THREE.Vector3(1., 1., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0, 0, 0), new THREE.Vector3(-0.001,0,0.), [false, false, false])];
 			
-			var fps = 50, slowmofac = 0.5;
+			setInitialValues(); //gets the Values of the sliders from the html code
 			
+			function init() {
+			
+				var container1 = document.getElementById( 'container1' );
+				var container2 = document.getElementById( 'container2' );
+
+				viewScreen = new viewScreen( 'container1');
+				axisScreen = new axisScreen( 'container2');
+			}
+
+			function animate() {
+				
+				setTimeout( function() {
+						   
+						   viewScreen.animate();
+						   axisScreen.animate();
+						   
+						   requestAnimationFrame( animate );
+						 
+						   }, 1000 / 30 );
+			}
+
+			init();
+			animate();
+
+
+			function drawBall(r){
+				scene.remove(physobjs[0]);
+				PhysObj.call(physobjs[0], new THREE.Vector3(r[0],r[1],r[2]), new THREE.Vector3(0,0,0), new THREE.Euler(0,0,0), new THREE.Vector3(0,0,0), new THREE.Vector3(-0.001,0,0.), [false,false,false], physobjs[0].composG, physobjs[0].intensC, physobjs[0].geometry, physobjs[0].material);
+				physobjs[0].receiveShadow = true;
+				physobjs[0].castShadow = true;
+				physobjs[0].changeTexture(count3);
+				physobjs[0].updateObject3D();
+				for (var i = 1; i < 11; i++){ 
+					PhysObj.call(physobjs[i], new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,0), new THREE.Euler(0,0,0), new THREE.Vector3(0,0,0), new THREE.Vector3(0., 0.147558, 0.), [false,false,false], physobjs[i].composG, physobjs[i].intensC, physobjs[i].geometry, physobjs[i].material);
+					physobjs[i].updateObject3D();
+				}
+				putPins(physobjs.slice(1),posarr);
+				
+				scene.add(physobjs[0]);
+			 }
+				 
 			function setInitialValues() 
 			{
 				velocity = document.getElementById('slider').value;
@@ -71,8 +180,6 @@
 				document.getElementById('speedScreen').innerHTML = velocity;
 				document.getElementById('angSpeedScreen').innerHTML = angVelocity;
 			}
-			
-			setInitialValues();
 			
 			function getValue(id) 
 			{
@@ -132,7 +239,7 @@
 						spinVec.normalize();
 						setMenu(spinVec.getComponent(0), spinVec.getComponent(1), spinVec.getComponent(2));
 						dirVec = spinVec.clone();
-						app2.updateAxisArrow(dirVec);
+						axisScreen.updateAxisArrow(dirVec);
 					}
 					
 				} else 
@@ -146,592 +253,52 @@
 				angularVelocity[1]=dirVec.y;
 				angularVelocity[2]=dirVec.z;
 			}
-
-			function init() {
 			
-				var container1 = document.getElementById( 'container1' );
-				var container2 = document.getElementById( 'container2' );
-
-				var fullWidth = 550;
-				var fullHeight = 600;
-
-				app1 = new App1( 'container1', fullWidth, fullHeight,   0,   0, container1.clientWidth, container1.clientHeight );
-				app2 = new App2( 'container2', fullWidth, fullHeight, 150, 200, container2.clientWidth, container2.clientHeight );
-			}
-
-			function animate() {
-				
-				setTimeout( function() {
-						   
-						   app1.animate();
-						   app2.animate();
-						   
-						   requestAnimationFrame( animate );
-						   
-						   }, 1000 / 30 );
-
+			// Changes the display with the offset, angle and energies
+			function setText() 
+			{		
+				varsPanel.innerHTML = "Offset: "+Math.round(physobjs[0].refpos.x*100)/100 +" m"
+									  +"<br/>Angle: "+Math.round(angle*100)/100	+"°"
+									  +"<br/>Translation Energy: "+Math.round(comEnergy[1]*100)/100 +" J"
+									  +"<br/>Rotation Energy: "+Math.round(comEnergy[0]*100)/100 +" J";
 			}
 			
-			// Variablen für die Maße der Szene
-			var laneLevel = 0.1,			// Height of the lane surface
-				laneWidth = 1.05,			
-				laneLength = 18.29,
-				gutterWidth = 0.2359,
-				apprLength = 2.0,			// Approach Length
-				apprLineLength = 0.02,		// Grey line
-				boxBackLength = 0.25,		// Parts of the box at the back
-				boxLRWidth = 0.5,		 
-				boxLRLength = 1.75,			
-				boxUpHeight = 0.5,		 
-				boxHeight = 1.25,
-				distFromPins = 1.3,			// Distance from box to first pin
-				cmPin = 0.147558,			// center of mass pin
-				xDistPin = 0.3048,			// x-distance of the pins
-				zDistPin = 0.264;			// z-distance of the pins
-				
-				
-				var slices = 30; 		// Pin slices
+			// Updates the rotation axis coordinate display in the smaller screen
+			function setMenu(x,y,z) 
+			{
+				menu.innerHTML = "x="+Math.round(100*x)/100+
+								 ", y="+Math.round(100*y)/100+
+								 ", z="+Math.round(100*z)/100;
+			}
 			
-				var posarr = [new THREE.Vector3(0.0,cmPin,-laneLength/2),
-							new THREE.Vector3(xDistPin/2,cmPin,-laneLength/2-zDistPin),
-							new THREE.Vector3(-xDistPin/2,cmPin,-laneLength/2-zDistPin),
-							new THREE.Vector3(xDistPin,cmPin,-laneLength/2-zDistPin*2),
-							new THREE.Vector3(0.0,cmPin,-laneLength/2-zDistPin*2),
-							new THREE.Vector3(-xDistPin,cmPin,-laneLength/2-zDistPin*2),
-							new THREE.Vector3(xDistPin*3/2,cmPin,-laneLength/2-zDistPin*3),
-							new THREE.Vector3(xDistPin/2,cmPin,-laneLength/2-zDistPin*3),
-							new THREE.Vector3(-xDistPin/2,cmPin,-laneLength/2-zDistPin*3),
-							new THREE.Vector3(-xDistPin*3/2,cmPin,-laneLength/2-zDistPin*3)];
-
-				var V0=5; //Velocity at the beginning
-				var angle=0; //throwing angle -45,45
-				var ballOffset=0; 
-				var thrown=false;
-				var angularVelocity=[0,0,0];
-				
-				var slide=true;
-				var dt=slowmofac*1.0/fps; //timestep
-				
-				var physobjs = [new BowlBall(new THREE.Vector3(1., 1., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0, 0, 0), new THREE.Vector3(-0.001,0,0.), [false, false, false]),
-							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.), [false, false, false],slices,"blue"),
-							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0.,0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.), [false, false, false],slices,"blue"),
-							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.), [false, false, false],slices,"blue"),
-							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.), [false, false, false],slices,"blue"),
-							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.), [false, false, false],slices,"blue"),
-							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.), [false, false, false],slices,"blue"),
-							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.), [false, false, false],slices,"blue"),
-							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.), [false, false, false],slices,"blue"),
-							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.), [false, false, false],slices,"blue"),
-							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.), [false, false, false],slices,"blue")];
-				
-				var oldaccs = getAccs(physobjs);
-				var isMouseDown = false, isBallSelected = false, 
-					lastX, lastY;
-					
-				init();
-				animate();
-
-				function App1( containerId, fullWidth, fullHeight, viewX, viewY, viewWidth, viewHeight ) {
-
-					var container;
-
-					var camera, renderer;
-
-					
-
-					var mouseX = 0, mouseY = 0;
-
-					var windowHalfX = window.innerWidth / 2;
-					var windowHalfY = window.innerHeight / 2;
-
-					init();
-
-					function init() {
-						scene = new THREE.Scene();
-						container = document.getElementById( containerId );
-						document.addEventListener("keydown", keyDown, false);
-						var SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;
-						var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 0.1, FAR = 20000;
-		
-						container.onmousedown = mouseDown;
-						container.onmousemove = mouseMove;
-						container.onmouseup = mouseUp;
-		
-						camera1 = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR);
-						//camera.setViewOffset( fullWidth, fullHeight, viewX, viewY, viewWidth, viewHeight );
-						camera1.position.set( 0, 1, 14 );
-						camera1.lookAt( scene.position );
-
-						renderer = new THREE.WebGLRenderer( { antialias: true } );
-						renderer.setClearColor( 0xffffff );
-						renderer.setSize( container.clientWidth, container.clientHeight );
-						container.appendChild( renderer.domElement );
-						
-						projector = new THREE.Projector();
-						
-						document.addEventListener( 'mousemove', onDocumentMouseMove, false );
-						
-								// ANZEIGE
-		
-						varsPanel = document.createElement('div');
-						varsPanel.style.position = 'absolute';
-						varsPanel.style.width = 250+'px';
-						varsPanel.style.backgroundColor = "rgba( 1, 0, 0, 0.25 )";
-						setText();
-						varsPanel.style.top = 5 + 'px';
-						varsPanel.style.left = 5 + 'px';
-						document.body.appendChild(varsPanel);
-						
-						// Bahn
-						var laneTexture = new THREE.ImageUtils.loadTexture("textures/wood.jpg");
-						laneTexture.wrapS = laneTexture.wrapT = THREE.RepeatWrapping;
-						laneTexture.repeat.set( 3,25 );
-						var lane_material = new THREE.MeshPhongMaterial( {  map:laneTexture, side:THREE.DoubleSide } ); 
-						lane = new THREE.Mesh( new THREE.CubeGeometry(laneWidth,laneLevel,laneLength+apprLength), lane_material ); 
-						lane.translateY(-laneLevel/2);
-						lane.translateZ(-1);
-						lane.receiveShadow = true;
-						scene.add( lane );  
-						
-						
-						// Approach
-						var appr_geometry = new THREE.CubeGeometry(laneWidth+2*gutterWidth,laneLevel,apprLength); 
-						var apprTexture = new THREE.ImageUtils.loadTexture("textures/wood.jpg");
-						apprTexture.wrapS = apprTexture.wrapT = THREE.RepeatWrapping;
-						apprTexture.repeat.set( 5,3 );
-						var appr_material = new THREE.MeshPhongMaterial( {  map:apprTexture, side:THREE.DoubleSide } ); 
-						approach = new THREE.Mesh( appr_geometry, appr_material ); 
-						approach.translateZ((laneLength+apprLength)/2+apprLineLength);
-						approach.translateY(-laneLevel/2);
-						approach.receiveShadow = true;
-						scene.add( approach ); 
-						
-						var appr_line = new THREE.Mesh(new THREE.CubeGeometry(laneWidth+2*gutterWidth,laneLevel,apprLineLength),new THREE.MeshPhongMaterial( { color: 0x999999 } ));
-						appr_line.translateY(-laneLevel/2);
-						appr_line.translateZ((laneLength + apprLineLength)/2);
-						appr_line.receiveShadow = true;
-						scene.add(appr_line);
-						
-						// Plattform
-						var grass = new THREE.ImageUtils.loadTexture("textures/grass.jpg");
-						grass.wrapS = grass.wrapT = THREE.RepeatWrapping;
-						grass.repeat.set( 15,10 );
-						var plattform_material = new THREE.MeshPhongMaterial( { 
-							map: grass,
-							color: 0x339933 } ); 
-						var plattform = new THREE.Mesh( new THREE.CubeGeometry( 30,1,30), plattform_material ); 
-						plattform.translateY(-0.5-laneLevel);
-						plattform.receiveShadow=true;
-						scene.add( plattform ); 
-						
-						var boxTexture = new THREE.ImageUtils.loadTexture("textures/box.jpg");
-						var boxTextureVert = new THREE.ImageUtils.loadTexture("textures/boxVert.jpg");
-						var pandaTexture = new THREE.ImageUtils.loadTexture("textures/panda.jpg");
-						var box_material = new THREE.MeshPhongMaterial( {  map:boxTexture, side:THREE.DoubleSide } ); 
-						var boxUp_material = [
-							
-							new THREE.MeshPhongMaterial({  map:boxTextureVert }),
-							new THREE.MeshPhongMaterial({  map:boxTextureVert }),
-							new THREE.MeshPhongMaterial({  map:boxTextureVert }),
-							new THREE.MeshPhongMaterial({  map:boxTextureVert }),
-							new THREE.MeshPhongMaterial({  map:pandaTexture }),
-							new THREE.MeshPhongMaterial({  map:boxTextureVert }),
-						]
-						
-						
-						var boxBack = new THREE.Mesh(
-							new THREE.CubeGeometry(laneWidth+2*gutterWidth+boxLRWidth*2,boxHeight,boxBackLength),
-							new THREE.MeshPhongMaterial({  map:boxTextureVert })
-						);
-						boxBack.translateY(boxHeight/2-laneLevel);
-						boxBack.translateZ(-laneLength/2-distFromPins-boxBackLength-0.5);
-						boxBack.castShadow = true;
-						boxBack.receiveShadow = true;
-						scene.add(boxBack);
-						var boxLR = new THREE.CubeGeometry(boxLRWidth,boxHeight,boxLRLength);
-						var boxL = new THREE.Mesh(boxLR, box_material);
-						boxL.translateX(laneWidth/2+gutterWidth+boxLRWidth/2);
-						boxL.translateY(boxHeight/2-laneLevel);
-						boxL.translateZ(-laneLength/2-distFromPins);
-						scene.add(boxL);
-						var boxR = new THREE.Mesh(boxLR, box_material);
-						boxR.translateX(-1.05/2-0.2359-0.5/2);
-						boxR.translateY(boxHeight/2-laneLevel);
-						boxR.translateZ(-laneLength/2-distFromPins);
-						scene.add(boxR);
-						var boxUp = new THREE.Mesh(
-							new THREE.CubeGeometry(laneWidth+2*gutterWidth,boxUpHeight,boxLRLength,1,1,1),
-							new THREE.MeshFaceMaterial(boxUp_material)
-						);
-						boxUp.translateY(-laneLevel+boxHeight-boxUpHeight/2);
-						boxUp.translateZ(-laneLength/2-distFromPins);
-						scene.add(boxUp);
-						
-						// Außen
-		
-						var rinneGeometry = new THREE.Geometry();
-						var rinneVertices = new Array();
-						var radius = 0.25;
-						var offsetY = 0.1-Math.sin(360*50/80*Math.PI/180)*radius;
-						
-						rinneVertices = rinneVertices.concat(
-							[-gutterWidth/2,0,0],[-gutterWidth/2,0,laneLength+apprLength],
-							[-gutterWidth/2,laneLevel,0],[-gutterWidth/2,laneLevel,laneLength+apprLength]
-						);
-						
-						for (var i = 50; i < 71; i++)
-						{
-							var newVertex = [];
-							newVertex[0] = -Math.cos(360*i/80*Math.PI/180)/Math.cos(360*50/80*Math.PI/180)*0.11; 	 
-							newVertex[1] = Math.sin(360*i/80*Math.PI/180)*radius+offsetY;
-							newVertex[2] = 0;
-							rinneVertices = rinneVertices.concat(newVertex);
-							newVertex[2] = laneLength+apprLength;
-							rinneVertices = rinneVertices.concat(newVertex);
-						}
-						rinneVertices = rinneVertices.concat(
-							[gutterWidth/2,laneLevel,0],[gutterWidth/2,laneLevel,laneLength+apprLength],
-							[gutterWidth/2,0,0],[gutterWidth/2,0,laneLength+apprLength]
-							[-gutterWidth/2,0,0],[-gutterWidth/2,0,laneLength+apprLength]
-						);
-						
-						var countr = 0;
-						for (var i = 0; i < rinneVertices.length; i = i + 3) {
-								rinneGeometry.vertices.push(new THREE.Vector3(rinneVertices[i],rinneVertices[i+1],rinneVertices[i+2]));
-								countr++;
-						}
-						
-						for (var i = 0; i < countr-3; i = i +2) 
-						{
-							var a = i;
-							var b = i+1;
-							var c = i+2;
-							var d = i+3;
-							rinneGeometry.faces.push(new THREE.Face3(a,b,c));
-							rinneGeometry.faces.push(new THREE.Face3(b,d,c));
-						}
-						
-						rinneGeometry.computeFaceNormals();
-						
-						var rinneL = new THREE.Mesh(rinneGeometry, new THREE.MeshPhongMaterial({color: 0x999999})); 
-						rinneL.translateX(-laneWidth/2-gutterWidth/2);
-						rinneL.translateY(-laneLevel);
-						rinneL.translateZ(-laneLength/2-apprLength);
-						rinneL.receiveShadow = true;
-						scene.add(rinneL);
-						
-						var rinneR = new THREE.Mesh(rinneGeometry, new THREE.MeshPhongMaterial({color: 0x999999})); 
-						rinneR.translateX(laneWidth/2+gutterWidth/2);
-						rinneR.translateY(-laneLevel);
-						rinneR.translateZ(-laneLength/2-apprLength);
-						rinneR.receiveShadow = true;
-						scene.add(rinneR);
-						
-						// SKYBOX
-						var sky_geometry = new THREE.CubeGeometry( 10000, 10000, 10000 );    
-						var images = ["skybox/right.jpg", "skybox/left.jpg", 
-							"skybox/up.jpg", "skybox/down.jpg", 
-							"skybox/front.jpg", "skybox/back.jpg"];
-						var sky_material_array = [];
-						for (var i = 0; i < 6; i++)
-							sky_material_array.push( new THREE.MeshBasicMaterial({
-								map: THREE.ImageUtils.loadTexture( images[i] ),
-								side: THREE.BackSide
-							}));
-						var sky_material = new THREE.MeshFaceMaterial( sky_material_array );
-						var skybox = new THREE.Mesh(sky_geometry, sky_material);
-						skybox.rotation.y -=2.35;
-						scene.add(skybox);
-
-						var light = new THREE.DirectionalLight(0xffffff, 0.5);
-						light.position.set(0,1,0);
-						scene.add(light);
-						
-						// Ambient Directional light Test
-						directionalLight = new THREE.DirectionalLight(0xffffff,1 );
-						directionalLight.position.set(2,2,12.5);
-						directionalLight.target.position.set(0,0,-18.29/2);
-						directionalLight.shadowCameraNear = 2;
-						directionalLight.shadowCameraFar = 24;
-						directionalLight.shadowCameraLeft = -2.5;
-						directionalLight.shadowCameraRight = 1.0;
-						directionalLight.shadowCameraTop = 2;
-						directionalLight.shadowCameraBottom = -2;
-						directionalLight.shadowCameraVisible = false;
-						directionalLight.castShadow = true;
-						scene.add(directionalLight);
-							
-					thrown=false;
-					camera1.position.set( 0, 1, 14 );
-					drawBall([ballOffset,0.3,10.5]);
-					
-					}
-
-					function onDocumentMouseMove( event ) {
-
-						mouseX = ( event.clientX - windowHalfX );
-						mouseY = ( event.clientY - windowHalfY );
-
-					}
-					
-					this.drawLine = function(trajectory) {
-						scene.remove(line);
-						var material = new THREE.LineBasicMaterial({ color: 0x0000ff }); 
-						var geometry = new THREE.Geometry(); 
-						for (var i = 0; i < trajectory.length; i++)
-						{
-							geometry.vertices.push(trajectory[i]); 
-						}
-						var line = new THREE.Line( geometry, material ); 
-						scene.add( line );
-					}
-
-					this.animate = function() {
-						if(thrown)
-						{
-							integrate(physobjs,dt, oldaccs);
-							moveCamera();
-							
-						}
-						if(physobjs[0].refpos.x*physobjs[0].refpos.x>1.05/2.0*1.05/2.0 && thrown && physobjs[0].refpos.z >-18.3/2.0) 
-							gutter();
-						physobjs[0].receiveShadow = true;
-						physobjs[0].castShadow = true;
-						
-						setText();
-						comEnergy=physobjs[0].allEnergy();
-						
-
-						for (var it=0; it<physobjs.length; it++) {physobjs[it].updateObject3D();}
-		
-						render();
-
-					};
-
-					function render() {
-						renderer.shadowMapEnabled = true;
-						renderer.shadowMapBias = 0.0039;
-						renderer.shadowMapDarkness = 0.5;
-						renderer.shadowMapWidth = 1024;
-						renderer.shadowMapHeight = 1024; 
-						renderer.render( scene, camera1 );
-
-					}
+			// Turns the help-layer off and on
+			function switchHelper() 
+			{
+				if (pressedH) {
+					document.getElementById('helper').style.display = "inline";
+				} else {
+					document.getElementById('helper').style.display = "none";
 				}
-				
-				var pressedO = false,
-					pressedH = false,
-					pressedP = false;
-				
-				function App2( containerId, fullWidth, fullHeight, viewX, viewY, viewWidth, viewHeight ) {
-
-					var container;
-
-					var camera, scene, renderer;
-
-					var mouseX = 0, mouseY = 0, canvX = 0, canvY = 0, isMouseDown = false;
-					
-					var spinMenuTop = 5,
-						spinMenuRight = 5;
-					
-					init();
-
-					function init() {
-
-						container = document.getElementById( containerId );
-						container.style.top = spinMenuTop + 'px';
-						container.style.right = spinMenuRight + 'px';
-						camera = new THREE.PerspectiveCamera( 45, container.clientWidth / container.clientHeight, 0.1, 100 );
-						camera.position.z = -5;
-						camera.position.y = 1;
-
-						scene = new THREE.Scene();
-						
-						var sphere = new THREE.Mesh(
-							new THREE.SphereGeometry(1,10,10),
-							new THREE.MeshPhongMaterial({color: 0xff00ff, transparent: true, opacity: 0.75}) 
-						);
-						scene.add(sphere);
-						
-						// ANZEIGE
-		
-						// ANZEIGE
-		
-						menu = document.createElement('div');
-						menu.style.position = 'absolute';
-						menu.style.width = 190+'px';
-						menu.style.backgroundColor = "rgba( 1, 0, 0, 0.25 )";
-						menu.innerHTML = "Rotation axis";
-						menu.style.top = 5 + 'px';
-						menu.style.right = 5 + 'px';
-						container.appendChild(menu);
-
-						light = new THREE.DirectionalLight( 0xffffff );
-						light.position.set( 0, 1,0 ).normalize();
-						scene.add( light );
-						
-						renderer = new THREE.WebGLRenderer( { antialias: true } );
-						renderer.setClearColor( 0xdedede );
-						renderer.setSize( container.clientWidth, container.clientHeight );
-
-						container.appendChild( renderer.domElement );
-
-						container.addEventListener( 'mousemove', onMouseMove, false ); 
-						container.addEventListener( 'mousedown', onMouseDown, false ); 
-						container.addEventListener( 'mouseup', onMouseUp, false ); 
-					}
-					
-					var arrowSpinXZ, arrowSpinXY, arrowFromForm; 
-					var dirVecXZ, dirVecXY,
-						dirVec = new THREE.Vector3(angularVelocity[0],angularVelocity[1],angularVelocity[2]);
-					var selectedXZ = false,
-						selectedXY = false,
-						selectedForm = false;
-						
-					var winkelX = 0, winkelY = 0;
-					
-					function removeArrows()
-					{
-						scene.remove(arrowFromForm);
-						scene.remove(arrowSpinXY);
-						scene.remove(arrowSpinXZ);
-					}
-					
-					this.updateAxisArrow = function(direction)
-					{
-						removeArrows()
-						dirVec = direction.clone();
-						arrowFromForm = new THREE.ArrowHelper(dirVec, new THREE.Vector3(0,0,0), 2,0x29A3cc, 3.5,0.5);
-						scene.add(arrowFromForm);
-						selectedForm = true;
-					}
-					
-					function onMouseMove( event ) {
-						if (isMouseDown)
-						{
-							var canvasSize = 200;
-							
-							mouseX = event.clientX-(window.innerWidth-spinMenuRight-canvasSize);
-							mouseY = event.clientY-spinMenuTop;
-							
-							canvX = mouseX/canvasSize*2-1;
-							canvY = 1-mouseY/canvasSize*2;
-							
-							
-							if (pressedO) {
-								if (!selectedXZ) 
-								{
-									dirVecXZ = new THREE.Vector(1,0,0);
-									winkelX = 0;
-								}
-								removeArrows();
-								if (dirVecXZ.getComponent(0) > 0)
-									dirVecXY = new THREE.Vector3(-canvX, canvY,0);
-								else
-									dirVecXY = new THREE.Vector3(canvX, canvY,0);
-								dirVecXY.applyAxisAngle(new THREE.Vector3(0,1,0), winkelX);
-								dirVecXY.normalize();
-								arrowSpinXY = new THREE.ArrowHelper(dirVecXY, new THREE.Vector3(0,0,0),2, 0x29A3CC,3.5,0.5);
-								scene.add(arrowSpinXY);
-								selectedXY = true;
-								dirVec.set(dirVecXY.getComponent(0),dirVecXY.getComponent(1),dirVecXY.getComponent(2))
-							} else {
-								removeArrows();
-								if (selectedXY){
-									var X = -canvX;
-									var Y = dirVecXY.getComponent(1);
-									var Z;
-									if (canvY < 0)
-										Z = Math.sqrt(1-X*X-Y*Y);
-									else
-										Z = -Math.sqrt(1-X*X-Y*Y);
-									dirVecXZ = new THREE.Vector3(X, Y, Z);
-									}
-								else 
-									dirVecXZ = new THREE.Vector3(-canvX,0, canvY);
-								dirVecXZ.normalize();
-								arrowSpinXZ = new THREE.ArrowHelper(dirVecXZ, new THREE.Vector3(0,0,0),2, 0x29A3CC,3.5,0.5);
-								
-								scene.add(arrowSpinXZ);
-								selectedXZ = true;
-								dirVec.set(dirVecXZ.getComponent(0),dirVecXZ.getComponent(1),dirVecXZ.getComponent(2));
-							}
-						}
-						if (selectedXY || selectedXZ || selectedForm)
-							setMenu(dirVec.getComponent(0),dirVec.getComponent(1),dirVec.getComponent(2));
-						angularVelocity[0]=dirVec.x;
-						angularVelocity[1]=dirVec.y;
-						angularVelocity[2]=dirVec.z;
-						//console.log(dirVec.getComponent(0)+","+dirVec.getComponent(1)+","+dirVec.getComponent(2));
-					}
-					
-					function onMouseDown(event) {
-						isMouseDown = true;
-						
-					}
-					
-					function onMouseUp(event) {
-						isMouseDown = false;
-						
-						if	( selectedXZ&&(dirVecXZ.getComponent(2) < 0))
-							winkelX = dirVecXZ.angleTo(new THREE.Vector3(1,0,0));
-						else if (selectedXZ)
-							winkelX = 2*Math.PI - dirVecXZ.angleTo(new THREE.Vector3(1,0,0));
-						if	(selectedXY && (dirVecXY.getComponent(2) > 0 ))
-							winkelY = 2*Math.PI - dirVecXY.angleTo(new THREE.Vector3(0,1,0));
-						else if (selectedXY)
-							winkelY = dirVecXY.angleTo(new THREE.Vector3(0,1,0));
-					}
-
-					//
-
-					this.animate = function() {
-						//console.log(dirVec.getComponent(0)+","+dirVec.getComponent(0)+","+dirVec.getComponent(0));
-						render();
-
-					};
-
-					function render() {
-
-
-						camera.lookAt( scene.position );
-
-						renderer.render( scene, camera );
-
-					}
-				}
-
-				function drawBall(r){
-					scene.remove(physobjs[0]);
-					PhysObj.call(physobjs[0], new THREE.Vector3(r[0],r[1],r[2]), new THREE.Vector3(0,0,0), new THREE.Euler(0,0,0), new THREE.Vector3(0,0,0), new THREE.Vector3(-0.001,0,0.), [false,false,false], physobjs[0].composG, physobjs[0].intensC, physobjs[0].geometry, physobjs[0].material);
-					physobjs[0].receiveShadow = true;
-					physobjs[0].castShadow = true;
-					physobjs[0].changeTexture(count3);
-					physobjs[0].updateObject3D();
-					for (var i = 1; i < 11; i++){ 
-						PhysObj.call(physobjs[i], new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,0), new THREE.Euler(0,0,0), new THREE.Vector3(0,0,0), new THREE.Vector3(0., 0.147558, 0.), [false,false,false], physobjs[i].composG, physobjs[i].intensC, physobjs[i].geometry, physobjs[i].material);
-						physobjs[i].updateObject3D();
-					}
-					putPins(physobjs.slice(1),posarr);
-					
-					scene.add(physobjs[0]);
-				 }
-				 
-				 function gutter(){
+			}
+			
+			// Determines if the ball reaches the gutter and stops the game
+			function gutter()
+			{
 				alert( 'Gutter' );
 				thrown=false;
 				
 				camera1.position.set( 0, 1, 14 );
 				scene.remove(physobjs[0]);
 				drawBall([ballOffset,0.3,10]);
-				}
+			}
 				 
-				 function moveCamera(){
-			
+			// Moves the camera with the ball
+			function moveCamera()
+			{
 				if(physobjs[0].refpos.z>-18.0/2 ){
 				camera1.translateZ(dt*physobjs[0].velocity.z);
 				camera1.translateY(-0.05*dt*physobjs[0].velocity.z);
-				}
+			}
 	}
 	 </script>
 

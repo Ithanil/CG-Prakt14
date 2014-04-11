@@ -1,29 +1,7 @@
-function setText() {		
-	varsPanel.innerHTML = "Offset: "+Math.round(physobjs[0].refpos.x*100)/100 +" m"
-						  +"<br/>Angle: "+Math.round(angle*100)/100	+"°"
-						  +"<br/>Translation Energy: "+Math.round(comEnergy[1]*100)/100 +" J"
-						  +"<br/>Rotation Energy: "+Math.round(comEnergy[0]*100)/100 +" J";
-}
-
-function setMenu(x,y,z) {
-	menu.innerHTML = "x="+Math.round(100*x)/100+
-					 ", y="+Math.round(100*y)/100+
-					 ", z="+Math.round(100*z)/100;
-}
-
-function switchHelper() {
-	if (pressedH) {
-		document.getElementById('helper').style.display = "inline";
-	} else {
-		document.getElementById('helper').style.display = "none";
-	}
-}
-
 function mouseUp(event) 
 {
 	isMouseDown = false;
 	lastX = physobjs[0].refpos.x;
-	
 }	
 
 function mouseDown(event) 
@@ -37,8 +15,6 @@ function mouseDown(event)
 	lastX = event.clientX;
 	projector.unprojectVector( vector, camera1);
 	
-	//console.log("Klick: "+event.clientX+","+event.clientY+", CANVAS: "+x+","+y);
-	
 	var ray = new THREE.Raycaster(camera1.position, vector.sub( camera1.position ).normalize());
 	var	collision = ray.intersectObjects([physobjs[0]]);
 	if (collision.length > 0){
@@ -46,8 +22,6 @@ function mouseDown(event)
 		} else 
 			isBallSelected = false;
 }
-
-var arrowAngle;
 
 function mouseMove(event) 
 {	
@@ -92,55 +66,77 @@ function mouseMove(event)
 		}
 	setText();
    }	
+   
+   var pressedQ;
+   
+function drawTrajectory() {
+	PhysObj.call(testobject[0], new THREE.Vector3(physobjs[0].refpos.x,physobjs[0].refpos.y,physobjs[0].refpos.z), new THREE.Vector3(0,0,0), new THREE.Euler(0,0,0), new THREE.Vector3(0,0,0), new THREE.Vector3(-0.001,0,0.), [false,false,false], testobject[0].composG, testobject[0].intensC, testobject[0].geometry, testobject[0].material);
+				
+	//var pos = new THREE.Vector3(physobjs[0].refpos.x,physobjs[0].refpos.y,physobjs[0].refpos.z);
+	testobject[0].refpos.x = physobjs[0].refpos.x;
+	testobject[0].refpos.y = physobjs[0].refpos.y;
+	testobject[0].refpos.z = physobjs[0].refpos.z;
+	
+	testobject[0].velocity.x=velocity*Math.sin(Math.PI/180.0*angle);
+	testobject[0].velocity.y=0;
+	testobject[0].velocity.z=-velocity*Math.cos(Math.PI/180.0*angle);
+	if(angularVelocity[0]!=0)
+		testobject[0].anglvel.x=-angularVelocity[0]*angVelocity;
+	else
+		testobject[0].anglvel.x=0;
+	if(angularVelocity[1]!=0)testobject[0].anglvel.y=-angularVelocity[1]*angVelocity;
+	else testobject[0].anglvel.y=0;
+	if(angularVelocity[2]!=0)testobject[0].anglvel.z=-angularVelocity[2]*angVelocity;
+	else testobject[0].anglvel.z=0;
+	for (var i = 0; i < 500; i++)
+	{
+		if (testobject[0].refpos.z < -12)
+			break;
+		integrate(testobject, dt, oldaccs);
+		trajectory.push(new THREE.Vector3(testobject[0].refpos.x,testobject[0].refpos.y, testobject[0].refpos.z));
+	}
+	viewScreen.drawLine(trajectory);
+	
+}
 
 function keyDown(event) {
 	switch(event.keyCode) {
-		case 65: //Key A
+		case 65: // Key A
 		if(thrown)break;
 			count3--;
 			physobjs[0].changeTexture(count3);
-			
 			break;
 			
 		case 81: // Key Q
-			/*var pos = new THREE.Vector3(physobjs[0].refpos.x,physobjs[0].refpos.y,physobjs[0].refpos.z);
-			
-			V0=velocity;
-			physobjs[0].velocity.x=V0*Math.sin(Math.PI/180.0*angle);
-			physobjs[0].velocity.y=0;
-			physobjs[0].velocity.z=-V0*Math.cos(Math.PI/180.0*angle);
-			if(angularVelocity[0]!=0)
-				physobjs[0].anglvel.x=-angularVelocity[0]*angVelocity;
-			else
-				physobjs[0].anglvel.x=0;
-			if(angularVelocity[1]!=0)physobjs[0].anglvel.y=-angularVelocity[1]*angVelocity;
-			else physobjs[0].anglvel.y=0;
-			if(angularVelocity[2]!=0)physobjs[0].anglvel.z=-angularVelocity[2]*angVelocity;
-			else physobjs[0].anglvel.z=0;
-			
-			var trajectory = [];
-			for (var i = 0; i < 500; i++)
+			if (pressedQ || (thrown&&pressedQ))
 			{
-				if (physobjs[0].refpos.z < -12)
-					break;
-				integrate(physobjs, dt, oldaccs);
-				console.log(physobjs[0].refpos.x+","+physobjs[0].refpos.y +","+ physobjs[0].refpos.z);
-				trajectory.push(new THREE.Vector3(physobjs[0].refpos.x, physobjs[0].refpos.y, physobjs[0].refpos.z));
+				pressedQ = false;
+				trajectory = [];
+				viewScreen.removeLine();
 			}
-			drawBall([pos.getComponent(0),0.3,10.5]);
-			app1.drawLine(trajectory);*/
+			else if (!thrown)
+			{
+				pressedQ = true;
+				drawTrajectory();
+			}
 			break;
+			
 		case 83: //Key S
-		if(thrown)break;
-			count3++;
-			physobjs[0].changeTexture(count3);
+		if(thrown)
+			break;
+		count3++;
+		physobjs[0].changeTexture(count3);
 			break;
 		
 		case 68: //Key D
 			thrown=false;
 			camera1.position.set( 0, 1, 14 );
 			drawBall([ballOffset,0.3,10.5]);
+			pressedQ = false;
+			trajectory = [];
+			viewScreen.removeLine();
 			break;
+			
 		case 87: //Key W
 			if(thrown)break;
 			scene.remove( arrowAngle );
@@ -171,6 +167,7 @@ function keyDown(event) {
 				switchHelper();
 			}
 			break;
+			
 		case 79: //Key O
 			if (pressedO == false)
 				pressedO = true;
@@ -178,12 +175,14 @@ function keyDown(event) {
 			else 
 				pressedO = false;
 			break;
+			
 		case 80: //Key P
 			if (pressedP == false)
 				pressedP = true;
 			else 
 				pressedP = false;
 			break;
+			
 		case 37: // Pfeil links  
 			break;
 		case 39: // Pfeil rechts 
