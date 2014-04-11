@@ -61,6 +61,8 @@
 			
 			var velocity = 0, angVelocity = 0;
 			
+			var fps = 50, slowmofac = 0.5;
+			
 			function setInitialValues() 
 			{
 				velocity = document.getElementById('slider').value;
@@ -157,11 +159,15 @@
 			}
 
 			function animate() {
-
-				app1.animate();
-				app2.animate();
-
-				requestAnimationFrame( animate );
+				
+				setTimeout( function() {
+						   
+						   app1.animate();
+						   app2.animate();
+						   
+						   requestAnimationFrame( animate );
+						   
+						   }, 1000 / 30 );
 
 			}
 			
@@ -203,7 +209,7 @@
 				var angularVelocity=[0,0,0];
 				
 				var slide=true;
-				var dt=0.01; //timestep
+				var dt=slowmofac*1.0/fps; //timestep
 				
 				var physobjs = [new BowlBall(new THREE.Vector3(1., 1., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0, 0, 0), new THREE.Vector3(-0.001,0,0.), [false, false, false]),
 							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.), [false, false, false],slices,"blue"),

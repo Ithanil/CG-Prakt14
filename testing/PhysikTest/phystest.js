@@ -4,20 +4,17 @@ var time;
 var scene = new THREE.Scene();
 //var physobjs = [new BowlBall([1., 1., -6.], [0., 0., 0.], [0., 0., 0.], [0., 0., 0.], [0.,0.,0.001]), new BowlPin([0., 0., -6.], [0., 0., 0.], [0., 0., 0.], [0., 0., 0.],[0., 0.14755784154951435, 0.],10,"blue")];
 //var physobjs = [new BowlPin([0., 0., -6.], [0., 0., 0.], [0., 0., 0.], [0., 0., 0.],[0., 0.14755784154951435, 0.],10,"blue")];
+var physobjs = [new BowlBall(new THREE.Vector3(1., 1.3, -6.), new THREE.Vector3(-1., 1.0, 0.), new THREE.Euler(0.0, 0., 0.0), new THREE.Vector3(0.0, 0., 25.), new THREE.Vector3(-0.001,0.,0.0), [false, false, false]),
+                new BowlPin(new THREE.Vector3(0., 1.3, -6.), new THREE.Vector3(1., 1.0, 0), new THREE.Euler(1.5707963267948966, 0., 0.0), new THREE.Vector3(0*0.2*62.83185307179586, 0., 0*0.1*62.83185307179586), new THREE.Vector3(0., 0.14755784154951435, 0.), [false, false, false],10,"blue")];
 
-var physobjs = [new BowlBall(new THREE.Vector3(1., 1.0, -6.), new THREE.Vector3(-1., 0.0, 0.), new THREE.Euler(1.0, 0., 1.0), new THREE.Vector3(0.0, 0., 25.), new THREE.Vector3(-0.001,0.,0.0), [false, false, false]),
-                new BowlPin(new THREE.Vector3(0., 1.0, -6.), new THREE.Vector3(1., 0.0, 0), new THREE.Euler(1., 0., 1.0), new THREE.Vector3(0*0.2*62.83185307179586, 0., 0*0.1*62.83185307179586), new THREE.Vector3(0., 0.14755784154951435, 0.), [false, false, false],10,"blue")];
 var ifocus = 0; //Index of object which is manipulated by keys (changed by +/-)
 var keyPosAdd = 0.05, keyVelAdd = 0.05, keyQuAddS = 0.99875, keyQuAddV = 0.0499792;
 var oldanglmom = new THREE.Vector3();
 var oldanglvel = new THREE.Vector3();
-var saveaccs = getAccs(physobjs);
+var oldaccs;
+var sceneobjs = [];
 
-if (debug==1) {
-	console.log('saveaccs 0', saveaccs[0][0].x,saveaccs[0][0].y,saveaccs[0][0].z, saveaccs[0][1].x, saveaccs[0][1].y, saveaccs[0][1].z)
-	console.log('saveaccs 1', saveaccs[1][0].x,saveaccs[1][0].y,saveaccs[1][0].z, saveaccs[1][1].x, saveaccs[1][1].y, saveaccs[1][1].z)
-}
-var dt = 0.005;
+var dt = 0.001;
 
 var debug = 0;
 
@@ -53,8 +50,10 @@ function init(){
 	// Plattform
 	var plattform_material = new THREE.MeshPhongMaterial( { color: 0x339933 } ); 
 	var plattform = new THREE.Mesh( new THREE.CylinderGeometry( 15,15,1, 5), plattform_material ); 
-	plattform.translateY(-0.5-0.1);
+	plattform.translateY(-0.4316);
+	plattform.name = "plattform";
 	scene.add( plattform );
+	sceneobjs.push(plattform);
 
 	// Position oder Kamera
 	//camera.position.set( 4, 4, 21 );
@@ -96,6 +95,20 @@ function init(){
 	skybox.rotation.y -=2.35;
 	scene.add(skybox);
 	// SKYBOX ENDE*/
+
+
+	oldaccs = getAccs();
+	if (debug==1) {
+		console.log('oldaccs 0', oldaccs[0][0].x,oldaccs[0][0].y,oldaccs[0][0].z, oldaccs[0][1].x, oldaccs[0][1].y, oldaccs[0][1].z)
+		console.log('oldaccs 1', oldaccs[1][0].x,oldaccs[1][0].y,oldaccs[1][0].z, oldaccs[1][1].x, oldaccs[1][1].y, oldaccs[1][1].z)
+	}
+	/*
+	for (var it = 0; it < scene.children.length; it++) {
+		console.log(scene.children[it].name);
+		if (scene.children[it].name=="plattform") {
+			sceneobjs.push(scene.children[it]);
+		}
+	}*/
 }
 
 function animate() {
@@ -104,7 +117,7 @@ function animate() {
 	time = new Date();
 	var dt = (time.getTime() - oldtime) / 1000.;*/
 
-	//requestAnimationFrame( animate );
+	requestAnimationFrame( animate );
 	//var dt = 0.001;
 
 	/*
@@ -130,7 +143,7 @@ function animate() {
 
 			ray = new THREE.Raycaster( originPoint, directionVector.clone().normalize() );
 			collisionResults = ray.intersectObjects( collidableMeshList );
-			
+
 			//console.log(collisionResults.length);
 			//console.log(directionVector.length());
 			if ( collisionResults.length > 0) {
@@ -141,9 +154,15 @@ function animate() {
 			}
 		}
 	}
-	*/
-	getCollisionForcTorq(physobjs, [scene.children[1]]);
-	integrate(physobjs, dt, saveaccs);
+	 */
+
+	/*var collaccs = getCollisionForcTorq(physobjs, sceneobjs, dt);
+	for (var it=0; it<physobjs.length; it++) {
+		console.log('collacsT',collaccs[it][0].x,collaccs[it][0].y,collaccs[it][0].z);
+		console.log('collacsR',collaccs[it][1].x,collaccs[it][1].y,collaccs[it][1].z)
+	}*/
+
+	integrate();
 	for (var it=0; it<physobjs.length; it++) {physobjs[it].updateObject3D()}
 
 	if (debug==1) {

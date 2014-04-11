@@ -1,5 +1,3 @@
-"use strict";
-
 function SvSteiner(intens0, mass, avec, dest) {
 	var me = intens0.elements;
 	dest.set(me[0] + mass*(avec.y*avec.y + avec.z*avec.z), me[3] - mass*avec.x*avec.y, me[6] - mass*avec.x*avec.z, me[1] - mass*avec.x*avec.y, me[4] + mass*(avec.x*avec.x + avec.z*avec.z), me[7] - mass*avec.y*avec.z, me[2] - mass*avec.x*avec.z, me[5] - mass*avec.y*avec.z, me[8] + mass*(avec.x*avec.x + avec.y*avec.y) );
@@ -92,6 +90,12 @@ PhysObj.method('compos', function() {
 	return new THREE.Vector3(this.refpos.x + poshelp.x , this.refpos.y + poshelp.y, this.refpos.z + poshelp.z);
 });
 
+PhysObj.method('gpos', function() {
+	var poshelp = new THREE.Vector3(-this.refposG.x, -this.refposG.y, this.refposG.z);
+	poshelp.applyQuaternion(this.orquat);
+	return new THREE.Vector3(this.refpos.x + poshelp.x , this.refpos.y + poshelp.y, this.refpos.z + poshelp.z);
+});
+
 PhysObj.method('comvel', function() {
 	var velhelp = new THREE.Vector3(0.,0.,0.);
 	var comphelp = new THREE.Vector3(this.composR.x,this.composR.y,this.composR.z);
@@ -172,19 +176,32 @@ PhysObj.method('makefixed', function() {
 		veldiff.x = -this.velocity.x;
 		this.velocity.x = 0.0;
 		//this.fixforce.x = this.mass * (-acc.x + veldiff.x / dt);
-		this.fixforce.x = 2. * this.mass * veldiff.x / dt;
+		this.fixforce.x = 2 * this.mass * veldiff.x / dt;
+		console.log('fix x', this.fixforce.x);
 	}
 	if (this.fixdirs[1]) {
 		veldiff.y = -this.velocity.y;
 		this.velocity.y = 0.0;
 		//this.fixforce.y = this.mass * (-acc.y + veldiff.y / dt);
-		this.fixforce.y = 2. * this.mass * veldiff.y / dt;
+		this.fixforce.y = 2 * this.mass * veldiff.y / dt;
+		console.log('fix y', this.fixforce.y);
 	}
 	if (this.fixdirs[2]) {
 		veldiff.z = -this.velocity.z;
 		this.velocity.z = 0.0;
 		//this.fixforce.z = this.mass * (-acc.z + veldiff.z / dt);
-		this.fixforce.z = 2. * this.mass * veldiff.z / dt;
+		this.fixforce.z = 2 * this.mass * veldiff.z / dt;
+		console.log('fix z', this.fixforce.z);
+	}
+	
+	if (!this.fixdirs[0]) {
+		this.fixforce.x = 0.0;
+	}
+	if (!this.fixdirs[1]) {
+		this.fixforce.y = 0.0;
+	}
+	if (!this.fixdirs[2]) {
+		this.fixforce.z = 0.0;
 	}
 	
 	if (debug==1) {
@@ -235,9 +252,9 @@ PhysObj.method('newRefSys', function(newRefPos) {
 function BowlPin(pos0, vel0, eulrot0, anglvel0, refposG0, fixdirs0, slices,color) {
 	
 	/* Preparation for THREE.Mesh */
-
+	
 	this.slices = slices;
-	this.shapeline = [[0.0001, -0.00001, 0.],
+	this.shapeline = [[0.0001, 0.0001, 0.],
 	                  [0.0257937, 0., 0],
 	                  [0.0359156, 0.01905, 0],
 	                  [0.0496062, 0.05715, 0],
@@ -289,7 +306,8 @@ function BowlPin(pos0, vel0, eulrot0, anglvel0, refposG0, fixdirs0, slices,color
 
 	this.mass = 1.5875733;
 	var composG = new THREE.Vector3(0., 0.14755784154951435, 0.);	// with respect to the origin of geometry (bottom center for pin, center for ball)
-	this.radius = 0.14755784154951435;
+	this.radius = 0.0579501;
+	this.collrad = 0.235;
 	//var intensC = new THREE.Matrix3(0.0134109, 0, 0, 0, 0.0019401, 0, 0, 0, 0.0134109);
 	var intensC = new THREE.Matrix3(0.0134109103558499, 0, 0, 0, 0.0019401759369374264, 0, 0, 0, 0.0134109103558499);
 
@@ -384,6 +402,7 @@ function BowlBall(pos0, vel0, eulrot0, anglvel0, refposG0, fixdirs0) {
 	/* Preparation for THREE.Mesh */
 
 	this.radius = 0.1085;
+	this.collrad = 0.109;
 
 	/* Initialize THREE.MESH */
 
