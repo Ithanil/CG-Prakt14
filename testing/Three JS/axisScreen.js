@@ -30,8 +30,6 @@ function axisScreen( containerId) {
 		
 		// ANZEIGE
 
-		// ANZEIGE
-
 		menu = document.createElement('div');
 		menu.style.position = 'absolute';
 		menu.style.width = 190+'px';

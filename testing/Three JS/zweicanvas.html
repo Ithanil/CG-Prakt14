@@ -78,6 +78,11 @@
 			var isMouseDown = false, isBallSelected = false, 
 				lastX, lastY;
 				
+			var lineMaterial, lineGeometry, line;	
+				
+			var arrowAngle;		// direction angle
+			var trajectory = [];
+				
 			// Dimension variables for the big screen
 			var laneLevel = 0.1,			// Height of the lane surface
 				laneWidth = 1.05,			

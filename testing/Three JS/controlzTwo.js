@@ -1,10 +1,7 @@
-
-
 function mouseUp(event) 
 {
 	isMouseDown = false;
 	lastX = physobjs[0].refpos.x;
-	
 }	
 
 function mouseDown(event) 
@@ -18,8 +15,6 @@ function mouseDown(event)
 	lastX = event.clientX;
 	projector.unprojectVector( vector, camera1);
 	
-	//console.log("Klick: "+event.clientX+","+event.clientY+", CANVAS: "+x+","+y);
-	
 	var ray = new THREE.Raycaster(camera1.position, vector.sub( camera1.position ).normalize());
 	var	collision = ray.intersectObjects([physobjs[0]]);
 	if (collision.length > 0){
@@ -27,8 +22,6 @@ function mouseDown(event)
 		} else 
 			isBallSelected = false;
 }
-
-var arrowAngle;
 
 function mouseMove(event) 
 {	
@@ -76,16 +69,14 @@ function mouseMove(event)
 
 function keyDown(event) {
 	switch(event.keyCode) {
-		case 65: //Key A
+		case 65: // Key A
 		if(thrown)break;
 			count3--;
 			physobjs[0].changeTexture(count3);
-			
 			break;
 			
 		case 81: // Key Q
-			/*var pos = new THREE.Vector3(physobjs[0].refpos.x,physobjs[0].refpos.y,physobjs[0].refpos.z);
-			
+			var pos = new THREE.Vector3(physobjs[0].refpos.x,physobjs[0].refpos.y,physobjs[0].refpos.z);
 			V0=velocity;
 			physobjs[0].velocity.x=V0*Math.sin(Math.PI/180.0*angle);
 			physobjs[0].velocity.y=0;
@@ -98,8 +89,6 @@ function keyDown(event) {
 			else physobjs[0].anglvel.y=0;
 			if(angularVelocity[2]!=0)physobjs[0].anglvel.z=-angularVelocity[2]*angVelocity;
 			else physobjs[0].anglvel.z=0;
-			
-			var trajectory = [];
 			for (var i = 0; i < 500; i++)
 			{
 				if (physobjs[0].refpos.z < -12)
@@ -109,12 +98,14 @@ function keyDown(event) {
 				trajectory.push(new THREE.Vector3(physobjs[0].refpos.x, physobjs[0].refpos.y, physobjs[0].refpos.z));
 			}
 			drawBall([pos.getComponent(0),0.3,10.5]);
-			viewScreen.drawLine(trajectory);*/
+			viewScreen.drawLine(trajectory);
 			break;
+			
 		case 83: //Key S
-		if(thrown)break;
-			count3++;
-			physobjs[0].changeTexture(count3);
+		if(thrown)
+			break;
+		count3++;
+		physobjs[0].changeTexture(count3);
 			break;
 		
 		case 68: //Key D
@@ -122,6 +113,7 @@ function keyDown(event) {
 			camera1.position.set( 0, 1, 14 );
 			drawBall([ballOffset,0.3,10.5]);
 			break;
+			
 		case 87: //Key W
 			if(thrown)break;
 			scene.remove( arrowAngle );
@@ -152,6 +144,7 @@ function keyDown(event) {
 				switchHelper();
 			}
 			break;
+			
 		case 79: //Key O
 			if (pressedO == false)
 				pressedO = true;
@@ -159,12 +152,14 @@ function keyDown(event) {
 			else 
 				pressedO = false;
 			break;
+			
 		case 80: //Key P
 			if (pressedP == false)
 				pressedP = true;
 			else 
 				pressedP = false;
 			break;
+			
 		case 37: // Pfeil links  
 			break;
 		case 39: // Pfeil rechts 
