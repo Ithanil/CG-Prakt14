@@ -11,13 +11,11 @@
 		<script src="three.js"></script> 
 		<script type="text/javascript" src="inherit.js"></script>
 		<script type="text/javascript" src="gl-matrix.js"></script>
-		
 		<script type="text/javascript" src="physics.js"></script>
 		<script type="text/javascript" src="controlzTwo.js"></script>
 		<script type="text/javascript" src="screen.js"></script>
 		<script type="text/javascript" src="axisScreen.js"></script>
 		<script type="text/javascript" src="physobjs.js"></script>
-		<script type="text/javascript" src="HemisphereLight.js"></script>
 		
 		
 		<!-- HTML - Teil -->
@@ -59,20 +57,19 @@
 			var viewScreen, axisScreen, debug=0;		
 			var camera1, camera2, scene, scene2, projector;
 			var menu, varsPanel;
-			var comEnergy=[0,0], count3=0;
-			var velocity = 0, angVelocity = 0;
-			var fps = 30, slowmofac = 0.5;
+			var comEnergy=[0,0], count3=0; // variable where the translation and rotation Energy ist saved , counter for the balltexture
+			var velocity = 0, angVelocity = 0; //Velocity and angular velocity of the ball, absolute value only
+			var angularVelocity=[0,0,0]; //angular velocity direction only
+			var ballOffset=0; //offset of the ball at the beginning
+			var fps = 30, slowmofac = 1;
 			
-			var V0=5; 			//Velocity at the beginning
+			
 			var angle=0; 		//throwing angle 
-			var ballOffset=0; 
-			var thrown=false;
-			var angularVelocity=[0,0,0];
-			
-			var slide=true;
+			 
+			var thrown=false;	//boolean to keep check if the ball is moving or not
 			var dt=slowmofac*1.0/fps; //timestep
 
-			var pressedO = false,
+			var pressedO = false, //keyboard input check
 				pressedH = false,
 				pressedP = false;
 				
@@ -100,6 +97,7 @@
 				zDistPin = 0.264;			// z-distance of the pins
 				var slices = 30; 		// Pin slices
 				
+				//array for pin positioning
 			var posarr = [new THREE.Vector3(0.0,cmPin,-laneLength/2),
 				new THREE.Vector3(xDistPin/2,cmPin,-laneLength/2-zDistPin),
 				new THREE.Vector3(-xDistPin/2,cmPin,-laneLength/2-zDistPin),
@@ -111,22 +109,28 @@
 				new THREE.Vector3(-xDistPin/2,cmPin,-laneLength/2-zDistPin*3),
 				new THREE.Vector3(-xDistPin*3/2,cmPin,-laneLength/2-zDistPin*3)];
 				
+				//array where the ball, the pin, and all their starting values are defined, like this:
+				//
+				//			which object    starting position				starting velocity					euler rotation			starting angular velocity	center of mass point		if one direction is fixed	  	 how many slices for	mesh material
+				//							(needed for constructing)																								in body coordinates											rotationbody pin only
 			var physobjs = [new BowlBall(new THREE.Vector3(1., 1., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0, 0, 0), new THREE.Vector3(-0.001,0,0.), [false, false, false]),
-				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.), [false, false, false],slices,"blue"),
-				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0.,0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.), [false, false, false],slices,"blue"),
-				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.), [false, false, false],slices,"blue"),
-				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.), [false, false, false],slices,"blue"),
-				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.), [false, false, false],slices,"blue"),
-				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.), [false, false, false],slices,"blue"),
-				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.), [false, false, false],slices,"blue"),
-				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.), [false, false, false],slices,"blue"),
-				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.), [false, false, false],slices,"blue"),
-				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.), [false, false, false],slices,"blue")];
+							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.), [false, false, false],		slices,					"blue"),
+							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0.,0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.), [false, false, false],		slices,					"blue"),
+							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.), [false, false, false],		slices,					"blue"),
+							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.), [false, false, false],		slices,					"blue"),
+							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.), [false, false, false],		slices,					"blue"),
+							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.), [false, false, false],		slices,					"blue"),
+							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.), [false, false, false],		slices,					"blue"),
+							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.), [false, false, false],		slices,					"blue"),
+							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.), [false, false, false],		slices,					"blue"),
+							new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.), [false, false, false],		slices,					"blue")];
 				
-			var oldaccs = getAccs(physobjs);
+
+			var oldaccs = getAccs(physobjs); //get the first acceleration of the ball and the pins from the starting values given, should be 0 but is needed for the object
+
 			var testobject = [new BowlBall(new THREE.Vector3(1., 1., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0, 0, 0), new THREE.Vector3(-0.001,0,0.), [false, false, false])];
 			
-			setInitialValues();
+			setInitialValues(); //gets the Values of the sliders from the html code
 			
 			function init() {
 			
