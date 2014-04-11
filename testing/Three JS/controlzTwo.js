@@ -1,23 +1,4 @@
-function setText() {		
-	varsPanel.innerHTML = "Offset: "+Math.round(physobjs[0].refpos.x*100)/100 +" m"
-						  +"<br/>Angle: "+Math.round(angle*100)/100	+"°"
-						  +"<br/>Translation Energy: "+Math.round(comEnergy[1]*100)/100 +" J"
-						  +"<br/>Rotation Energy: "+Math.round(comEnergy[0]*100)/100 +" J";
-}
 
-function setMenu(x,y,z) {
-	menu.innerHTML = "x="+Math.round(100*x)/100+
-					 ", y="+Math.round(100*y)/100+
-					 ", z="+Math.round(100*z)/100;
-}
-
-function switchHelper() {
-	if (pressedH) {
-		document.getElementById('helper').style.display = "inline";
-	} else {
-		document.getElementById('helper').style.display = "none";
-	}
-}
 
 function mouseUp(event) 
 {
@@ -128,7 +109,7 @@ function keyDown(event) {
 				trajectory.push(new THREE.Vector3(physobjs[0].refpos.x, physobjs[0].refpos.y, physobjs[0].refpos.z));
 			}
 			drawBall([pos.getComponent(0),0.3,10.5]);
-			app1.drawLine(trajectory);*/
+			viewScreen.drawLine(trajectory);*/
 			break;
 		case 83: //Key S
 		if(thrown)break;
