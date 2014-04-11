@@ -8,6 +8,16 @@ function axisScreen( containerId) {
 	
 	var spinMenuTop = 5,
 		spinMenuRight = 5;
+		
+	var arrowSpinXZ, arrowSpinXY, arrowFromForm; 		// Arrowhelpers
+	
+	var dirVecXZ, dirVecXY,								// Direction vectors for planes
+		dirVec = new THREE.Vector3(angularVelocity[0],angularVelocity[1],angularVelocity[2]);
+	var selectedXZ = false,
+		selectedXY = false,
+		selectedForm = false;							
+		
+	var angleX = 0, angleY = 0;
 	
 	init();
 
@@ -16,32 +26,10 @@ function axisScreen( containerId) {
 		container = document.getElementById( containerId );
 		container.style.top = spinMenuTop + 'px';
 		container.style.right = spinMenuRight + 'px';
+		scene = new THREE.Scene();
 		camera = new THREE.PerspectiveCamera( 45, container.clientWidth / container.clientHeight, 0.1, 100 );
 		camera.position.z = -5;
 		camera.position.y = 1;
-
-		scene = new THREE.Scene();
-		
-		var sphere = new THREE.Mesh(
-			new THREE.SphereGeometry(1,10,10),
-			new THREE.MeshPhongMaterial({color: 0xff00ff, transparent: true, opacity: 0.75}) 
-		);
-		scene.add(sphere);
-		
-		// ANZEIGE
-
-		menu = document.createElement('div');
-		menu.style.position = 'absolute';
-		menu.style.width = 190+'px';
-		menu.style.backgroundColor = "rgba( 1, 0, 0, 0.25 )";
-		menu.innerHTML = "Rotation axis";
-		menu.style.top = 5 + 'px';
-		menu.style.right = 5 + 'px';
-		container.appendChild(menu);
-
-		light = new THREE.DirectionalLight( 0xffffff );
-		light.position.set( 0, 1,0 ).normalize();
-		scene.add( light );
 		
 		renderer = new THREE.WebGLRenderer( { antialias: true } );
 		renderer.setClearColor( 0xdedede );
@@ -52,17 +40,33 @@ function axisScreen( containerId) {
 		container.addEventListener( 'mousemove', onMouseMove, false ); 
 		container.addEventListener( 'mousedown', onMouseDown, false ); 
 		container.addEventListener( 'mouseup', onMouseUp, false ); 
-	}
-	
-	var arrowSpinXZ, arrowSpinXY, arrowFromForm; 
-	var dirVecXZ, dirVecXY,
-		dirVec = new THREE.Vector3(angularVelocity[0],angularVelocity[1],angularVelocity[2]);
-	var selectedXZ = false,
-		selectedXY = false,
-		selectedForm = false;
 		
-	var winkelX = 0, winkelY = 0;
-	
+		var sphere, light;
+		
+		sphere = new THREE.Mesh(
+			new THREE.SphereGeometry(1,10,10),
+			new THREE.MeshPhongMaterial({color: 0xff00ff, transparent: true, opacity: 0.75}) 
+		);
+		scene.add(sphere);
+		
+		// display
+
+		menu = document.createElement('div');
+		menu.style.position = 'absolute';
+		menu.style.width = 190+'px';
+		menu.style.backgroundColor = "rgba( 1, 0, 0, 0.25 )";
+		menu.innerHTML = "Rotation axis";
+		menu.style.top = 5 + 'px';
+		menu.style.right = 5 + 'px';
+		container.appendChild(menu);
+		
+		// light
+
+		light = new THREE.DirectionalLight( 0xffffff );
+		light.position.set( 0, 1,0 ).normalize();
+		scene.add( light );
+	}
+
 	function removeArrows()
 	{
 		scene.remove(arrowFromForm);
@@ -70,14 +74,7 @@ function axisScreen( containerId) {
 		scene.remove(arrowSpinXZ);
 	}
 	
-	this.updateAxisArrow = function(direction)
-	{
-		removeArrows()
-		dirVec = direction.clone();
-		arrowFromForm = new THREE.ArrowHelper(dirVec, new THREE.Vector3(0,0,0), 2,0x29A3cc, 3.5,0.5);
-		scene.add(arrowFromForm);
-		selectedForm = true;
-	}
+	// own controls for this canvas
 	
 	function onMouseMove( event ) {
 		if (isMouseDown)
@@ -95,14 +92,14 @@ function axisScreen( containerId) {
 				if (!selectedXZ) 
 				{
 					dirVecXZ = new THREE.Vector(1,0,0);
-					winkelX = 0;
+					angleX = 0;
 				}
 				removeArrows();
 				if (dirVecXZ.getComponent(0) > 0)
 					dirVecXY = new THREE.Vector3(-canvX, canvY,0);
 				else
 					dirVecXY = new THREE.Vector3(canvX, canvY,0);
-				dirVecXY.applyAxisAngle(new THREE.Vector3(0,1,0), winkelX);
+				dirVecXY.applyAxisAngle(new THREE.Vector3(0,1,0), angleX);
 				dirVecXY.normalize();
 				arrowSpinXY = new THREE.ArrowHelper(dirVecXY, new THREE.Vector3(0,0,0),2, 0x29A3CC,3.5,0.5);
 				scene.add(arrowSpinXY);
@@ -140,23 +137,29 @@ function axisScreen( containerId) {
 	
 	function onMouseDown(event) {
 		isMouseDown = true;
-		
 	}
 	
 	function onMouseUp(event) {
 		isMouseDown = false;
 		
 		if	( selectedXZ&&(dirVecXZ.getComponent(2) < 0))
-			winkelX = dirVecXZ.angleTo(new THREE.Vector3(1,0,0));
+			angleX = dirVecXZ.angleTo(new THREE.Vector3(1,0,0));
 		else if (selectedXZ)
-			winkelX = 2*Math.PI - dirVecXZ.angleTo(new THREE.Vector3(1,0,0));
+			angleX = 2*Math.PI - dirVecXZ.angleTo(new THREE.Vector3(1,0,0));
 		if	(selectedXY && (dirVecXY.getComponent(2) > 0 ))
-			winkelY = 2*Math.PI - dirVecXY.angleTo(new THREE.Vector3(0,1,0));
+			angleY = 2*Math.PI - dirVecXY.angleTo(new THREE.Vector3(0,1,0));
 		else if (selectedXY)
-			winkelY = dirVecXY.angleTo(new THREE.Vector3(0,1,0));
+			angleY = dirVecXY.angleTo(new THREE.Vector3(0,1,0));
 	}
-
-	//
+	
+	this.updateAxisArrow = function(direction)
+	{
+		removeArrows()
+		dirVec = direction.clone();
+		arrowFromForm = new THREE.ArrowHelper(dirVec, new THREE.Vector3(0,0,0), 2,0x29A3cc, 3.5,0.5);
+		scene.add(arrowFromForm);
+		selectedForm = true;
+	}
 
 	this.animate = function() {
 		//console.log(dirVec.getComponent(0)+","+dirVec.getComponent(0)+","+dirVec.getComponent(0));
@@ -165,11 +168,7 @@ function axisScreen( containerId) {
 	};
 
 	function render() {
-
-
 		camera.lookAt( scene.position );
-
 		renderer.render( scene, camera );
-
 	}
 }

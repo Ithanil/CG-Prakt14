@@ -66,6 +66,38 @@ function mouseMove(event)
 		}
 	setText();
    }	
+   
+   var pressedQ;
+   
+function drawTrajectory() {
+	PhysObj.call(testobject[0], new THREE.Vector3(physobjs[0].refpos.x,physobjs[0].refpos.y,physobjs[0].refpos.z), new THREE.Vector3(0,0,0), new THREE.Euler(0,0,0), new THREE.Vector3(0,0,0), new THREE.Vector3(-0.001,0,0.), [false,false,false], testobject[0].composG, testobject[0].intensC, testobject[0].geometry, testobject[0].material);
+				
+	//var pos = new THREE.Vector3(physobjs[0].refpos.x,physobjs[0].refpos.y,physobjs[0].refpos.z);
+	testobject[0].refpos.x = physobjs[0].refpos.x;
+	testobject[0].refpos.y = physobjs[0].refpos.y;
+	testobject[0].refpos.z = physobjs[0].refpos.z;
+	V0=velocity;
+	testobject[0].velocity.x=V0*Math.sin(Math.PI/180.0*angle);
+	testobject[0].velocity.y=0;
+	testobject[0].velocity.z=-V0*Math.cos(Math.PI/180.0*angle);
+	if(angularVelocity[0]!=0)
+		testobject[0].anglvel.x=-angularVelocity[0]*angVelocity;
+	else
+		testobject[0].anglvel.x=0;
+	if(angularVelocity[1]!=0)testobject[0].anglvel.y=-angularVelocity[1]*angVelocity;
+	else testobject[0].anglvel.y=0;
+	if(angularVelocity[2]!=0)testobject[0].anglvel.z=-angularVelocity[2]*angVelocity;
+	else testobject[0].anglvel.z=0;
+	for (var i = 0; i < 500; i++)
+	{
+		if (testobject[0].refpos.z < -12)
+			break;
+		integrate(testobject, dt, oldaccs);
+		trajectory.push(new THREE.Vector3(testobject[0].refpos.x,testobject[0].refpos.y, testobject[0].refpos.z));
+	}
+	viewScreen.drawLine(trajectory);
+	
+}
 
 function keyDown(event) {
 	switch(event.keyCode) {
@@ -76,29 +108,18 @@ function keyDown(event) {
 			break;
 			
 		case 81: // Key Q
-			var pos = new THREE.Vector3(physobjs[0].refpos.x,physobjs[0].refpos.y,physobjs[0].refpos.z);
-			V0=velocity;
-			physobjs[0].velocity.x=V0*Math.sin(Math.PI/180.0*angle);
-			physobjs[0].velocity.y=0;
-			physobjs[0].velocity.z=-V0*Math.cos(Math.PI/180.0*angle);
-			if(angularVelocity[0]!=0)
-				physobjs[0].anglvel.x=-angularVelocity[0]*angVelocity;
-			else
-				physobjs[0].anglvel.x=0;
-			if(angularVelocity[1]!=0)physobjs[0].anglvel.y=-angularVelocity[1]*angVelocity;
-			else physobjs[0].anglvel.y=0;
-			if(angularVelocity[2]!=0)physobjs[0].anglvel.z=-angularVelocity[2]*angVelocity;
-			else physobjs[0].anglvel.z=0;
-			for (var i = 0; i < 500; i++)
+			
+			if (pressedQ || (thrown&&pressedQ))
 			{
-				if (physobjs[0].refpos.z < -12)
-					break;
-				integrate(physobjs, dt, oldaccs);
-				//console.log(physobjs[0].refpos.x+","+physobjs[0].refpos.y +","+ physobjs[0].refpos.z);
-				trajectory.push(new THREE.Vector3(physobjs[0].refpos.x, physobjs[0].refpos.y, physobjs[0].refpos.z));
+				pressedQ = false;
+				trajectory = [];
+				viewScreen.removeLine();
 			}
-			drawBall([pos.getComponent(0),0.3,10.5]);
-			viewScreen.drawLine(trajectory);
+			else if (!thrown)
+			{
+				pressedQ = true;
+				drawTrajectory();
+			}
 			break;
 			
 		case 83: //Key S

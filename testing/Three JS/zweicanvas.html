@@ -49,6 +49,7 @@
 				Click and move the mouse on the smaller canvas to adjust the direction of the rotation axis on the X-Z-plane.<br>
 				Press [O] to adjust it on the X-Y-plane. <br>
 				Press [A], [S] to change between ball textures.<br>
+				Press [Q] to display the trajectory.<br>
 				Press [W] to throw the ball.
 				<h1>Have fun!</h1>
 			</div>
@@ -123,7 +124,8 @@
 				new BowlPin(new THREE.Vector3(0., 0., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0., 0, 0.), new THREE.Vector3(0., 0.147558, 0.), [false, false, false],slices,"blue")];
 				
 			var oldaccs = getAccs(physobjs);
-
+			var testobject = [new BowlBall(new THREE.Vector3(1., 1., -6.), new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Euler(0., 0, 0.), new THREE.Vector3(0, 0, 0), new THREE.Vector3(-0.001,0,0.), [false, false, false])];
+			
 			setInitialValues();
 			
 			function init() {

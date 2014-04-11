@@ -241,22 +241,29 @@ function viewScreen( containerId ) {
 		
 		// Line
 		
-		lineMaterial = new THREE.LineBasicMaterial({ color: 0x0000ff }); 
-		lineGeometry = new THREE.Geometry(); 
-		line = new THREE.Line( lineGeometry, lineMaterial ); 
+		
+ 
 			
 		thrown = false;
 		camera1.position.set( 0, 1, 14 );
 		drawBall([ballOffset,0.3,10.5]);
 	}
 	
+	this.removeLine = function() 
+	{
+		scene.remove(line);
+		lineGeometry = new THREE.Geometry();
+	}
+	
 	this.drawLine = function(trajectory) {
+		lineMaterial = new THREE.LineBasicMaterial({ color: 0x0000ff }); 
+		lineGeometry = new THREE.Geometry(); 
+		line = new THREE.Line( lineGeometry, lineMaterial );
 		
 		for (var i = 0; i < trajectory.length; i++)
 		{
 			lineGeometry.vertices.push(trajectory[i]); 
 		}
-		scene.remove(line);
 		scene.add( line );
 	}
 
@@ -265,9 +272,8 @@ function viewScreen( containerId ) {
 		{
 			integrate(physobjs,dt, oldaccs);
 			moveCamera();
-			
 		}
-		if(physobjs[0].refpos.x*physobjs[0].refpos.x>1.05/2.0*1.05/2.0 && thrown && physobjs[0].refpos.z >-18.3/2.0) 
+		if (physobjs[0].refpos.x*physobjs[0].refpos.x>1.05/2.0*1.05/2.0 && thrown && physobjs[0].refpos.z >-18.3/2.0) 
 			gutter();
 		physobjs[0].receiveShadow = true;
 		physobjs[0].castShadow = true;
@@ -275,12 +281,11 @@ function viewScreen( containerId ) {
 		setText();
 		comEnergy=physobjs[0].allEnergy();
 		
-
-		for (var it=0; it<physobjs.length; it++) {physobjs[it].updateObject3D();}
+		for (var it=0; it<physobjs.length; it++) 
+			physobjs[it].updateObject3D();
 
 		render();
-
-	};
+	}
 
 	function render() {
 		renderer.shadowMapEnabled = true;
@@ -289,6 +294,5 @@ function viewScreen( containerId ) {
 		renderer.shadowMapWidth = 1024;
 		renderer.shadowMapHeight = 1024; 
 		renderer.render( scene, camera1 );
-
 	}
 }
