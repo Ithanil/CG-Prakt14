@@ -134,7 +134,7 @@ function viewScreen( containerId ) {
 		boxL.translateZ(-laneLength/2-distFromPins);
 		scene.add(boxL);
 		boxR = new THREE.Mesh(boxLR, boxMaterial);
-		boxR.translateX(-1.05/2-0.2359-0.5/2);
+		boxR.translateX(-laneWidth/2-gutterWidth-boxLRWidth/2);
 		boxR.translateY(boxHeight/2-laneLevel);
 		boxR.translateZ(-laneLength/2-distFromPins);
 		scene.add(boxR);

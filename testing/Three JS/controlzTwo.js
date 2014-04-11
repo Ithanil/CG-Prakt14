@@ -132,6 +132,9 @@ function keyDown(event) {
 			thrown=false;
 			camera1.position.set( 0, 1, 14 );
 			drawBall([ballOffset,0.3,10.5]);
+			pressedQ = false;
+			trajectory = [];
+			viewScreen.removeLine();
 			break;
 			
 		case 87: //Key W
