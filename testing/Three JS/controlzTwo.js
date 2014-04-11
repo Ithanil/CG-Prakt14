@@ -77,10 +77,10 @@ function keyDown(event) {
 			
 		case 81: // Key Q
 			var pos = new THREE.Vector3(physobjs[0].refpos.x,physobjs[0].refpos.y,physobjs[0].refpos.z);
-			V0=velocity;
-			physobjs[0].velocity.x=V0*Math.sin(Math.PI/180.0*angle);
+			
+			physobjs[0].velocity.x=velocity*Math.sin(Math.PI/180.0*angle);
 			physobjs[0].velocity.y=0;
-			physobjs[0].velocity.z=-V0*Math.cos(Math.PI/180.0*angle);
+			physobjs[0].velocity.z=-velocity*Math.cos(Math.PI/180.0*angle);
 			if(angularVelocity[0]!=0)
 				physobjs[0].anglvel.x=-angularVelocity[0]*angVelocity;
 			else
